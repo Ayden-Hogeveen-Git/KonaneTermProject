@@ -1,2 +1,6 @@
+# Test related files
 /tests/.newgame.txt
 
+# Executables and Objects
+/src/main
+/src/*.o

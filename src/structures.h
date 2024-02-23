@@ -12,8 +12,7 @@ typedef struct {
 } Move;
 
 typedef struct {
-    char x[8];
-    char y[8];
+    char board[8][8];
 } Board;
 
 #endif

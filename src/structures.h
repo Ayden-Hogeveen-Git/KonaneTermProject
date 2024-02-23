@@ -12,7 +12,19 @@ typedef struct {
 } Move;
 
 typedef struct {
+    Move* moves;
+    int capacity;
+    int size;
+} ValidMoves;
+
+typedef struct {
     char board[8][8];
 } Board;
+
+typedef struct Node {
+    Board board;
+    struct Node* children;
+    int numChildren;
+} Node;
 
 #endif

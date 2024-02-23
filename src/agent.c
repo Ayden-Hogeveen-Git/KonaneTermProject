@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "structures.h"
-#include "konane.h"
+// #include "konane.h"
 
+void makeMove(Board* board, char x, int y, char newX, int newY) {
+    board->board[newX][newY] = board->board[x][y];
+    board->board[x][y] = ' ';
+    board->board[(x + newX) / 2][(y + newY) / 2] = ' ';
+}
 
 int isValidMove(Board* board, char x, int y, int newX, int newY) {
     if (newX < 'A' || newX > 'H' || newY < 1 || newY > 8) {
@@ -14,23 +19,37 @@ int isValidMove(Board* board, char x, int y, int newX, int newY) {
     return 1;
 }
 
-Move* findValidMoves(Board* board) {
+void addValidMove(ValidMoves* validMoves, char x, int y, char newX, int newY) {
+    // If the valid moves array is full, double the capacity
+    if (validMoves->size == validMoves->capacity) {
+        validMoves->capacity *= 2;
+        validMoves->moves = realloc(validMoves->moves, validMoves->capacity * sizeof(Move));
+    }
+
+    // Add the valid move to the array
+    validMoves->moves[validMoves->size].start.x = x;
+    validMoves->moves[validMoves->size].start.y = y;
+    validMoves->moves[validMoves->size].end.x = newX;
+    validMoves->moves[validMoves->size].end.y = newY;
+    validMoves->size++;
+}
+
+ValidMoves findValidMoves(Board* board) {
+    // Initialize the valid moves array
+    ValidMoves validMoves;
+    validMoves.capacity = 10;
+
     // Allocate memory for valid moves array
-    Move* validMoves = (Move*) malloc(sizeof(Move) * 32); // Start with 32 possible moves, realloc later if needed
+    validMoves.moves = malloc(validMoves.capacity * sizeof(Move));
     
-    // Check for if memory allocation failed or not
-    if (validMoves == NULL) {
+    // Check if memory allocation failed or not
+    if (validMoves.moves == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
 
     // Initialize valid moves array
-    for (int i=0; i<64; i++) {
-        validMoves[i].start.x = -1;
-        validMoves[i].start.y = -1;
-        validMoves[i].end.x = -1;
-        validMoves[i].end.y = -1;
-    }
+    validMoves.size = 0;
 
     // Find valid moves
     int index = 0;
@@ -38,31 +57,19 @@ Move* findValidMoves(Board* board) {
         for (int y=0; y<8; y++) {
             if (board->board[x][y] == 'B') {
                 if (isValidMove(board, x, y, x+2, y) == 1) {
-                    validMoves[index].start.x = x;
-                    validMoves[index].start.y = y;
-                    validMoves[index].end.x = x+2;
-                    validMoves[index].end.y = y;
+                    addValidMove(&validMoves, x, y, x+2, y);
                     index++;
                 }
                 if (isValidMove(board, x, y, x-2, y) == 1) {
-                    validMoves[index].start.x = x;
-                    validMoves[index].start.y = y;
-                    validMoves[index].end.x = x-2;
-                    validMoves[index].end.y = y;
+                    addValidMove(&validMoves, x, y, x-2, y);
                     index++;
                 }
                 if (isValidMove(board, x, y, x, y+2) == 1) {
-                    validMoves[index].start.x = x;
-                    validMoves[index].start.y = y;
-                    validMoves[index].end.x = x;
-                    validMoves[index].end.y = y+2;
+                    addValidMove(&validMoves, x, y, x, y+2);
                     index++;
                 }
                 if (isValidMove(board, x, y, x, y-2) == 1) {
-                    validMoves[index].start.x = x;
-                    validMoves[index].start.y = y;
-                    validMoves[index].end.x = x;
-                    validMoves[index].end.y = y-2;
+                    addValidMove(&validMoves, x, y, x, y-2);
                     index++;
                 }
             }
@@ -74,5 +81,23 @@ Move* findValidMoves(Board* board) {
 }
 
 Move minimax(Board* board) {
+    // Find valid moves
+    ValidMoves validMoves = findValidMoves(board);
 
+    // Initialize best move index
+    int bestMoveIndex = -1;
+
+    // Initialize max and min values
+    // Max (this agent) wants to maximize the total number of valid moves
+    // Min (opponent) wants to minimize the total number of valid moves
+    int max = -1000; // Max is initialized to negative infinity
+    int min = 1000; // Min is initialized to positive infinity
+
+    // Loop through valid moves
+    for (int i=0; i<validMoves.size; i++) {
+        
+        // Implement the minmax algorithm
+
+    // Return best move
+    return validMoves.moves[bestMoveIndex];
 }

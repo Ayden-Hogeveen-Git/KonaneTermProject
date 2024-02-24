@@ -3,6 +3,10 @@
 #include "structures.h"
 // #include "konane.h"
 
+// Function prototypes
+int minValue(Board* board, ValidMoves validMoves);
+int maxValue(Board* board, ValidMoves validMoves);
+
 
 void makeMove(Board* board, Move move) {
     // Convert the x coordinates from A-H to 0-7
@@ -64,32 +68,32 @@ ValidMoves findValidMoves(Board* board) {
 
     // Find valid moves
     int index = 0;
-    for (char x='A'; x<='H'; x++) {
+    for (int x=0; x<8; x++) {
         for (int y=0; y<8; y++) {
             if (board->board[x][y] == 'B') {
                 // Check if the piece can move to the right
-                Move moveRight = {x, y, x+2, y};
+                Move moveRight = {{x, y}, {x+2, y}};
                 if (isValidMove(board, moveRight) == 1) {
                     addValidMove(&validMoves, moveRight);
                     index++;
                 }
 
                 // Check if the piece can move to the left
-                Move moveLeft = {x, y, x-2, y};
+                Move moveLeft = {{x, y}, {x-2, y}};
                 if (isValidMove(board, moveLeft) == 1) {
                     addValidMove(&validMoves, moveLeft);
                     index++;
                 }
 
                 // Check if the piece can move up
-                Move moveUp = {x, y, x, y+2};
+                Move moveUp = {{x, y}, {x, y+2}};
                 if (isValidMove(board, moveUp) == 1) {
                     addValidMove(&validMoves, moveUp);
                     index++;
                 }
 
                 // Check if the piece can move down
-                Move moveDown = {x, y, x, y-2};
+                Move moveDown = {{x, y}, {x, y-2}};
                 if (isValidMove(board, moveDown) == 1) {
                     addValidMove(&validMoves, moveDown);
                     index++;
@@ -102,12 +106,20 @@ ValidMoves findValidMoves(Board* board) {
     return validMoves;
 }
 
-int minMaxResult(Board* board, Move move) {
+Board* minMaxResult(Board* board, Move move) {
     // Make the move
     makeMove(board, move);
 
     // Return the new state
     return board;
+}
+
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
 }
 
 int minValue(Board* board, ValidMoves validMoves) {
@@ -152,8 +164,8 @@ int maxValue(Board* board, ValidMoves validMoves) {
      */
 
     // If terminal state, return utility value
-    if (terminalTest(board) == 1) {
-        return utility(board);
+    if (findValidMoves(board).size == 0) {
+        return 0;
     }
 
     // Initialize v to negative infinity

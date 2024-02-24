@@ -3,23 +3,37 @@
 #include "structures.h"
 // #include "konane.h"
 
-void makeMove(Board* board, char x, int y, char newX, int newY) {
-    board->board[newX][newY] = board->board[x][y];
-    board->board[x][y] = ' ';
-    board->board[(x + newX) / 2][(y + newY) / 2] = ' ';
+
+void makeMove(Board* board, Move move) {
+    // Convert the x coordinates from A-H to 0-7
+    int oldX = move.start.x - 'A';
+    int newXIndex = move.end.x - 'A';
+
+    // Convert the y coordinates from 1-8 to 0-7
+    int oldY = move.start.y - 1;
+    int newYIndex = move.end.y - 1;
+
+    // Make the move
+    board->board[newXIndex][newYIndex] = board->board[oldX][oldY];
+    board->board[oldX][oldY] = ' ';
+    board->board[(oldX + newXIndex) / 2][(oldY + newYIndex) / 2] = ' ';
+
+    // board->board[newX][newY] = board->board[x][y];
+    // board->board[x][y] = ' ';
+    // board->board[(x + newX) / 2][(y + newY) / 2] = ' ';
 }
 
-int isValidMove(Board* board, char x, int y, int newX, int newY) {
-    if (newX < 'A' || newX > 'H' || newY < 1 || newY > 8) {
+int isValidMove(Board* board, Move move) {
+    if (move.end.x < 'A' || move.end.x > 'H' || move.end.y < 1 || move.end.y > 8) {
         return 0;
     }
-    if (abs(newX - x) != 2 && abs(newY - y) != 2) {
+    if (abs(move.end.x - move.start.x) != 2 && abs(move.end.y - move.start.y) != 2) {
         return 0;
     }
     return 1;
 }
 
-void addValidMove(ValidMoves* validMoves, char x, int y, char newX, int newY) {
+void addValidMove(ValidMoves* validMoves, Move move) {
     // If the valid moves array is full, double the capacity
     if (validMoves->size == validMoves->capacity) {
         validMoves->capacity *= 2;
@@ -27,10 +41,7 @@ void addValidMove(ValidMoves* validMoves, char x, int y, char newX, int newY) {
     }
 
     // Add the valid move to the array
-    validMoves->moves[validMoves->size].start.x = x;
-    validMoves->moves[validMoves->size].start.y = y;
-    validMoves->moves[validMoves->size].end.x = newX;
-    validMoves->moves[validMoves->size].end.y = newY;
+    validMoves->moves[validMoves->size] = move;
     validMoves->size++;
 }
 
@@ -56,20 +67,31 @@ ValidMoves findValidMoves(Board* board) {
     for (char x='A'; x<='H'; x++) {
         for (int y=0; y<8; y++) {
             if (board->board[x][y] == 'B') {
-                if (isValidMove(board, x, y, x+2, y) == 1) {
-                    addValidMove(&validMoves, x, y, x+2, y);
+                // Check if the piece can move to the right
+                Move moveRight = {x, y, x+2, y};
+                if (isValidMove(board, moveRight) == 1) {
+                    addValidMove(&validMoves, moveRight);
                     index++;
                 }
-                if (isValidMove(board, x, y, x-2, y) == 1) {
-                    addValidMove(&validMoves, x, y, x-2, y);
+
+                // Check if the piece can move to the left
+                Move moveLeft = {x, y, x-2, y};
+                if (isValidMove(board, moveLeft) == 1) {
+                    addValidMove(&validMoves, moveLeft);
                     index++;
                 }
-                if (isValidMove(board, x, y, x, y+2) == 1) {
-                    addValidMove(&validMoves, x, y, x, y+2);
+
+                // Check if the piece can move up
+                Move moveUp = {x, y, x, y+2};
+                if (isValidMove(board, moveUp) == 1) {
+                    addValidMove(&validMoves, moveUp);
                     index++;
                 }
-                if (isValidMove(board, x, y, x, y-2) == 1) {
-                    addValidMove(&validMoves, x, y, x, y-2);
+
+                // Check if the piece can move down
+                Move moveDown = {x, y, x, y-2};
+                if (isValidMove(board, moveDown) == 1) {
+                    addValidMove(&validMoves, moveDown);
                     index++;
                 }
             }
@@ -82,7 +104,7 @@ ValidMoves findValidMoves(Board* board) {
 
 int minMaxResult(Board* board, Move move) {
     // Make the move
-    makeMove(board, move.start.x, move.start.y, move.end.x, move.end.y);
+    makeMove(board, move);
 
     // Return the new state
     return board;

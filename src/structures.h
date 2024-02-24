@@ -18,6 +18,7 @@ typedef struct {
 } ValidMoves;
 
 typedef struct {
+    // 'B' for black, 'W' for white, ' ' for empty
     char board[8][8];
 } Board;
 

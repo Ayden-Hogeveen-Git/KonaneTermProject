@@ -14,11 +14,11 @@ main.o: main.c konane.h agent.h
 konane.o: konane.c konane.h
 	$(CC) $(CFLAGS) $< -c
 
-# agent.o: agent.c agent.h
-# 	$(CC) $(CFLAGS) $< -c
+agent.o: agent.c agent.h
+	$(CC) $(CFLAGS) $< -c
 
-agent: agent.c agent.h
-	$(CC) $(CFLAGS) $< -o $@
+agent:
+	$(CC) agent.c -o agent
 
 # Phony targets
 .PHONY: valgrind-main clean tar

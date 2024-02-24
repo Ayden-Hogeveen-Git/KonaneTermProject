@@ -19,7 +19,7 @@ typedef struct {
 
 typedef struct {
     // 'B' for black, 'W' for white, ' ' for empty
-    char board[8][8];
+    char state[8][8];
 } Board;
 
 typedef struct Node {

@@ -1,12 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "structures.h"
-// #include "konane.h"
+
 
 // Function prototypes
 int minValue(Board* board, ValidMoves validMoves);
 int maxValue(Board* board, ValidMoves validMoves);
 
+void printBoard(Board board) {
+    for (int x=0; x<8; x++) {
+        for (int y=0; y<8; y++) {
+            printf("%c ", board.state[x][y]);
+        }
+        printf("\n");
+    }
+}
+
+void makeFirstMove(Board* board, Point point) {
+    // Convert the x coordinates from A-H to 0-7
+    int x = point.x - 'A';
+
+    // Convert the y coordinates from 1-8 to 0-7
+    int y = point.y - 1;
+
+    // Make the move
+    board->state[x][y] = ' ';
+}
 
 void makeMove(Board* board, Move move) {
     // Convert the x coordinates from A-H to 0-7
@@ -18,13 +37,13 @@ void makeMove(Board* board, Move move) {
     int newYIndex = move.end.y - 1;
 
     // Make the move
-    board->board[newXIndex][newYIndex] = board->board[oldX][oldY];
-    board->board[oldX][oldY] = ' ';
-    board->board[(oldX + newXIndex) / 2][(oldY + newYIndex) / 2] = ' ';
+    board->state[newXIndex][newYIndex] = board->state[oldX][oldY];
+    board->state[oldX][oldY] = ' ';
+    board->state[(oldX + newXIndex) / 2][(oldY + newYIndex) / 2] = ' ';
 
-    // board->board[newX][newY] = board->board[x][y];
-    // board->board[x][y] = ' ';
-    // board->board[(x + newX) / 2][(y + newY) / 2] = ' ';
+    // board->state[newX][newY] = board->state[x][y];
+    // board->state[x][y] = ' ';
+    // board->state[(x + newX) / 2][(y + newY) / 2] = ' ';
 }
 
 int isValidMove(Board* board, Move move) {
@@ -70,7 +89,7 @@ ValidMoves findValidMoves(Board* board) {
     int index = 0;
     for (int x=0; x<8; x++) {
         for (int y=0; y<8; y++) {
-            if (board->board[x][y] == 'B') {
+            if (board->state[x][y] == 'B') {
                 // Check if the piece can move to the right
                 Move moveRight = {{x, y}, {x+2, y}};
                 if (isValidMove(board, moveRight) == 1) {
@@ -132,7 +151,7 @@ int minValue(Board* board, ValidMoves validMoves) {
      return v
     */
 
-    // If terminal state, return utility value
+    // If terminal state, return utility value of 0
     if (findValidMoves(board).size == 0) {
         return 0;
     }
@@ -226,4 +245,69 @@ Move minimax(Board* board) {
 
     // Return best move
     return validMoves.moves[bestMoveIndex];
+}
+
+int main() {
+    // Game Variables
+    int running = 1; 
+    Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
+    int playersTurn = 0;  // 0 for black, 1 for white => black always moves first
+
+    // Initialize the game board
+    Board board = {{
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'}
+    }};
+
+    // First Moves
+    printf("Initial board:\n");
+    printBoard(board);
+
+    printf("BLACK: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+    scanf("%c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+    makeFirstMove(&board, firstMoveBlack);
+    printBoard(board);
+    
+    printf("WHITE: Enter the 'X' and 'Y' coordinates of the new position: ");
+    scanf("%c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+    makeFirstMove(&board, firstMoveWhite);
+    printBoard(board);
+
+    // Main Game Loop
+    while (running == 1) {
+        // Initialize move
+        Move move;
+
+        // Get the next move
+        if (playersTurn == 0) {
+            printf("BLACK's move\n");
+            move = minimax(&board);
+        } else {
+            printf("WHITE's move\n");
+            printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
+            scanf("%c %d", &move.start.x, &move.start.y);
+            printf("Enter the 'X' and 'Y' coordinates of the new position: ");
+            scanf("%c %d", &move.end.x, &move.end.y);
+        }
+
+        // Check if move is valid
+        if (isValidMove(&board, move) == 0) {
+            printf("Invalid move\n");
+        } else {
+            makeMove(&board, move);
+            printBoard(board);
+            playersTurn = (playersTurn + 1) % 2;
+        }
+
+        // Check if the game is over
+        if (findValidMoves(&board).size == 0) {
+            running = 0;
+        }
+    }
 }

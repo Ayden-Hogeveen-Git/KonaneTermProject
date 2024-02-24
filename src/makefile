@@ -27,7 +27,7 @@ valgrind-main:
 	valgrind --leak-check=full ./main
 
 clean:
-	rm -f main konane
+	rm -f main konane agent
 	rm -f *.exe *.o *.out
 	rm -f *.~ .*.swo .*.swp .nfo*
 

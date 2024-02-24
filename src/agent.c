@@ -4,8 +4,8 @@
 
 
 // Function prototypes
-int minValue(Board* board, ValidMoves validMoves);
-int maxValue(Board* board, ValidMoves validMoves);
+int minValue(Board* board, int playersTurn, ValidMoves validMoves);
+int maxValue(Board* board, int playersTurn, ValidMoves validMoves);
 
 void printBoard(Board board) {
     for (int x=0; x<8; x++) {
@@ -24,7 +24,7 @@ void makeFirstMove(Board* board, Point point) {
     int y = point.y - 1;
 
     // Make the move
-    board->state[x][y] = ' ';
+    board->state[x][y] = 'O';
 }
 
 void makeMove(Board* board, Move move) {
@@ -38,21 +38,72 @@ void makeMove(Board* board, Move move) {
 
     // Make the move
     board->state[newXIndex][newYIndex] = board->state[oldX][oldY];
-    board->state[oldX][oldY] = ' ';
-    board->state[(oldX + newXIndex) / 2][(oldY + newYIndex) / 2] = ' ';
+    board->state[oldX][oldY] = 'O';
+    board->state[(oldX + newXIndex) / 2][(oldY + newYIndex) / 2] = 'O';
 
     // board->state[newX][newY] = board->state[x][y];
-    // board->state[x][y] = ' ';
-    // board->state[(x + newX) / 2][(y + newY) / 2] = ' ';
+    // board->state[x][y] = 'O';
+    // board->state[(x + newX) / 2][(y + newY) / 2] = 'O';
 }
 
-int isValidMove(Board* board, Move move) {
-    if (move.end.x < 'A' || move.end.x > 'H' || move.end.y < 1 || move.end.y > 8) {
+int isValidFirstMove(Board* board, int playersTurn, Point point) {
+    // Convert the x coordinates from A-H to 0-7
+    int x = point.x - 'A';
+
+    // Convert the y coordinates from 1-8 to 0-7
+    int y = point.y - 1;
+
+    // Check if the start coordinates are within the game starting area
+    if (x < 4 || x > 5 || y < 4 || y > 5) {
         return 0;
     }
-    if (abs(move.end.x - move.start.x) != 2 && abs(move.end.y - move.start.y) != 2) {
+
+    // Check if the player is moving their own piece
+    if (playersTurn == 0 && board->state[x][y] != 'B') {
+        return 0;
+    } else if (playersTurn == 1 && board->state[x][y] != 'W') {
         return 0;
     }
+
+    return 1;
+}
+
+int isValidMove(Board* board, int playersTurn, Move move) {
+    // Convert the x coordinates from A-H to 0-7
+    int x = move.start.x - 'A';
+    int newX = move.end.x - 'A';
+
+    // Convert the y coordinates from 1-8 to 0-7
+    int y = move.start.y - 1;
+    int newY = move.end.y - 1;
+
+    // Check if the start coordinates are within the game board
+    if (x < 0 || x > 7 || y < 0 || y > 7) {
+        return 0;
+    }
+
+    // Check if the end coordinates are within the game board
+    if (newX < 0 || newX > 7 || newY < 0 || newY > 7) {
+        return 0;
+    }
+
+    // Check if the piece is moving to an empty space
+    if (board->state[newX][newY] != 'O') {
+        return 0;
+    }
+
+    // Check if the piece is moving to a valid space
+    if (abs(newX - x) != 2 && abs(newY - y) != 2) {
+        return 0;
+    }
+
+    // Check if the player is moving their own piece
+    if (playersTurn == 0 && board->state[x][y] != 'B') {
+        return 0;
+    } else if (playersTurn == 1 && board->state[x][y] != 'W') {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -68,7 +119,7 @@ void addValidMove(ValidMoves* validMoves, Move move) {
     validMoves->size++;
 }
 
-ValidMoves findValidMoves(Board* board) {
+ValidMoves findValidMoves(Board* board, int playersTurn) {
     // Initialize the valid moves array
     ValidMoves validMoves;
     validMoves.capacity = 10;
@@ -90,30 +141,30 @@ ValidMoves findValidMoves(Board* board) {
     for (int x=0; x<8; x++) {
         for (int y=0; y<8; y++) {
             if (board->state[x][y] == 'B') {
-                // Check if the piece can move to the right
-                Move moveRight = {{x, y}, {x+2, y}};
-                if (isValidMove(board, moveRight) == 1) {
-                    addValidMove(&validMoves, moveRight);
+                // Check if the piece can move to the left
+                Move moveLeft = {{x, y}, {x-2, y}};
+                if (isValidMove(board, playersTurn, moveLeft) == 1) {
+                    addValidMove(&validMoves, moveLeft);
                     index++;
                 }
 
-                // Check if the piece can move to the left
-                Move moveLeft = {{x, y}, {x-2, y}};
-                if (isValidMove(board, moveLeft) == 1) {
-                    addValidMove(&validMoves, moveLeft);
+                // Check if the piece can move to the right
+                Move moveRight = {{x, y}, {x+2, y}};
+                if (isValidMove(board, playersTurn, moveRight) == 1) {
+                    addValidMove(&validMoves, moveRight);
                     index++;
                 }
 
                 // Check if the piece can move up
                 Move moveUp = {{x, y}, {x, y+2}};
-                if (isValidMove(board, moveUp) == 1) {
+                if (isValidMove(board, playersTurn, moveUp) == 1) {
                     addValidMove(&validMoves, moveUp);
                     index++;
                 }
 
                 // Check if the piece can move down
                 Move moveDown = {{x, y}, {x, y-2}};
-                if (isValidMove(board, moveDown) == 1) {
+                if (isValidMove(board, playersTurn, moveDown) == 1) {
                     addValidMove(&validMoves, moveDown);
                     index++;
                 }
@@ -141,7 +192,7 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-int minValue(Board* board, ValidMoves validMoves) {
+int minValue(Board* board, int playersTurn, ValidMoves validMoves) {
     /*
     function MIN-VALUE(state) returns a utility value
      if TERMINAL-TEST(state) then return UTILITY(state)
@@ -152,7 +203,7 @@ int minValue(Board* board, ValidMoves validMoves) {
     */
 
     // If terminal state, return utility value of 0
-    if (findValidMoves(board).size == 0) {
+    if (findValidMoves(board, playersTurn).size == 0) {
         return 0;
     }
 
@@ -165,14 +216,14 @@ int minValue(Board* board, ValidMoves validMoves) {
         Board* nextState = minMaxResult(board, validMoves.moves[i]);
 
         // Get the max value
-        v = min(v, maxValue(nextState, findValidMoves(nextState)));
+        v = min(v, maxValue(nextState, playersTurn, findValidMoves(nextState, playersTurn)));
     }
 
     // Return v
     return v;
 }
 
-int maxValue(Board* board, ValidMoves validMoves) {
+int maxValue(Board* board, int playersTurn, ValidMoves validMoves) {
     /*
     function MAX-VALUE(state) returns a utility value
      if TERMINAL-TEST(state) then return UTILITY(state)
@@ -183,7 +234,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
      */
 
     // If terminal state, return utility value
-    if (findValidMoves(board).size == 0) {
+    if (findValidMoves(board, playersTurn).size == 0) {
         return 0;
     }
 
@@ -196,14 +247,14 @@ int maxValue(Board* board, ValidMoves validMoves) {
         Board* nextState = minMaxResult(board, validMoves.moves[i]);
 
         // Get the min value
-        v = max(v, minValue(nextState, findValidMoves(nextState)));
+        v = max(v, minValue(nextState, playersTurn, findValidMoves(nextState, playersTurn)));
     }
 
     // Return v
     return v;
 }
 
-Move minimax(Board* board) {
+Move minimax(Board* board, int playersTurn) {
     /*
     function MINIMAX-DECISION(state) returns an action
      inputs: state, current state in game
@@ -212,7 +263,7 @@ Move minimax(Board* board) {
     */
 
     // Find valid moves
-    ValidMoves validMoves = findValidMoves(board);
+    ValidMoves validMoves = findValidMoves(board, playersTurn);
 
     // Initialize best move index
     int bestMoveIndex = -1;
@@ -229,7 +280,7 @@ Move minimax(Board* board) {
         Board* nextState = minMaxResult(board, validMoves.moves[i]);
 
         // Get the min value
-        int minValueResult = minValue(nextState, findValidMoves(nextState));
+        int minValueResult = minValue(nextState, playersTurn, findValidMoves(nextState, playersTurn));
 
         // If min value is less than min, update min
         if (minValueResult < min) {
@@ -265,17 +316,33 @@ int main() {
         {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'}
     }};
 
-    // First Moves
+    // Print out the initial board
     printf("Initial board:\n");
     printBoard(board);
 
-    printf("BLACK: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-    scanf("%c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+    // Get the first move for black
+    while (1) {
+        printf("BLACK: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf("%c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+        if (isValidFirstMove(&board, playersTurn, firstMoveBlack) == 1) {
+            break;
+        }
+    }
+
+    // Make the first move for black and print the boardV
     makeFirstMove(&board, firstMoveBlack);
     printBoard(board);
-    
-    printf("WHITE: Enter the 'X' and 'Y' coordinates of the new position: ");
-    scanf("%c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+
+    // Get the first move for white
+    while (1) {
+        printf("WHITE: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf("%c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+        if (isValidFirstMove(&board, playersTurn, firstMoveWhite) == 1) {
+            break;
+        }
+    }
+
+    // Make the first move for white and print the board
     makeFirstMove(&board, firstMoveWhite);
     printBoard(board);
 
@@ -287,7 +354,7 @@ int main() {
         // Get the next move
         if (playersTurn == 0) {
             printf("BLACK's move\n");
-            move = minimax(&board);
+            move = minimax(&board, playersTurn);
         } else {
             printf("WHITE's move\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
@@ -297,7 +364,7 @@ int main() {
         }
 
         // Check if move is valid
-        if (isValidMove(&board, move) == 0) {
+        if (isValidMove(&board, playersTurn, move) == 0) {
             printf("Invalid move\n");
         } else {
             makeMove(&board, move);
@@ -306,7 +373,7 @@ int main() {
         }
 
         // Check if the game is over
-        if (findValidMoves(&board).size == 0) {
+        if (findValidMoves(&board, playersTurn).size == 0) {
             running = 0;
         }
     }

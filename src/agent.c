@@ -80,7 +80,84 @@ ValidMoves findValidMoves(Board* board) {
     return validMoves;
 }
 
+int minMaxResult(Board* board, Move move) {
+    // Make the move
+    makeMove(board, move.start.x, move.start.y, move.end.x, move.end.y);
+
+    // Return the new state
+    return board;
+}
+
+int minValue(Board* board, ValidMoves validMoves) {
+    /*
+    function MIN-VALUE(state) returns a utility value
+     if TERMINAL-TEST(state) then return UTILITY(state)
+     v ← ∞
+     for a,s in SUCCESSORS(state) do
+     v ← MIN(v,MAX-VALUE(s))
+     return v
+    */
+
+    // If terminal state, return utility value
+    if (findValidMoves(board).size == 0) {
+        return 0;
+    }
+
+    // Initialize v to positive infinity
+    int v = 1000;
+
+    // Loop through valid moves
+    for (int i=0; i<validMoves.size; i++) {
+        // Get the next state
+        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+
+        // Get the max value
+        v = min(v, maxValue(nextState, findValidMoves(nextState)));
+    }
+
+    // Return v
+    return v;
+}
+
+int maxValue(Board* board, ValidMoves validMoves) {
+    /*
+    function MAX-VALUE(state) returns a utility value
+     if TERMINAL-TEST(state) then return UTILITY(state)
+     v ← - ∞
+     for a,s in SUCCESSORS(state) do
+     v ← MAX(v,MIN-VALUE(s))
+     return v
+     */
+
+    // If terminal state, return utility value
+    if (terminalTest(board) == 1) {
+        return utility(board);
+    }
+
+    // Initialize v to negative infinity
+    int v = -1000;
+
+    // Loop through valid moves
+    for (int i=0; i<validMoves.size; i++) {
+        // Get the next state
+        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+
+        // Get the min value
+        v = max(v, minValue(nextState, findValidMoves(nextState)));
+    }
+
+    // Return v
+    return v;
+}
+
 Move minimax(Board* board) {
+    /*
+    function MINIMAX-DECISION(state) returns an action
+     inputs: state, current state in game
+     v←MAX-VALUE(state)
+     return the action in SUCCESSORS(state) with value v
+    */
+
     // Find valid moves
     ValidMoves validMoves = findValidMoves(board);
 
@@ -95,8 +172,23 @@ Move minimax(Board* board) {
 
     // Loop through valid moves
     for (int i=0; i<validMoves.size; i++) {
-        
-        // Implement the minmax algorithm
+        // Get the next state
+        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+
+        // Get the min value
+        int minValueResult = minValue(nextState, findValidMoves(nextState));
+
+        // If min value is less than min, update min
+        if (minValueResult < min) {
+            min = minValueResult;
+        }
+
+        // If min value is greater than max, update max and best move index
+        if (minValueResult > max) {
+            max = minValueResult;
+            bestMoveIndex = i;
+        }
+    }
 
     // Return best move
     return validMoves.moves[bestMoveIndex];

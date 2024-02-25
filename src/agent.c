@@ -7,6 +7,11 @@
 int minValue(Board* board, int playersTurn, ValidMoves validMoves);
 int maxValue(Board* board, int playersTurn, ValidMoves validMoves);
 
+//int minValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta)
+//int maxValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta)
+
+
+
 void printBoard(Board board) {
     for (int x=0; x<8; x++) {
         for (int y=0; y<8; y++) {
@@ -191,6 +196,63 @@ int min(int a, int b) {
 int max(int a, int b) {
     return (a > b) ? a : b;
 }
+
+/*Alpha-Beta for minValue*/
+/*
+int minValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
+
+    // If terminal state, return utility value of 0
+    if (findValidMoves(board, playersTurn).size == 0) {
+        return 0;
+    }
+
+    // Loop through valid moves
+    for (int i = 0; i < validMoves.size; i++) {
+        // Get the next state
+        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+
+        // Get the max value
+        int v = maxValue(nextState, findValidMoves(nextState), alpha, beta);
+
+        // Update beta
+        beta = min(beta, v);
+
+        // Perform pruning
+        if (beta <= alpha) {
+            return beta;
+        }
+    }
+    return beta;
+}
+*/
+/*Alpha-Beta for maxValue*/
+/*
+int maxValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
+
+    // If terminal state, return utility value of 0
+    if (findValidMoves(board, playersTurn).size == 0) {
+        return 0;
+    }
+
+    // Loop through valid moves
+    for (int i = 0; i < validMoves.size; i++) {
+        // Get the next state
+        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+
+        // Get the min value
+        int v = minValue(nextState, findValidMoves(nextState), alpha, beta);
+
+        // Update alpha
+        alpha = max(alpha, v);
+
+        // Perform pruning
+        if (alpha >= beta) {
+            return alpha;
+        }
+    }
+    return alpha;
+}
+*/
 
 int minValue(Board* board, int playersTurn, ValidMoves validMoves) {
     /*

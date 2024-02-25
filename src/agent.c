@@ -13,12 +13,14 @@ int maxValue(Board* board, int playersTurn, ValidMoves validMoves);
 
 
 void printBoard(Board board) {
+    printf("\n");
     for (int x=0; x<8; x++) {
         for (int y=0; y<8; y++) {
             printf("%c ", board.state[x][y]);
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 char* toUpper(char* str) {
@@ -336,6 +338,11 @@ Move minimax(Board* board, int playersTurn) {
     // Find valid moves
     ValidMoves validMoves = findValidMoves(board, playersTurn);
 
+    printf("Valid moves: %d\n", validMoves.size);
+    for (int i=0; i<validMoves.size; i++) {
+        printf("Move: %c%d to %c%d\n", validMoves.moves[i].start.x, validMoves.moves[i].start.y, validMoves.moves[i].end.x, validMoves.moves[i].end.y);
+    }
+
     // Initialize best move index
     int bestMoveIndex = -1;
 
@@ -411,6 +418,9 @@ int main() {
 
     // Make the first move for black and print the board
     makeFirstMove(&board, firstMoveBlack);
+
+    // Print out the move and the updated board
+    printf("BLACK removes %c%d\n", firstMoveBlack.x, firstMoveBlack.y);
     printBoard(board);
 
     // Toggle the player's turn
@@ -436,6 +446,9 @@ int main() {
 
     // Make the first move for white and print the board
     makeFirstMove(&board, firstMoveWhite);
+
+    // Print out the move and the updated board
+    printf("WHITE removes %c%d\n", firstMoveWhite.x, firstMoveWhite.y);
     printBoard(board);
 
     // Toggle the player's turn
@@ -450,6 +463,7 @@ int main() {
         if (playersTurn == 0) {
             printf("BLACK's move:\n");
             move = minimax(&board, playersTurn);
+            printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
         } else {
             printf("WHITE's move:\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");

@@ -16,6 +16,15 @@ void printBoard(Board board) {
     }
 }
 
+char* toUpper(char* str) {
+    for (int i=0; str[i] != '\0'; i++) {
+        if (str[i] >= 'a' && str[i] <= 'z') {
+            str[i] = str[i] - 32;
+        }
+    }
+    return str;
+}
+
 void makeFirstMove(Board* board, Point point) {
     // Convert the x coordinates from A-H to 0-7
     int x = point.x - 'A';
@@ -54,7 +63,7 @@ int isValidFirstMove(Board* board, int playersTurn, Point point) {
     int y = point.y - 1;
 
     // Check if the start coordinates are within the game starting area
-    if (x < 4 || x > 5 || y < 4 || y > 5) {
+    if (x < 3 || x > 4 || y < 3 || y > 4) {
         return 0;
     }
 
@@ -322,29 +331,53 @@ int main() {
 
     // Get the first move for black
     while (1) {
-        printf("BLACK: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        scanf("%c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+        printf("BLACK's move:\n");
+        printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf(" %c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+
+        // Convert the coordinates to uppercase
+        toUpper(&firstMoveBlack.x);
+
+        // Check if the move is valid, if so, break the loop
         if (isValidFirstMove(&board, playersTurn, firstMoveBlack) == 1) {
             break;
         }
+
+        // Print an error message
+        printf("Invalid move, BLACK can only remove D4 or E5.\n");
     }
 
-    // Make the first move for black and print the boardV
+    // Make the first move for black and print the board
     makeFirstMove(&board, firstMoveBlack);
     printBoard(board);
 
+    // Toggle the player's turn
+    playersTurn = (playersTurn + 1) % 2;
+
     // Get the first move for white
     while (1) {
-        printf("WHITE: Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        scanf("%c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+        printf("WHITE's move:\n");
+        printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf(" %c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+
+        // Convert the coordinates to uppercase
+        toUpper(&firstMoveWhite.x);
+
+        // Check if the move is valid, if so, break the loop
         if (isValidFirstMove(&board, playersTurn, firstMoveWhite) == 1) {
             break;
         }
+
+        // Print an error message
+        printf("Invalid move, WHITE can only remove D5 or E4.\n");
     }
 
     // Make the first move for white and print the board
     makeFirstMove(&board, firstMoveWhite);
     printBoard(board);
+
+    // Toggle the player's turn
+    playersTurn = (playersTurn + 1) % 2;
 
     // Main Game Loop
     while (running == 1) {
@@ -353,14 +386,18 @@ int main() {
 
         // Get the next move
         if (playersTurn == 0) {
-            printf("BLACK's move\n");
+            printf("BLACK's move:\n");
             move = minimax(&board, playersTurn);
         } else {
-            printf("WHITE's move\n");
+            printf("WHITE's move:\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
             scanf("%c %d", &move.start.x, &move.start.y);
             printf("Enter the 'X' and 'Y' coordinates of the new position: ");
             scanf("%c %d", &move.end.x, &move.end.y);
+
+            // Convert the coordinates to uppercase
+            toUpper(&move.start.x);
+            toUpper(&move.end.x);
         }
 
         // Check if move is valid

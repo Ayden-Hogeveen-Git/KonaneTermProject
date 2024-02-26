@@ -3,5 +3,5 @@
 
 # Executables and Objects
 /src/main
-/src/agent
+/src/minimaxAgent
 /src/*.o

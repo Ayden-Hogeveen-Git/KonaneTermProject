@@ -1,28 +1,64 @@
+#include "structures.h"
+
+
 /*
 Prints the game board to the console
-param char** board: 2D array representation of game board
+param Board board: 2D array representation of game board
 */
-void printBoard(char board[8][8]);
-
+void printBoard(Board board);
 
 /*
-Takes a position on the board, a piece, and a new position and moves the piece to the new position
-param int team: 0 for black, 1 for white
-param int x: x coordinate of the piece to move
-param int y: y coordinate of the piece to move
-param int newX: x coordinate of the new position
-param int newY: y coordinate of the new position
-param char** board: 2D array representation of game board
+Copies the entire game board and returns the copy
+param Board* board: 2D array representation of game board
 */
-void makeMove(int team, int x, int y, int newX, int newY, char board[8][8]);
+Board* copyBoard(Board* board);
 
+/*
+Converts a string to uppercase
+param char* str: string to convert to uppercase
+*/
+void toUpper(char* str);
 
 /*
 Returns 1 if valid, 0 otherwise
-param int x: x coordinate of the piece to move
-param int y: y coordinate of the piece to move
-param int newX: x coordinate of the new position
-param int newY: y coordinate of the new position
-param char** board: 2D array representation of game board
+param Board* board: 2D array representation of game board
+param int playersTurn: 0 for black, 1 for white
+param Point point: coordinates of the piece to remove
 */
-int isValidMove(int x, int y, int newX, int newY, char board[8][8]);
+int isValidFirstMove(Board* board, int playersTurn, Point point);
+
+/*
+Returns 1 if valid, 0 otherwise
+param Board* board: 2D array representation of game board
+param int playersTurn: 0 for black, 1 for white
+param Move move: coordinates of the piece to move
+*/
+int isValidMove(Board* board, int playersTurn, Move move);
+
+/*
+Takes a position on the board and removes the piece at that position
+param Board* board: 2D array representation of game board
+param Point point: coordinates of the piece to remove
+*/
+void makeFirstMove(Board* board, Point point);
+
+/*
+Takes a position on the board, a piece, and a new position and moves the piece to the new position
+param Board* board: 2D array representation of game board
+param Move move: coordinates of the piece to move
+*/
+void makeMove(Board* board, Move move);
+
+/*
+Adds a move to the list of valid moves
+param ValidMoves* validMoves: list of valid moves
+param Move move: coordinates of the piece to move
+*/
+void addMove(ValidMoves* validMoves, Move move);
+
+/*
+Returns a list of valid moves for a given player's turn
+param Board* board: 2D array representation of game board
+param int playersTurn: 0 for black, 1 for white
+*/
+ValidMoves findValidMoves(Board* board, int playersTurn);

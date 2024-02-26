@@ -1,6 +1,8 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+typedef enum { MAXIMIZING_PLAYER, MINIMIZING_PLAYER } Player;
+
 typedef struct {
     char x;
     int y;
@@ -18,7 +20,7 @@ typedef struct {
 } ValidMoves;
 
 typedef struct {
-    // 'B' for black, 'W' for white, ' ' for empty
+    // 'B' for black, 'W' for white, 'O' for empty
     char state[8][8];
 } Board;
 

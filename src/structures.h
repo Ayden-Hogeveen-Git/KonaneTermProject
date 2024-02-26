@@ -20,8 +20,13 @@ typedef struct {
 } ValidMoves;
 
 typedef struct {
-    // 'B' for black, 'W' for white, 'O' for empty
-    char state[8][8];
+    Point position;
+    char piece; // 'B' for black, 'W' for white, 'O' for empty
+} Piece;
+
+typedef struct {
+    Piece state[8][8];
+    Player player;
 } Board;
 
 typedef struct Node {

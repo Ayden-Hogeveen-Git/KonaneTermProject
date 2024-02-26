@@ -11,14 +11,14 @@ main: main.o konane.o minimaxAgent.o
 main.o: main.c konane.h minimaxAgent.h
 	$(CC) $(CFLAGS) $< -c
 
+minimaxAgent: minimaxAgent.o konane.o
+	$(CC) $^ -o $@
+
+minimaxAgent.o: minimaxAgent.c minimaxAgent.h konane.h
+	$(CC) $(CFLAGS) $< -c
+
 konane.o: konane.c konane.h
 	$(CC) $(CFLAGS) $< -c
-
-minimaxAgent.o: minimaxAgent.c minimaxAgent.h
-	$(CC) $(CFLAGS) $< -c
-
-minimaxAgent: minimaxAgent.c
-	$(CC) minimaxAgent.c -o minimaxAgent
 
 # Phony targets
 .PHONY: valgrind-main clean tar

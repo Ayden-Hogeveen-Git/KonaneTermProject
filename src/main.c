@@ -9,19 +9,10 @@ int main() {
     // Game Variables
     int running = 1; 
     Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
-    Player player = MAXIMIZING_PLAYER;  // 0 for black, 1 for white => black always moves first
 
     // Initialize the game board
-    Board board = {{
-        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
-        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
-        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
-        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
-        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
-        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
-        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
-        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'}
-    }};
+    Board board;
+    initializeBoard(&board);
 
     // Print out the initial board
     printf("Initial board:\n");
@@ -37,12 +28,12 @@ int main() {
         toUpper(&firstMoveBlack.x);
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(&board, player, firstMoveBlack) == 1) {
+        if (isValidFirstMove(&board, firstMoveBlack) == 1) {
             break;
         }
 
         // Print an error message
-        printf("Invalid move, BLACK can only remove D4 or E5.\n");
+        printf("Invalid move, BLACK can only remove D5 or E4.\n");
     }
 
     // Make the first move for black and print the board
@@ -53,7 +44,7 @@ int main() {
     printBoard(board);
 
     // Toggle the player's turn
-    player = MINIMIZING_PLAYER;
+    board.player = MINIMIZING_PLAYER;
 
     // Get the first move for white
     while (1) {
@@ -65,12 +56,12 @@ int main() {
         toUpper(&firstMoveWhite.x);
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(&board, player, firstMoveWhite) == 1) {
+        if (isValidFirstMove(&board, firstMoveWhite) == 1) {
             break;
         }
 
         // Print an error message
-        printf("Invalid move, WHITE can only remove D5 or E4.\n");
+        printf("Invalid move, WHITE can only remove D4 or E5.\n");
     }
 
     // Make the first move for white and print the board
@@ -81,7 +72,7 @@ int main() {
     printBoard(board);
 
     // Toggle the player's turn
-    player = MAXIMIZING_PLAYER;
+    board.player = MAXIMIZING_PLAYER;
 
     // Main Game Loop
     while (running == 1) {
@@ -89,11 +80,11 @@ int main() {
         Move move;
 
         // Get the next move
-        if (player == MAXIMIZING_PLAYER) {
+        if (board.player == MAXIMIZING_PLAYER) {
             printf("BLACK's move:\n");
-            move = minimax(&board, player);
+            move = minimax(&board);
             printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
-        } else if (player == MINIMIZING_PLAYER) {
+        } else if (board.player == MINIMIZING_PLAYER) {
             printf("WHITE's move:\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
             scanf("%c %d", &move.start.x, &move.start.y);
@@ -106,16 +97,16 @@ int main() {
         }
 
         // Check if move is valid
-        if (isValidMove(&board, player, move) == 0) {
+        if (isValidMove(&board, move) == 0) {
             printf("Invalid move\n");
         } else {
             makeMove(&board, move);
             printBoard(board);
-            player = (player == MAXIMIZING_PLAYER) ? MINIMIZING_PLAYER : MAXIMIZING_PLAYER;
+            board.player = (board.player == MAXIMIZING_PLAYER) ? MINIMIZING_PLAYER : MAXIMIZING_PLAYER;
         }
 
         // Check if the game is over
-        if (findValidMoves(&board, player).size == 0) {
+        if (findValidMoves(&board).size == 0) {
             running = 0;
         }
     }

@@ -2,26 +2,35 @@
 
 
 /*
-Returns the minimum value of two integers
+Returns the minimum value of two integers.
+param int a: first integer.
+param int b: second integer.
 */
 int min(int a, int b);
 
 /*
-Returns the maximum value of two integers
+Returns the maximum value of two integers.
+param int a: first integer.
+param int b: second integer.
 */
 int max(int a, int b);
 
 /*
-Returns the minimum utility value of the game board's state
+Returns the minimum utility value of the game board's state.
+param Board* board: 2D array representation of game board.
+param ValidMoves validMoves: list of valid moves.
 */
-int minValue(Board* board, int playersTurn, ValidMoves validMoves);
+int minValue(Board* board, ValidMoves validMoves);
 
 /*
-Returns the maximum utility value of the game board's state
+Returns the maximum utility value of the game board's state.
+param Board* board: 2D array representation of game board.
+param ValidMoves validMoves: list of valid moves.
 */
-int maxValue(Board* board, int playersTurn, ValidMoves validMoves);
+int maxValue(Board* board, ValidMoves validMoves);
 
 /*
-Returns the best move for the current player using the minimax algorithm
+Returns the best move for the current player using the minimax algorithm.
+param Board* board: 2D array representation of game board.
 */
-Move minimax(Board* board, int playersTurn);
+Move minimax(Board* board);

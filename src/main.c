@@ -1,66 +1,122 @@
-#include "konane.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "structures.h"
+#include "konane.h"
+#include "minimaxAgent.h"
 
 
 int main() {
     // Game Variables
     int running = 1; 
-    int firstX, firstY, secondX, secondY;  // Coordinates of the first two moves
-    int move = 0;  // 0 for black, 1 for white -- black moves first
-    char board[8][8] = {
-        {'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o'},
-        {'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x'},
-        {'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o'},
-        {'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x'},
-        {'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o'},
-        {'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x'},
-        {'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o'},
-        {'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x'}
-    };
+    Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
+    Player player = MAXIMIZING_PLAYER;  // 0 for black, 1 for white => black always moves first
 
-    // First Moves
+    // Initialize the game board
+    Board board = {{
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'},
+        {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'},
+        {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'}
+    }};
+
+    // Print out the initial board
     printf("Initial board:\n");
     printBoard(board);
 
-    printf("Enter the x and y of the piece you want to remove: ");
-    scanf("%d %d", &firstX, &firstY);
-    makeMove(move, firstX, firstY, firstX, firstY, board);
+    // Get the first move for black
+    while (1) {
+        printf("BLACK's move:\n");
+        printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf(" %c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+
+        // Convert the coordinates to uppercase
+        toUpper(&firstMoveBlack.x);
+
+        // Check if the move is valid, if so, break the loop
+        if (isValidFirstMove(&board, player, firstMoveBlack) == 1) {
+            break;
+        }
+
+        // Print an error message
+        printf("Invalid move, BLACK can only remove D4 or E5.\n");
+    }
+
+    // Make the first move for black and print the board
+    makeFirstMove(&board, firstMoveBlack);
+
+    // Print out the move and the updated board
+    printf("BLACK removes %c%d\n", firstMoveBlack.x, firstMoveBlack.y);
     printBoard(board);
 
-    printf("Enter the x and y of the piece you want to remove: ");
-    scanf("%d %d", &secondX, &secondY);
-    makeMove(move, secondX, secondY, secondX, secondY, board);
+    // Toggle the player's turn
+    player = MINIMIZING_PLAYER;
+
+    // Get the first move for white
+    while (1) {
+        printf("WHITE's move:\n");
+        printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
+        scanf(" %c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+
+        // Convert the coordinates to uppercase
+        toUpper(&firstMoveWhite.x);
+
+        // Check if the move is valid, if so, break the loop
+        if (isValidFirstMove(&board, player, firstMoveWhite) == 1) {
+            break;
+        }
+
+        // Print an error message
+        printf("Invalid move, WHITE can only remove D5 or E4.\n");
+    }
+
+    // Make the first move for white and print the board
+    makeFirstMove(&board, firstMoveWhite);
+
+    // Print out the move and the updated board
+    printf("WHITE removes %c%d\n", firstMoveWhite.x, firstMoveWhite.y);
     printBoard(board);
+
+    // Toggle the player's turn
+    player = MAXIMIZING_PLAYER;
 
     // Main Game Loop
     while (running == 1) {
-        int x, y, newX, newY;
-        if (move == 0) {
-            printf("Black's move\n");
-        } else {
-            printf("White's move\n");
+        // Initialize move
+        Move move;
+
+        // Get the next move
+        if (player == MAXIMIZING_PLAYER) {
+            printf("BLACK's move:\n");
+            move = minimax(&board, player);
+            printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+        } else if (player == MINIMIZING_PLAYER) {
+            printf("WHITE's move:\n");
+            printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
+            scanf("%c %d", &move.start.x, &move.start.y);
+            printf("Enter the 'X' and 'Y' coordinates of the new position: ");
+            scanf("%c %d", &move.end.x, &move.end.y);
+
+            // Convert the coordinates to uppercase
+            toUpper(&move.start.x);
+            toUpper(&move.end.x);
         }
-
-        printf("Enter the x and y coordinates of the piece you want to move: ");
-        scanf("%d %d", &x, &y);
-        printf("Enter the x and y coordinates of the new position: ");
-        scanf("%d %d", &newX, &newY);
-
-        // Exit with "-1"
-        if (newX == -1 || newY == -1)
-            running = 0;
 
         // Check if move is valid
-        if (isValidMove(x, y, newX, newY, board) == 0)
+        if (isValidMove(&board, player, move) == 0) {
             printf("Invalid move\n");
-        else {
-            makeMove(move, x, y, newX, newY, board);
-
+        } else {
+            makeMove(&board, move);
             printBoard(board);
-            move = (move + 1) % 2;
+            player = (player == MAXIMIZING_PLAYER) ? MINIMIZING_PLAYER : MAXIMIZING_PLAYER;
+        }
+
+        // Check if the game is over
+        if (findValidMoves(&board, player).size == 0) {
+            running = 0;
         }
     }
-
-    return 0;
 }

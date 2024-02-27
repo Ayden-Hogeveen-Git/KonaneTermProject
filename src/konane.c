@@ -19,9 +19,9 @@ void initializeBoard(Board* board) {
 
 void printBoard(Board board) {
     printf("\n  A B C D E F G H\n");
-    for (int y=8; y>0; y--) {
+    for (int y = 8; y > 0; y--) {
         printf("%d ", y);
-        for (int x=0; x<8; x++) {
+        for (int x = 0; x < 8; x++) {
             printf("%c ", board.state[y-1][x].piece);
         }
         printf("%d\n", y);
@@ -40,8 +40,8 @@ Board* copyBoard(Board* board) {
     }
 
     // Copy the state of the board
-    for (int x=0; x<8; x++) {
-        for (int y=0; y<8; y++) {
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
             newBoard->state[y][x] = board->state[y][x];
         }
     }
@@ -51,7 +51,7 @@ Board* copyBoard(Board* board) {
 }
 
 void toUpper(char* str) {
-    for (int i=0; str[i] != '\0'; i++) {
+    for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] >= 'a' && str[i] <= 'z') {
             str[i] = str[i] - 32;
         }
@@ -81,6 +81,11 @@ int isValidFirstMove(Board* board, Point point) {
 }
 
 int isValidMove(Board* board, Move move) {
+    printf("===DEBUG===\n");
+    printf("Start: %c%d\n", move.start.x, move.start.y);
+    printf("End: %c%d\n", move.end.x, move.end.y);
+    printf("===/DEBUG===\n");
+
     // Convert the x coordinates from A-H to 0-7
     int x = move.start.x - 'A';
     int newX = move.end.x - 'A';
@@ -103,6 +108,11 @@ int isValidMove(Board* board, Move move) {
     if (board->state[newY][newX].piece != 'O') {
         return 0;
     }
+
+    // printf("===DEBUG===\n");
+    // printf("Start: %d %d\n", x, y);
+    // printf("End: %d %d\n", newX, newY);
+    // printf("===/DEBUG===\n");
 
     // Check if the piece is moving to a valid space
     if (abs(newY - y) != 2 && abs(newX - x) != 2) {
@@ -150,6 +160,12 @@ void addValidMove(ValidMoves* validMoves, Move move) {
     if (validMoves->size == validMoves->capacity) {
         validMoves->capacity *= 2;
         validMoves->moves = realloc(validMoves->moves, validMoves->capacity * sizeof(Move));
+
+        // Check if memory allocation failed or not
+        if (validMoves->moves == NULL) {
+            printf("Memory allocation failed\n");
+            exit(1);
+        }
     }
 
     // Add the valid move to the array
@@ -176,31 +192,31 @@ ValidMoves findValidMoves(Board* board) {
 
     // Find valid moves
     int index = 0;
-    for (int x=0; x<8; x++) {
-        for (int y=0; y<8; y++) {
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
             // Check if the piece can move to the left
-            Move moveLeft = {{x, y}, {x-2, y}};
+            Move moveLeft = {{x, y}, {x - 2, y}};
             if (isValidMove(board, moveLeft) == 1) {
                 addValidMove(&validMoves, moveLeft);
                 index++;
             }
 
             // Check if the piece can move to the right
-            Move moveRight = {{x, y}, {x+2, y}};
+            Move moveRight = {{x, y}, {x + 2, y}};
             if (isValidMove(board, moveRight) == 1) {
                 addValidMove(&validMoves, moveRight);
                 index++;
             }
 
             // Check if the piece can move up
-            Move moveUp = {{x, y}, {x, y+2}};
+            Move moveUp = {{x, y}, {x, y - 2}};
             if (isValidMove(board, moveUp) == 1) {
                 addValidMove(&validMoves, moveUp);
                 index++;
             }
 
             // Check if the piece can move down
-            Move moveDown = {{x, y}, {x, y-2}};
+            Move moveDown = {{x, y}, {x, y + 2}};
             if (isValidMove(board, moveDown) == 1) {
                 addValidMove(&validMoves, moveDown);
                 index++;
@@ -210,4 +226,11 @@ ValidMoves findValidMoves(Board* board) {
 
     // Return valid moves array
     return validMoves;
+}
+
+void freeValidMoves(ValidMoves* validMoves) {
+    free(validMoves->moves);
+    validMoves->moves = NULL;
+    validMoves->size = 0;
+    validMoves->capacity = 0;
 }

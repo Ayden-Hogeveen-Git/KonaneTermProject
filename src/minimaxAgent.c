@@ -30,8 +30,9 @@ int minValue(Board* board, ValidMoves validMoves) {
      return v
     */
 
+   
     // If terminal state, return utility value of 0
-    if (findValidMoves(board).size == 0) {
+    if (validMoves.size == 0) {
         return 0;
     }
 
@@ -39,7 +40,7 @@ int minValue(Board* board, ValidMoves validMoves) {
     int v = 1000;
 
     // Loop through valid moves
-    for (int i=0; i<validMoves.size; i++) {
+    for (int i = 0; i < validMoves.size; i++) {
         // Copy the board
         Board* nextState = copyBoard(board);
 
@@ -47,7 +48,7 @@ int minValue(Board* board, ValidMoves validMoves) {
         makeMove(nextState, validMoves.moves[i]);
 
         // Get the max value
-        v = min(v, maxValue(nextState, findValidMoves(nextState)));
+        v = min(v, maxValue(nextState, validMoves));
 
         // Free the memory
         free(nextState);
@@ -68,7 +69,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
      */
 
     // If terminal state, return utility value
-    if (findValidMoves(board).size == 0) {
+    if (validMoves.size == 0) {
         return 0;
     }
 
@@ -76,7 +77,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
     int v = -1000;
 
     // Loop through valid moves
-    for (int i=0; i<validMoves.size; i++) {
+    for (int i = 0; i < validMoves.size; i++) {
         // Copy the board
         Board* nextState = copyBoard(board);
 
@@ -84,7 +85,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
         makeMove(nextState, validMoves.moves[i]);
 
         // Get the min value
-        v = max(v, minValue(nextState, findValidMoves(nextState)));
+        v = max(v, minValue(nextState, validMoves));
     }
 
     // Return v
@@ -176,7 +177,7 @@ Move minimax(Board* board) {
     int min = 1000; // Min is initialized to positive infinity
 
     // Loop through valid moves
-    for (int i=0; i<validMoves.size; i++) {
+    for (int i = 0; i < validMoves.size; i++) {
         // Copy the board
         Board* nextState = copyBoard(board);
 
@@ -189,7 +190,7 @@ Move minimax(Board* board) {
         // If player is maximizing, get the max value
         if (board->player == MAXIMIZING_PLAYER) {
             // Get the max value
-            value = maxValue(nextState, findValidMoves(nextState));
+            value = maxValue(nextState, validMoves);
             
             // If value is greater than max, update max
             if (value > max) {
@@ -198,7 +199,7 @@ Move minimax(Board* board) {
             }
         } else if (board->player == MINIMIZING_PLAYER) {
             // Get the min value
-            value = minValue(nextState, findValidMoves(nextState));
+            value = minValue(nextState, validMoves);
 
             // If value is less than min, update min
             if (value < min) {

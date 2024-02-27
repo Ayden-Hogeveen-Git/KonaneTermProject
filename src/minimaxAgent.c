@@ -46,7 +46,7 @@ int minValue(Board* board, ValidMoves validMoves) {
         // Make the move on the copy
         makeMove(nextState, validMoves.moves[i]);
 
-        // Get the max value
+        // Get the min value
         v = min(v, maxValue(nextState, findValidMoves(nextState)));
 
         // Free the memory
@@ -83,7 +83,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
         // Make the move on the copy
         makeMove(nextState, validMoves.moves[i]);
 
-        // Get the min value
+        // Get the max value
         v = max(v, minValue(nextState, findValidMoves(nextState)));
     }
 
@@ -203,6 +203,7 @@ Move minimax(Board* board) {
             // If value is less than min, update min
             if (value < min) {
                 min = value;
+                bestMoveIndex = i;
             }
         }
 

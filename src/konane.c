@@ -128,10 +128,10 @@ int isValidMove(Board* board, Move move) {
         return 0;
     }
 
-    printf("===DEBUG===\n");
-    printf("Start: %c%d\n", 'A' + x, y + 1); // 'A' + 0 = 'A', 0 + 1 = '1'
-    printf("End: %c%d\n", 'A' + newX, newY + 1); // 'A' + 2 = 'C', 2 + 1 = '3'
-    printf("===/DEBUG===\n");
+    // printf("===DEBUG===\n");
+    // printf("Start: %c%d\n", 'A' + x, y + 1); // 'A' + 0 = 'A', 0 + 1 = '1'
+    // printf("End: %c%d\n", 'A' + newX, newY + 1); // 'A' + 2 = 'C', 2 + 1 = '3'
+    // printf("===/DEBUG===\n");
 
     return 1;
 }

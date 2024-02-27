@@ -20,9 +20,16 @@ int main() {
 
     // Get the first move for black
     while (1) {
+        // Get a valid first move for black
         printf("BLACK's move:\n");
         printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        scanf(" %c %d", &firstMoveBlack.x, &firstMoveBlack.y);
+        if (scanf(" %c %d", &firstMoveBlack.x, &firstMoveBlack.y) != 2) {
+            printf("Invalid input\n");
+            continue;
+        }
+
+        // Clear the input buffer
+        while ((getchar()) != '\n');
 
         // Convert the coordinates to uppercase
         toUpper(&firstMoveBlack.x);
@@ -48,9 +55,16 @@ int main() {
 
     // Get the first move for white
     while (1) {
+        // Get a valid first move for white
         printf("WHITE's move:\n");
         printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        scanf(" %c %d", &firstMoveWhite.x, &firstMoveWhite.y);
+        if (scanf(" %c %d", &firstMoveWhite.x, &firstMoveWhite.y) != 2) {
+            printf("Invalid input\n");
+            continue;
+        }
+
+        // Clear the input buffer
+        while ((getchar()) != '\n');
 
         // Convert the coordinates to uppercase
         toUpper(&firstMoveWhite.x);
@@ -85,11 +99,26 @@ int main() {
             move = minimax(&board);
             printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
         } else if (board.player == MINIMIZING_PLAYER) {
+            // Get a valid start move for white
             printf("WHITE's move:\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
-            scanf("%c %d", &move.start.x, &move.start.y);
+            if (scanf("%c %d", &move.start.x, &move.start.y) != 2) {
+                printf("Invalid input\n");
+                continue;
+            }
+
+            // Clear the input buffer
+            while ((getchar()) != '\n');
+
+            // Get a valid end move for white
             printf("Enter the 'X' and 'Y' coordinates of the new position: ");
-            scanf("%c %d", &move.end.x, &move.end.y);
+            if (scanf("%c %d", &move.end.x, &move.end.y) != 2) {
+                printf("Invalid input\n");
+                continue;
+            }
+
+            // Clear the input buffer
+            while ((getchar()) != '\n');
 
             // Convert the coordinates to uppercase
             toUpper(&move.start.x);
@@ -106,8 +135,14 @@ int main() {
         }
 
         // Check if the game is over
-        if (findValidMoves(&board).size == 0) {
+        ValidMoves validMoves = findValidMoves(&board);
+        if (validMoves.size == 0) {
             running = 0;
+            freeValidMoves(&validMoves);
+            break;
         }
+
+        // Free the memory
+        freeValidMoves(&validMoves);
     }
 }

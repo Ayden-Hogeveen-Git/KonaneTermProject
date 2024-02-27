@@ -86,7 +86,11 @@ int maxValue(Board* board, ValidMoves validMoves) {
 
         // Get the min value
         v = max(v, minValue(nextState, validMoves));
+	
+		// Free the memory
+		free(nextState);
     }
+
 
     // Return v
     return v;
@@ -210,6 +214,7 @@ Move minimax(Board* board) {
 
         // Free the memory
         free(nextState);
+		freeValidMoves(&validMoves);
     }
 
     // Return best move

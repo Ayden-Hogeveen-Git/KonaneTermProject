@@ -114,16 +114,17 @@ int isValidMove(Board* board, Move move) {
         return 0;
     }
 
-    // Check if the player is moving their own piece, and if they're jumping over an opponent's piece
+    // Check if the player is moving their own piece
     if (board->player == MAXIMIZING_PLAYER && board->state[y][x].piece != 'B') {
-        if (board->state[(y + newY) / 2][(x + newX) / 2].piece != 'W') {
-            return 0;
-        }
         return 0;
     } else if (board->player == MINIMIZING_PLAYER && board->state[y][x].piece != 'W') {
-        if (board->state[(y + newY) / 2][(x + newX) / 2].piece != 'B') {
-            return 0;
-        }
+        return 0;
+    }
+
+    // Check if the player is jumping over an opponent's piece
+    if (board->player == MAXIMIZING_PLAYER && board->state[(y + newY) / 2][(x + newX) / 2].piece != 'W') {
+        return 0;
+    } else if (board->player == MINIMIZING_PLAYER && board->state[(y + newY) / 2][(x + newX) / 2].piece != 'B') {
         return 0;
     }
 

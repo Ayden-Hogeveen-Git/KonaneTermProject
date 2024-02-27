@@ -65,3 +65,9 @@ Returns a list of valid moves for a given player's turn.
 param Board* board: 2D array representation of game board.
 */
 ValidMoves findValidMoves(Board* board);
+
+/*
+Frees the memory allocated for the list of valid moves.
+param ValidMoves* validMoves: list of valid moves.
+*/
+void freeValidMoves(ValidMoves* validMoves);

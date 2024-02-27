@@ -204,6 +204,7 @@ Move minimax(Board* board) {
             // If value is less than min, update min
             if (value < min) {
                 min = value;
+                bestMoveIndex = i;
             }
         }
 

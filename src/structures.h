@@ -3,6 +3,8 @@
 
 typedef enum { MAXIMIZING_PLAYER, MINIMIZING_PLAYER } Player;
 
+#define MAX_DEPTH 10
+
 typedef struct {
     char x;
     int y;

@@ -19,15 +19,17 @@ int max(int a, int b);
 Returns the minimum utility value of the game board's state.
 param Board* board: 2D array representation of game board.
 param ValidMoves validMoves: list of valid moves.
+param Depth: depth of the minimax tree.
 */
-int minValue(Board* board, ValidMoves validMoves);
+int minValue(Board* board, ValidMoves validMoves, int depth);
 
 /*
 Returns the maximum utility value of the game board's state.
 param Board* board: 2D array representation of game board.
 param ValidMoves validMoves: list of valid moves.
+param Depth: depth of the minimax tree.
 */
-int maxValue(Board* board, ValidMoves validMoves);
+int maxValue(Board* board, ValidMoves validMoves, int depth);
 
 /*
 Returns the best move for the current player using the minimax algorithm.

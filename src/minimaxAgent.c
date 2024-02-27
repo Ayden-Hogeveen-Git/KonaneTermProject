@@ -5,8 +5,8 @@
 
 
 // Function prototypes
-int minValue(Board* board, ValidMoves validMoves);
-int maxValue(Board* board, ValidMoves validMoves);
+int minValue(Board* board, ValidMoves validMoves, int depth);
+int maxValue(Board* board, ValidMoves validMoves, int depth);
 
 //int minValue(Board* board, ValidMoves validMoves, int alpha, int beta)
 //int maxValue(Board* board, ValidMoves validMoves, int alpha, int beta)
@@ -20,7 +20,7 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-int minValue(Board* board, ValidMoves validMoves) {
+int minValue(Board* board, ValidMoves validMoves, int depth) {
     /*
     function MIN-VALUE(state) returns a utility value
      if TERMINAL-TEST(state) then return UTILITY(state)
@@ -31,7 +31,7 @@ int minValue(Board* board, ValidMoves validMoves) {
     */
 
     // If terminal state, return utility value of 0
-    if (validMoves.size == 0) {
+    if (validMoves.size == 0 || depth == 0) {
         return 0;
     }
 
@@ -50,7 +50,7 @@ int minValue(Board* board, ValidMoves validMoves) {
 		ValidMoves nextValidMoves = findValidMoves(nextState);
 
         // Get the max value
-        v = min(v, maxValue(nextState, nextValidMoves));
+        v = min(v, maxValue(nextState, nextValidMoves, depth - 1));
 
         // Free the memory
         free(nextState);
@@ -61,7 +61,7 @@ int minValue(Board* board, ValidMoves validMoves) {
     return v;
 }
 
-int maxValue(Board* board, ValidMoves validMoves) {
+int maxValue(Board* board, ValidMoves validMoves, int depth) {
     /*
     function MAX-VALUE(state) returns a utility value
      if TERMINAL-TEST(state) then return UTILITY(state)
@@ -72,7 +72,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
      */
 
     // If terminal state, return utility value
-    if (validMoves.size == 0) {
+    if (validMoves.size == 0 || depth == 0) {
         return 0;
     }
 
@@ -91,7 +91,7 @@ int maxValue(Board* board, ValidMoves validMoves) {
 		ValidMoves nextValidMoves = findValidMoves(nextState);
 
         // Get the min value
-        v = max(v, minValue(nextState, nextValidMoves));
+        v = max(v, minValue(nextState, nextValidMoves, depth - 1));
 	
 		// Free the memory
 		free(nextState);
@@ -171,13 +171,6 @@ Move minimax(Board* board) {
     // Find valid moves
     ValidMoves validMoves = findValidMoves(board);
 
-    // printf("===DEBUG===\n");
-    // printf("Valid moves: %d\n", validMoves.size);
-    // for (int i=0; i<validMoves.size; i++) {
-    //     printf("Move: %c%d to %c%d\n", validMoves.moves[i].start.x, validMoves.moves[i].start.y, validMoves.moves[i].end.x, validMoves.moves[i].end.y);
-    // }
-    // printf("==/DEBUG===\n");
-
     // Initialize best move index
     int bestMoveIndex = -1;
 
@@ -204,7 +197,7 @@ Move minimax(Board* board) {
         // If player is maximizing, get the max value
         if (board->player == MAXIMIZING_PLAYER) {
             // Get the max value
-            value = maxValue(nextState, nextValidMoves);
+            value = maxValue(nextState, nextValidMoves, MAX_DEPTH);
             
             // If value is greater than max, update max
             if (value > max) {
@@ -213,7 +206,7 @@ Move minimax(Board* board) {
             }
         } else if (board->player == MINIMIZING_PLAYER) {
             // Get the min value
-            value = minValue(nextState, nextValidMoves);
+            value = minValue(nextState, nextValidMoves, MAX_DEPTH);
 
             // If value is less than min, update min
             if (value < min) {

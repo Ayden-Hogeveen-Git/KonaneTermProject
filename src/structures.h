@@ -2,8 +2,11 @@
 #define STRUCTURES_H
 
 typedef enum { MAXIMIZING_PLAYER, MINIMIZING_PLAYER } Player;
+typedef enum { BLACK, WHITE, EMPTY } PieceType;
 
 #define MAX_DEPTH 10
+#define MAX_MOVES 32
+#define THINKINGTIME 10
 
 typedef struct {
     char x;
@@ -15,26 +18,29 @@ typedef struct {
     Point end;
 } Move;
 
-typedef struct {
-    Move* moves;
-    int capacity;
-    int size;
-} ValidMoves;
+// typedef struct {
+//     Move* moves;
+//     int capacity;
+//     int size;
+// } ValidMoves;
 
 typedef struct {
-    Point position;
-    char piece; // 'B' for black, 'W' for white, 'O' for empty
-} Piece;
+    Point position; // Probably not needed
+    PieceType piece; // 'B' for black, 'W' for white, 'O' for empty
+} Cell;
 
 typedef struct {
-    Piece state[8][8];
+    Move prevMove;
+    Cell board[8][8];
     Player player;
-} Board;
+    Player winner;
+} GameState;
 
 typedef struct Node {
-    Board board;
+    GameState game;
     struct Node* children;
-    int numChildren;
+    int capacity;
+    int size;
 } Node;
 
 #endif

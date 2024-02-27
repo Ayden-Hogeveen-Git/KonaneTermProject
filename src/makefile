@@ -3,33 +3,38 @@ CC = gcc
 CFLAGS = -Wall -std=c99 -g
 
 # Targets
-all: main minimaxAgent
+all: gameDemo agentInterface
 
-main: main.o konane.o minimaxAgent.o
+gameDemo: gameDemo.o konane.o minimaxAgent.o
 	$(CC) $^ -o $@
 
-main.o: main.c konane.h minimaxAgent.h
+gameDemo.o: gameDemo.c structures.h konane.h minimaxAgent.h
 	$(CC) $(CFLAGS) $< -c
 
-minimaxAgent: minimaxAgent.o konane.o
+agentInterface: agentInterface.o konane.o minimaxAgent.o
 	$(CC) $^ -o $@
 
-minimaxAgent.o: minimaxAgent.c minimaxAgent.h konane.h
+agentInterface.o: agentInterface.c structures.h agentInterface.h minimaxAgent.h
+
+minimaxAgent.o: minimaxAgent.c structures.h konane.h minimaxAgent.h
 	$(CC) $(CFLAGS) $< -c
 
-konane.o: konane.c konane.h
+konane.o: konane.c structures.h konane.h
 	$(CC) $(CFLAGS) $< -c
 
 # Phony targets
-.PHONY: valgrind-main clean tar
+.PHONY: valgrind-gameDemo valgrind-agentInterface clean tar
 
-valgrind-main:
-	valgrind --leak-check=full ./main
+valgrind-gameDemo:
+	valgrind --leak-check=full ./gameDemo
+
+valgrind-agentInterface:
 
 clean:
-	rm -f main konane minimaxAgent
+	rm -f gameDemo agentInterface konane 
 	rm -f *.exe *.o *.out
 	rm -f *.~ .*.swo .*.swp .nfo*
 
 tar:
-	tar -cvzf ../main.tar.gz -C ../ konane-term-project
+	tar -cvzf ../gameDemo.tar.gz -C ../ konane-term-project
+	tar -cvzf ../agentInterface.tar.gz -C ../ konane-term-project

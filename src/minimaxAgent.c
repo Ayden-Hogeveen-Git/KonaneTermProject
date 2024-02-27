@@ -5,11 +5,13 @@
 
 
 // Function prototypes
-int minValue(Board* board, ValidMoves validMoves, int depth);
-int maxValue(Board* board, ValidMoves validMoves, int depth);
+int minValue(Node* node, int depth);
+int maxValue(Node* node, int depth);
+// int minValue(GameState* game, int depth);
+// int maxValue(GameState* game, int depth);
 
-//int minValue(Board* board, ValidMoves validMoves, int alpha, int beta)
-//int maxValue(Board* board, ValidMoves validMoves, int alpha, int beta)
+//int minValue(GameState* game, ValidMoves validMoves, int alpha, int beta)
+//int maxValue(GameState* game, ValidMoves validMoves, int alpha, int beta)
 
 
 int min(int a, int b) {
@@ -20,102 +22,174 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-int minValue(Board* board, ValidMoves validMoves, int depth) {
-    /*
-    function MIN-VALUE(state) returns a utility value
-     if TERMINAL-TEST(state) then return UTILITY(state)
-     v ← ∞
-     for a,s in SUCCESSORS(state) do
-     v ← MIN(v,MAX-VALUE(s))
-     return v
-    */
+int minValue(Node* node, int depth) {
+	/*
+	function MIN-VALUE(game) returns a utility value
+	 if TERMINAL-TEST(game) then return UTILITY(game)
+	 v ← ∞
+	 for a,s in SUCCESSORS(game) do
+	 v ← MIN(v,MAX-VALUE(s))
+	 return v
+	*/
 
-    // If terminal state, return utility value of 0
-    if (validMoves.size == 0 || depth == 0) {
-        return 0;
-    }
+	// Generate all the valid moves as children
+	generateChildren(node);
 
-    // Initialize v to positive infinity
-    int v = 1000;
+	// If terminal game, return utility value of 0
+	if (node->size == 0) {
+		return 0;
+	}
 
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        Board* nextState = copyBoard(board);
+	// If depth is 0, return heuristic utility value
+	if (depth == 0) {
+		return &node->size;
+	}
 
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
+	// Initialize v to positive infinity
+	int v = 1000;
 
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the max value
+		v = min(v, maxValue(&node->children[i], depth - 1));
+	}
 
-        // Get the max value
-        v = min(v, maxValue(nextState, nextValidMoves, depth - 1));
-
-        // Free the memory
-        free(nextState);
-		free(nextValidMoves.moves);
-    }
-
-    // Return v
-    return v;
+	// Return v
+	return v;
 }
 
-int maxValue(Board* board, ValidMoves validMoves, int depth) {
-    /*
-    function MAX-VALUE(state) returns a utility value
-     if TERMINAL-TEST(state) then return UTILITY(state)
-     v ← - ∞
-     for a,s in SUCCESSORS(state) do
-     v ← MAX(v,MIN-VALUE(s))
-     return v
-     */
+int maxValue(Node* node, int depth) {
+	/*
+	function MAX-VALUE(game) returns a utility value
+	 if TERMINAL-TEST(game) then return UTILITY(game)
+	 v ← - ∞
+	 for a,s in SUCCESSORS(game) do
+	 v ← MAX(v,MIN-VALUE(s))
+	 return v
+	*/
 
-    // If terminal state, return utility value
-    if (validMoves.size == 0 || depth == 0) {
-        return 0;
-    }
+	// Generate all the valid moves as children
+	generateChildren(node);
 
-    // Initialize v to negative infinity
-    int v = -1000;
+	// If terminal game, return utility value
+	if (node->size == 0) {
+		return 0;
+	}
 
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        Board* nextState = copyBoard(board);
+	// If depth is 0, return heuristic utility value
+	if (depth == 0) {
+		return &node->size;
+	}
 
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
+	// Initialize v to negative infinity
+	int v = -1000;
 
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the min value
+		v = max(v, minValue(&node->children[i], depth - 1));
+	}
 
-        // Get the min value
-        v = max(v, minValue(nextState, nextValidMoves, depth - 1));
+	// Return v
+	return v;
+}
+
+// int minValue(GameState* game, int depth) {
+//     /*
+//     function MIN-VALUE(game) returns a utility value
+//      if TERMINAL-TEST(game) then return UTILITY(game)
+//      v ← ∞
+//      for a,s in SUCCESSORS(game) do
+//      v ← MIN(v,MAX-VALUE(s))
+//      return v
+//     */
+
+//     // If terminal game, return utility value of 0
+//     if (validMoves.size == 0 || depth == 0) {
+//         return 0;
+//     }
+
+//     // Initialize v to positive infinity
+//     int v = 1000;
+
+//     // Loop through valid moves
+//     for (int i = 0; i < validMoves.size; i++) {
+//         // Copy the game
+//         GameState* nextState = copyBoard(game);
+
+//         // Make the move on the copy
+//         makeMove(nextState, validMoves.moves[i]);
+
+// 		// Calculate the valid moves for the next game
+// 		ValidMoves nextValidMoves = findValidMoves(nextState);
+
+//         // Get the max value
+//         v = min(v, maxValue(nextState, nextValidMoves, depth - 1));
+
+//         // Free the memory
+//         free(nextState);
+// 		free(nextValidMoves.moves);
+//     }
+
+//     // Return v
+//     return v;
+// }
+
+// int maxValue(GameState* game, int depth) {
+//     /*
+//     function MAX-VALUE(game) returns a utility value
+//      if TERMINAL-TEST(game) then return UTILITY(game)
+//      v ← - ∞
+//      for a,s in SUCCESSORS(game) do
+//      v ← MAX(v,MIN-VALUE(s))
+//      return v
+//      */
+
+//     // If terminal game, return utility value
+//     if (validMoves.size == 0 || depth == 0) {
+//         return 0;
+//     }
+
+//     // Initialize v to negative infinity
+//     int v = -1000;
+
+//     // Loop through valid moves
+//     for (int i = 0; i < validMoves.size; i++) {
+//         // Copy the game
+//         GameState* nextState = copyBoard(game);
+
+//         // Make the move on the copy
+//         makeMove(nextState, validMoves.moves[i]);
+
+// 		// Calculate the valid moves for the next game
+// 		ValidMoves nextValidMoves = findValidMoves(nextState);
+
+//         // Get the min value
+//         v = max(v, minValue(nextState, nextValidMoves, depth - 1));
 	
-		// Free the memory
-		free(nextState);
-		free(nextValidMoves.moves);
-    }
+// 		// Free the memory
+// 		free(nextState);
+// 		free(nextValidMoves.moves);
+//     }
 
 
-    // Return v
-    return v;
-}
+//     // Return v
+//     return v;
+// }
 
 /*Alpha-Beta for minValue*/
 /*
-int minValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
+int minValue(GameState* game, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
 
-    // If terminal state, return utility value of 0
-    if (findValidMoves(board, playersTurn).size == 0) {
+    // If terminal game, return utility value of 0
+    if (findValidMoves(game, playersTurn).size == 0) {
         return 0;
     }
 
     // Loop through valid moves
     for (int i = 0; i < validMoves.size; i++) {
-        // Get the next state
-        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+        // Get the next game
+        GameState* nextState = minMaxResult(game, validMoves.moves[i]);
 
         // Get the max value
         int v = maxValue(nextState, findValidMoves(nextState), alpha, beta);
@@ -133,17 +207,17 @@ int minValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, in
 */
 /*Alpha-Beta for maxValue*/
 /*
-int maxValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
+int maxValue(GameState* game, int playersTurn, ValidMoves validMoves, int alpha, int beta) {
 
-    // If terminal state, return utility value of 0
-    if (findValidMoves(board, playersTurn).size == 0) {
+    // If terminal game, return utility value of 0
+    if (findValidMoves(game, playersTurn).size == 0) {
         return 0;
     }
 
     // Loop through valid moves
     for (int i = 0; i < validMoves.size; i++) {
-        // Get the next state
-        Board* nextState = minMaxResult(board, validMoves.moves[i]);
+        // Get the next game
+        GameState* nextState = minMaxResult(game, validMoves.moves[i]);
 
         // Get the min value
         int v = minValue(nextState, findValidMoves(nextState), alpha, beta);
@@ -160,72 +234,138 @@ int maxValue(Board* board, int playersTurn, ValidMoves validMoves, int alpha, in
 }
 */
 
-Move minimax(Board* board) {
+Move minimax(GameState* game) {
     /*
-    function MINIMAX-DECISION(state) returns an action
-     inputs: state, current state in game
-     v←MAX-VALUE(state)
-     return the action in SUCCESSORS(state) with value v
+    function MINIMAX-DECISION(game) returns an action
+     inputs: game, current game in game
+     v←MAX-VALUE(game)
+     return the action in SUCCESSORS(game) with value v
     */
 
-    // Find valid moves
-    ValidMoves validMoves = findValidMoves(board);
+    // Initialize the root node
+	Node* node = malloc(sizeof(Node));
+	node->game = *game;
+	node->capacity = 10;
+	node->size = 0;
 
-    // Initialize best move index
-    int bestMoveIndex = -1;
+	// Generate the children
+	generateChildren(node);
 
-    // Initialize max and min values
-    // Max wants to maximize the total number of valid moves
-    // Min wants to minimize the total number of valid moves
-    int max = -1000; // Max is initialized to negative infinity
-    int min = 1000; // Min is initialized to positive infinity
+	// Initialize best move index
+	int bestMoveIndex = -1;
 
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        Board* nextState = copyBoard(board);
+	// Initialize max and min values
+	// Max wants to maximize the total number of valid moves
+	// Min wants to minimize the total number of valid moves
+	int max = -1000; // Max is initialized to negative infinity
+	int min = 1000; // Min is initialized to positive infinity
 
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the value of the next game
+		int value;
 
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
+		// If player is maximizing, get the max value
+		if (node->game.player == MAXIMIZING_PLAYER) {
+			// Get the max value
+			value = maxValue(&node->children[i], MAX_DEPTH);
 
-        // Get the value of the next state
-        int value;
+			// If value is greater than max, update max
+			if (value > max) {
+				max = value;
+				bestMoveIndex = i;
+			}
+		} else if (node->game.player == MINIMIZING_PLAYER) {
+			// Get the min value
+			value = minValue(&node->children[i], MAX_DEPTH);
 
-        // If player is maximizing, get the max value
-        if (board->player == MAXIMIZING_PLAYER) {
-            // Get the max value
-            value = maxValue(nextState, nextValidMoves, MAX_DEPTH);
-            
-            // If value is greater than max, update max
-            if (value > max) {
-                max = value;
-                bestMoveIndex = i;
-            }
-        } else if (board->player == MINIMIZING_PLAYER) {
-            // Get the min value
-            value = minValue(nextState, nextValidMoves, MAX_DEPTH);
-
-            // If value is less than min, update min
-            if (value < min) {
-                min = value;
-                bestMoveIndex = i;
-            }
-        }
-
-        // Free the memory
-        free(nextState);
-		free(nextValidMoves.moves);
+			// If value is less than min, update min
+			if (value < min) {
+				min = value;
+				bestMoveIndex = i;
+			}
+		}
 	}
 
 	// Store the best move
-	Move bestMove = validMoves.moves[bestMoveIndex];
+	Move bestMove = node->children[bestMoveIndex].game.prevMove;
 
 	// Free the memory
-	freeValidMoves(&validMoves);
+	free(node);
+	// for (int i = 0; i < node->size; i++) {
+	// 	free(node->children[i].game.game);
+	// }
 
-    // Return best move
-    return bestMove;
+	// Return best move
+	return bestMove;
 }
+
+// Move minimax(GameState* game) {
+//     /*
+//     function MINIMAX-DECISION(game) returns an action
+//      inputs: game, current game in game
+//      v←MAX-VALUE(game)
+//      return the action in SUCCESSORS(game) with value v
+//     */
+
+//     // Find valid moves
+//     ValidMoves validMoves = findValidMoves(game);
+
+//     // Initialize best move index
+//     int bestMoveIndex = -1;
+
+//     // Initialize max and min values
+//     // Max wants to maximize the total number of valid moves
+//     // Min wants to minimize the total number of valid moves
+//     int max = -1000; // Max is initialized to negative infinity
+//     int min = 1000; // Min is initialized to positive infinity
+
+//     // Loop through valid moves
+//     for (int i = 0; i < validMoves.size; i++) {
+//         // Copy the game
+//         GameState* nextState = copyBoard(game);
+
+//         // Make the move on the copy
+//         makeMove(nextState, validMoves.moves[i]);
+
+// 		// Calculate the valid moves for the next game
+// 		ValidMoves nextValidMoves = findValidMoves(nextState);
+
+//         // Get the value of the next game
+//         int value;
+
+//         // If player is maximizing, get the max value
+//         if (game->player == MAXIMIZING_PLAYER) {
+//             // Get the max value
+//             value = maxValue(nextState, nextValidMoves, MAX_DEPTH);
+            
+//             // If value is greater than max, update max
+//             if (value > max) {
+//                 max = value;
+//                 bestMoveIndex = i;
+//             }
+//         } else if (game->player == MINIMIZING_PLAYER) {
+//             // Get the min value
+//             value = minValue(nextState, nextValidMoves, MAX_DEPTH);
+
+//             // If value is less than min, update min
+//             if (value < min) {
+//                 min = value;
+//                 bestMoveIndex = i;
+//             }
+//         }
+
+//         // Free the memory
+//         free(nextState);
+// 		free(nextValidMoves.moves);
+// 	}
+
+// 	// Store the best move
+// 	Move bestMove = validMoves.moves[bestMoveIndex];
+
+// 	// Free the memory
+// 	freeValidMoves(&validMoves);
+
+//     // Return best move
+//     return bestMove;
+// }

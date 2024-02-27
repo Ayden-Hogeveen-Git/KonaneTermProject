@@ -81,10 +81,10 @@ int isValidFirstMove(Board* board, Point point) {
 }
 
 int isValidMove(Board* board, Move move) {
-    printf("===DEBUG===\n");
-    printf("Start: %c%d\n", move.start.x, move.start.y);
-    printf("End: %c%d\n", move.end.x, move.end.y);
-    printf("===/DEBUG===\n");
+    // printf("===DEBUG===\n");
+    // printf("Start: %c%d\n", move.start.x, move.start.y);
+    // printf("End: %c%d\n", move.end.x, move.end.y);
+    // printf("===/DEBUG===\n");
 
     // Convert the x coordinates from A-H to 0-7
     int x = move.start.x - 'A';
@@ -109,22 +109,28 @@ int isValidMove(Board* board, Move move) {
         return 0;
     }
 
-    // printf("===DEBUG===\n");
-    // printf("Start: %d %d\n", x, y);
-    // printf("End: %d %d\n", newX, newY);
-    // printf("===/DEBUG===\n");
-
     // Check if the piece is moving to a valid space
     if (abs(newY - y) != 2 && abs(newX - x) != 2) {
         return 0;
     }
 
-    // Check if the player is moving their own piece, 0 for black, 1 for white
+    // Check if the player is moving their own piece, and if they're jumping over an opponent's piece
     if (board->player == MAXIMIZING_PLAYER && board->state[y][x].piece != 'B') {
+        if (board->state[(y + newY) / 2][(x + newX) / 2].piece != 'W') {
+            return 0;
+        }
         return 0;
     } else if (board->player == MINIMIZING_PLAYER && board->state[y][x].piece != 'W') {
+        if (board->state[(y + newY) / 2][(x + newX) / 2].piece != 'B') {
+            return 0;
+        }
         return 0;
     }
+
+    printf("===DEBUG===\n");
+    printf("Start: %c%d\n", 'A' + x, y + 1); // 'A' + 0 = 'A', 0 + 1 = '1'
+    printf("End: %c%d\n", 'A' + newX, newY + 1); // 'A' + 2 = 'C', 2 + 1 = '3'
+    printf("===/DEBUG===\n");
 
     return 1;
 }
@@ -195,28 +201,28 @@ ValidMoves findValidMoves(Board* board) {
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
             // Check if the piece can move to the left
-            Move moveLeft = {{x, y}, {x - 2, y}};
+            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
             if (isValidMove(board, moveLeft) == 1) {
                 addValidMove(&validMoves, moveLeft);
                 index++;
             }
 
             // Check if the piece can move to the right
-            Move moveRight = {{x, y}, {x + 2, y}};
+            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
             if (isValidMove(board, moveRight) == 1) {
                 addValidMove(&validMoves, moveRight);
                 index++;
             }
 
             // Check if the piece can move up
-            Move moveUp = {{x, y}, {x, y - 2}};
+            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
             if (isValidMove(board, moveUp) == 1) {
                 addValidMove(&validMoves, moveUp);
                 index++;
             }
 
             // Check if the piece can move down
-            Move moveDown = {{x, y}, {x, y + 2}};
+            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
             if (isValidMove(board, moveDown) == 1) {
                 addValidMove(&validMoves, moveDown);
                 index++;

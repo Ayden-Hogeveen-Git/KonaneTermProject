@@ -160,12 +160,12 @@ Move minimax(Board* board) {
     // Find valid moves
     ValidMoves validMoves = findValidMoves(board);
 
-    printf("===DEBUG===\n");
-    printf("Valid moves: %d\n", validMoves.size);
-    for (int i=0; i<validMoves.size; i++) {
-        printf("Move: %c%d to %c%d\n", validMoves.moves[i].start.x, validMoves.moves[i].start.y, validMoves.moves[i].end.x, validMoves.moves[i].end.y);
-    }
-    printf("==/DEBUG===\n");
+    // printf("===DEBUG===\n");
+    // printf("Valid moves: %d\n", validMoves.size);
+    // for (int i=0; i<validMoves.size; i++) {
+    //     printf("Move: %c%d to %c%d\n", validMoves.moves[i].start.x, validMoves.moves[i].start.y, validMoves.moves[i].end.x, validMoves.moves[i].end.y);
+    // }
+    // printf("==/DEBUG===\n");
 
     // Initialize best move index
     int bestMoveIndex = -1;

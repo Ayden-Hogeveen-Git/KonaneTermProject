@@ -18,11 +18,11 @@ typedef struct {
     Point end;
 } Move;
 
-// typedef struct {
-//     Move* moves;
-//     int capacity;
-//     int size;
-// } ValidMoves;
+typedef struct {
+    Move* moves;
+    int capacity;
+    int size;
+} ValidMoves;
 
 typedef struct {
     Point position; // Probably not needed
@@ -33,7 +33,7 @@ typedef struct {
     Move prevMove;
     Cell board[8][8];
     Player player;
-    Player winner;
+    PieceType winner;
 } GameState;
 
 typedef struct Node {

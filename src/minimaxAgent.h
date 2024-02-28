@@ -35,3 +35,9 @@ Returns the best move for the current player using the minimax algorithm.
 param GameState* game: The representation of the current game state.
 */
 Move minimax(GameState* game);
+
+/*
+Returns the best move for the current player using the minimax algorithm with alpha-beta pruning.
+param GameState* game: The representation of the current game state.
+*/
+Move minimaxAlphaBeta(GameState* game);

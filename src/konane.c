@@ -11,6 +11,19 @@ void toUpper(char* str) {
     }
 }
 
+char pieceTypeToChar(PieceType piece) {
+    switch (piece) {
+        case BLACK:
+            return 'B';
+        case WHITE:
+            return 'W';
+        case EMPTY:
+            return 'O';
+        default:
+            return '?';
+    }
+}
+
 void initializeBoard(GameState* game) {
     // Initialize the game board
     for (int y = 8; y > 0; y--) {
@@ -23,6 +36,9 @@ void initializeBoard(GameState* game) {
 
     // Set the player to black
     game->player = MAXIMIZING_PLAYER;
+
+    // Set the winner to empty
+    game->winner = EMPTY;
 }
 
 void printBoard(GameState game) {
@@ -30,14 +46,14 @@ void printBoard(GameState game) {
     for (int y = 8; y > 0; y--) {
         printf("%d ", y);
         for (int x = 0; x < 8; x++) {
-            printf("%c ", game.board[y-1][x].piece);
+            printf("%c ", pieceTypeToChar(game.board[y-1][x].piece));
         }
         printf("%d\n", y);
     }
     printf("  A B C D E F G H\n\n");
 }
 
-GameState* copyBoard(GameState* game) {
+GameState* copyBoard(GameState game) {
     // Allocate memory for the new game
     GameState* newGame = malloc(sizeof(GameState));
 
@@ -48,17 +64,17 @@ GameState* copyBoard(GameState* game) {
     }
 
     // Copy the previous move
-    newGame->prevMove = game->prevMove;
+    newGame->prevMove = game.prevMove;
 
     // Copy the game board state
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
-            newGame->board[y][x] = game->board[y][x];
+            newGame->board[y][x] = game.board[y][x];
         }
     }
 
     // Copy the player
-    newGame->player = game->player;
+    newGame->player = game.player;
 
     // Return the new game state
     return newGame;
@@ -142,6 +158,24 @@ int isValidMove(GameState* game, Move move) {
     return 1;
 }
 
+void addValidMove(ValidMoves* validMoves, Move move) {
+    // If the valid moves array is full, double the capacity
+    if (validMoves->size == validMoves->capacity) {
+        validMoves->capacity *= 2;
+        validMoves->moves = realloc(validMoves->moves, validMoves->capacity * sizeof(Move));
+
+        // Check if memory allocation failed or not
+        if (validMoves->moves == NULL) {
+            printf("Memory allocation failed\n");
+            exit(1);
+        }
+    }
+
+    // Add the valid move to the array
+    validMoves->moves[validMoves->size] = move;
+    validMoves->size++;
+}
+
 void makeFirstMove(GameState* game, Point point) {
     // Convert the x coordinates from A-H to 0-7
     int x = point.x - 'A';
@@ -168,23 +202,67 @@ void makeMove(GameState* game, Move move) {
     game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2].piece = EMPTY;
 }
 
-// void addValidMove(ValidMoves* validMoves, Move move) {
-//     // If the valid moves array is full, double the capacity
-//     if (validMoves->size == validMoves->capacity) {
-//         validMoves->capacity *= 2;
-//         validMoves->moves = realloc(validMoves->moves, validMoves->capacity * sizeof(Move));
+ValidMoves findValidMoves(GameState* game) {
+    // Initialize the valid moves array
+    ValidMoves validMoves;
+    validMoves.capacity = 10;
 
-//         // Check if memory allocation failed or not
-//         if (validMoves->moves == NULL) {
-//             printf("Memory allocation failed\n");
-//             exit(1);
-//         }
-//     }
+    // Allocate memory for valid moves array
+    validMoves.moves = malloc(validMoves.capacity * sizeof(Move));
+    
+    // Check if memory allocation failed or not
+    if (validMoves.moves == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
 
-//     // Add the valid move to the array
-//     validMoves->moves[validMoves->size] = move;
-//     validMoves->size++;
-// }
+    // Initialize valid moves array
+    validMoves.size = 0;
+
+    // Find valid moves
+    int index = 0;
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            // Check if the piece can move to the left
+            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
+            if (isValidMove(game, moveLeft) == 1) {
+                addValidMove(&validMoves, moveLeft);
+                index++;
+            }
+
+            // Check if the piece can move to the right
+            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
+            if (isValidMove(game, moveRight) == 1) {
+                addValidMove(&validMoves, moveRight);
+                index++;
+            }
+
+            // Check if the piece can move up
+            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
+            if (isValidMove(game, moveUp) == 1) {
+                addValidMove(&validMoves, moveUp);
+                index++;
+            }
+
+            // Check if the piece can move down
+            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
+            if (isValidMove(game, moveDown) == 1) {
+                addValidMove(&validMoves, moveDown);
+                index++;
+            }
+        }
+    }
+
+    // Return valid moves array
+    return validMoves;
+}
+
+void freeValidMoves(ValidMoves* validMoves) {
+    free(validMoves->moves);
+    validMoves->moves = NULL;
+    validMoves->size = 0;
+    validMoves->capacity = 0;
+}
 
 void addChild(Node* node, Move move) {
     // If the children array is full, double the capacity
@@ -201,7 +279,7 @@ void addChild(Node* node, Move move) {
 
     // Add the child to the array
     Node* child = malloc(sizeof(Node));
-    child->game = *copyBoard(&node->game);
+    child->game = *copyBoard(node->game);
     makeMove(&child->game, move);
     node->children[node->size] = *child;
     node->size++;
@@ -214,87 +292,26 @@ void generateChildren(Node* node) {
             // Check if the piece can move to the left
             Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
             if (isValidMove(&node->game, moveLeft) == 1) {
-                addChild(&node, moveLeft);
+                addChild(node, moveLeft);
             }
 
             // Check if the piece can move to the right
             Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
             if (isValidMove(&node->game, moveRight) == 1) {
-                addChild(&node, moveRight);
+                addChild(node, moveRight);
             }
 
             // Check if the piece can move up
             Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
             if (isValidMove(&node->game, moveUp) == 1) {
-                addChild(&node, moveUp);
+                addChild(node, moveUp);
             }
 
             // Check if the piece can move down
             Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
             if (isValidMove(&node->game, moveDown) == 1) {
-                addChild(&node, moveDown);
+                addChild(node, moveDown);
             }
         }
+    }
 }
-
-// ValidMoves findValidMoves(GameState* game) {
-//     // Initialize the valid moves array
-//     ValidMoves validMoves;
-//     validMoves.capacity = 10;
-
-//     // Allocate memory for valid moves array
-//     validMoves.moves = malloc(validMoves.capacity * sizeof(Move));
-    
-//     // Check if memory allocation failed or not
-//     if (validMoves.moves == NULL) {
-//         printf("Memory allocation failed\n");
-//         exit(1);
-//     }
-
-//     // Initialize valid moves array
-//     validMoves.size = 0;
-
-//     // Find valid moves
-//     int index = 0;
-//     for (int y = 8; y > 0; y--) {
-//         for (int x = 0; x < 8; x++) {
-//             // Check if the piece can move to the left
-//             Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
-//             if (isValidMove(game, moveLeft) == 1) {
-//                 addValidMove(&validMoves, moveLeft);
-//                 index++;
-//             }
-
-//             // Check if the piece can move to the right
-//             Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
-//             if (isValidMove(game, moveRight) == 1) {
-//                 addValidMove(&validMoves, moveRight);
-//                 index++;
-//             }
-
-//             // Check if the piece can move up
-//             Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
-//             if (isValidMove(game, moveUp) == 1) {
-//                 addValidMove(&validMoves, moveUp);
-//                 index++;
-//             }
-
-//             // Check if the piece can move down
-//             Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
-//             if (isValidMove(game, moveDown) == 1) {
-//                 addValidMove(&validMoves, moveDown);
-//                 index++;
-//             }
-//         }
-//     }
-
-//     // Return valid moves array
-//     return validMoves;
-// }
-
-// void freeValidMoves(ValidMoves* validMoves) {
-//     free(validMoves->moves);
-//     validMoves->moves = NULL;
-//     validMoves->size = 0;
-//     validMoves->capacity = 0;
-// }

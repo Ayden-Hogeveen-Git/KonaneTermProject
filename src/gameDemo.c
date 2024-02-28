@@ -96,8 +96,10 @@ int main() {
         // Get the next move
         if (game.player == MAXIMIZING_PLAYER) {
             printf("BLACK's move:\n");
-            move = minimax(&game);
-            printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+            // move = minimax(&game);
+            // printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+            move = minimaxAlphaBeta(&game);
+            printf("minimaxAlphaBeta... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
         } else if (game.player == MINIMIZING_PLAYER) {
             // Get a valid start move for white
             printf("WHITE's move:\n");
@@ -137,11 +139,10 @@ int main() {
         // Check if the game is over
         if (game.winner != EMPTY) {
             running = 0;
-
             // Print the winner
-            if (game.winner == MAXIMIZING_PLAYER) {
+            if (game.winner == BLACK) {
                 printf("BLACK wins!\n");
-            } else if (game.winner == MINIMIZING_PLAYER) {
+            } else if (game.winner == WHITE) {
                 printf("WHITE wins!\n");
             } else {
                 printf("It's a draw!\n");

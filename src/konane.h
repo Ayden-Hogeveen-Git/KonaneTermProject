@@ -2,6 +2,12 @@
 
 
 /*
+Converts a string to uppercase.
+param char* str: String to convert to uppercase.
+*/
+void toUpper(char* str);
+
+/*
 Initializes the game state.
 param GameState* game: The representation of the current game state.
 */
@@ -17,13 +23,7 @@ void printBoard(GameState game);
 Copies the entire game board and returns the copy.
 param GameState* game: The representation of the current game state.
 */
-GameState* copyBoard(GameState* game);
-
-/*
-Converts a string to uppercase.
-param char* str: String to convert to uppercase.
-*/
-void toUpper(char* str);
+GameState* copyBoard(GameState game);
 
 /*
 Returns 1 if valid, 0 otherwise.
@@ -40,6 +40,13 @@ param Move move: The coordinates of the piece to move.
 int isValidMove(GameState* game, Move move);
 
 /*
+Adds a valid move to the list of valid moves.
+param ValidMoves* validMoves: list of valid moves.
+param Move move: coordinates of the piece to move.
+*/
+void addValidMove(ValidMoves* validMoves, Move move);
+
+/*
 Takes the game state and a point and removes the piece at that position.
 param GameState* game: The representation of the current game state.
 param Point point: The coordinates of the piece to remove.
@@ -53,21 +60,34 @@ param Move move: The coordinates of the piece to move.
 */
 void makeMove(GameState* game, Move move);
 
-// /*
-// Adds a move to the list of valid moves.
-// param ValidMoves* validMoves: list of valid moves.
-// param Move move: coordinates of the piece to move.
-// */
-// void addMove(ValidMoves* validMoves, Move move);
+/*
+Adds a move to the list of valid moves.
+param ValidMoves* validMoves: list of valid moves.
+param Move move: coordinates of the piece to move.
+*/
+void addMove(ValidMoves* validMoves, Move move);
 
-// /*
-// Returns a list of valid moves for a given player's turn.
-// param GameState* game: 2D array representation of game game.
-// */
-// ValidMoves findValidMoves(GameState* game);
+/*
+Returns a list of valid moves for a given player's turn.
+param GameState* game: 2D array representation of game game.
+*/
+ValidMoves findValidMoves(GameState* game);
 
-// /*
-// Frees the memory allocated for the list of valid moves.
-// param ValidMoves* validMoves: list of valid moves.
-// */
-// void freeValidMoves(ValidMoves* validMoves);
+/*
+Frees the memory allocated for the list of valid moves.
+param ValidMoves* validMoves: list of valid moves.
+*/
+void freeValidMoves(ValidMoves* validMoves);
+
+/*
+Adds a child node to the parent node by making a move.
+param Node* node: The parent node.
+param Move move: The move to make.
+*/
+void addChild(Node* node, Move move);
+
+/*
+Generates the children of a given node by finding all valid moves.
+param Node* node: The parent node.
+*/
+void generateChildren(Node* node);

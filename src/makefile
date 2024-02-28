@@ -29,6 +29,7 @@ valgrind-gameDemo:
 	valgrind --leak-check=full ./gameDemo
 
 valgrind-agentInterface:
+	valgrind --leak-check=full ./agentInterface
 
 clean:
 	rm -f gameDemo agentInterface konane 

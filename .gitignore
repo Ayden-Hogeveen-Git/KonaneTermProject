@@ -2,6 +2,6 @@
 /tests/.newgame.txt
 
 # Executables and Objects
-/src/main
-/src/minimaxAgent
+/src/gameDemo
+/src/agentInterface
 /src/*.o

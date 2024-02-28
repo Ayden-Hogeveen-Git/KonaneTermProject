@@ -33,7 +33,7 @@ char* formatGameString(char* gameString) {
     // Calculate the length of the gameString, excluding the newline characters
     int length = 0;
     for (int i = 0; gameString[i] != '\0'; i++) {
-        if (gameString[i] != '\n') {
+        if ((gameString[i] >= 'A' && gameString[i] <= 'Z') || (gameString[i] >= 'a' && gameString[i] <= 'z')) {
             length++;
         }
     }
@@ -157,9 +157,14 @@ int main(int argc, char* argv[]) {
         char c;
         int i = 0;
         while ((c = fgetc(file)) != EOF) {
-            gameString[i] = c;
-            i++;
+            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                gameString[i] = c;
+                i++;
+            }
         }
+
+        // Add the null terminator to the end of the string
+        gameString[i] = '\0';
 
         // Close the file
         if (file != NULL) {
@@ -168,13 +173,13 @@ int main(int argc, char* argv[]) {
 
     } else if (argc == 1) {
         // Define a default new game string
-        const char* defaultGameString = "BWBWBWBW\n"
-                                        "WBWBWBWB\n"
-                                        "BWBWBWBW\n"
-                                        "WBWBWBWB\n"
-                                        "BWBWBWBW\n"
-                                        "WBWBWBWB\n"
-                                        "BWBWBWBW\n"
+        const char* defaultGameString = "BWBWBWBW"
+                                        "WBWBWBWB"
+                                        "BWBWBWBW"
+                                        "WBWBWBWB"
+                                        "BWBWBWBW"
+                                        "WBWBWBWB"
+                                        "BWBWBWBW"
                                         "WBWBWBWB";
 
         // Copy the default game string to the game string

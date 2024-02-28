@@ -6,7 +6,7 @@
 #include "minimaxAgent.h"
 
 
-int whoseTurn(GameState* game) {
+void whoseTurn(GameState* game) {
     int black = 0;
     int white = 0;
 
@@ -21,11 +21,14 @@ int whoseTurn(GameState* game) {
         }
     }
 
-    if (black == white) {
-        return MAXIMIZING_PLAYER;
-    }
-    else {
-        return MINIMIZING_PLAYER;
+    if (black > white) {
+        game->turn = WHITE;
+        game->maxPlayer = WHITE;
+        game->minPlayer = BLACK;
+    } else {
+        game->turn = BLACK;
+        game->maxPlayer = BLACK;
+        game->minPlayer = WHITE;
     }
 }
 
@@ -62,7 +65,7 @@ char* formatGameString(char* gameString) {
     return newGameString;
 }
 
-GameState* initalizeGame(char* gameString) {
+GameState* initalizeGameState(char* gameString) {
     // Allocate memory for the new game
     GameState* newGame = malloc(sizeof(GameState));
 
@@ -73,22 +76,22 @@ GameState* initalizeGame(char* gameString) {
     }
 
     // Format the game string
-    char* newGameString = formatGameString(gameString);
+    char* gameStringFormatted = formatGameString(gameString);
 
     // Initialize the game board
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
             // Convert the character to a piece
-            if (newGameString[(8 - y) * 8 + x] == 'B') {
+            if (gameStringFormatted[(8 - y) * 8 + x] == 'B') {
                 newGame->board[y - 1][x].piece = BLACK;
             }
-            else if (newGameString[(8 - y)*8 + x] == 'W') {
+            else if (gameStringFormatted[(8 - y)*8 + x] == 'W') {
                 newGame->board[y - 1][x].piece = WHITE;
             }
-            else if (newGameString[(8 - y)*8 + x] == 'O') {
+            else if (gameStringFormatted[(8 - y)*8 + x] == 'O') {
                 newGame->board[y - 1][x].piece = EMPTY;
             }
-            else if (newGameString[(8 - y)*8 + x] == '\0') {
+            else if (gameStringFormatted[(8 - y)*8 + x] == '\0') {
                 break;
             }
             else {
@@ -102,17 +105,14 @@ GameState* initalizeGame(char* gameString) {
         }
     }
 
-    // Determine the player's turn
-    int player = whoseTurn(newGame);
-
-    // Set the correct player
-    newGame->player = player;
+    // Determine and set the player's turn
+    whoseTurn(newGame);
 
     // Set the winner to empty
     newGame->winner = EMPTY;
 
     // Free the memory
-    free(newGameString);
+    free(gameStringFormatted);
 
     // Return the new game
     return newGame;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize the game
-    GameState* game = initalizeGame(gameString);
+    GameState* game = initalizeGameState(gameString);
 
     // printBoard(*game);
     // Get the next move

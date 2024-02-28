@@ -11,8 +11,7 @@ int main() {
     Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
 
     // Initialize the game
-    GameState game;
-    initializeBoard(&game);
+    GameState* game = initializeGameState();
 
     // Print out the initial game
     printf("Initial game:\n");
@@ -32,10 +31,10 @@ int main() {
         while ((getchar()) != '\n');
 
         // Convert the coordinates to uppercase
-        toUpper(&firstMoveBlack.x);
+        coordToUpper(&firstMoveBlack.x);
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(&game, firstMoveBlack) == 1) {
+        if (isValidFirstMove(game, firstMoveBlack) == 1) {
             break;
         }
 
@@ -44,14 +43,11 @@ int main() {
     }
 
     // Make the first move for black and print the game
-    makeFirstMove(&game, firstMoveBlack);
+    makeFirstMove(game, firstMoveBlack);
 
     // Print out the move and the updated game
     printf("BLACK removes %c%d\n", firstMoveBlack.x, firstMoveBlack.y);
     printBoard(game);
-
-    // Toggle the player's turn
-    game.player = MINIMIZING_PLAYER;
 
     // Get the first move for white
     while (1) {
@@ -67,10 +63,10 @@ int main() {
         while ((getchar()) != '\n');
 
         // Convert the coordinates to uppercase
-        toUpper(&firstMoveWhite.x);
+        coordToUpper(&firstMoveWhite.x);
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(&game, firstMoveWhite) == 1) {
+        if (isValidFirstMove(game, firstMoveWhite) == 1) {
             break;
         }
 
@@ -79,14 +75,11 @@ int main() {
     }
 
     // Make the first move for white and print the game
-    makeFirstMove(&game, firstMoveWhite);
+    makeFirstMove(game, firstMoveWhite);
 
     // Print out the move and the updated game
     printf("WHITE removes %c%d\n", firstMoveWhite.x, firstMoveWhite.y);
     printBoard(game);
-
-    // Toggle the player's turn
-    game.player = MAXIMIZING_PLAYER;
 
     // Main Game Loop
     while (running == 1) {
@@ -94,13 +87,13 @@ int main() {
         Move move;
 
         // Get the next move
-        if (game.player == MAXIMIZING_PLAYER) {
+        if (game->turn == BLACK) {
             printf("BLACK's move:\n");
             // move = minimax(&game);
             // printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
-            move = minimaxAlphaBeta(&game);
+            move = minimaxAlphaBeta(game);
             printf("minimaxAlphaBeta... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
-        } else if (game.player == MINIMIZING_PLAYER) {
+        } else if (game->turn == WHITE) {
             // Get a valid start move for white
             printf("WHITE's move:\n");
             printf("Enter the 'X' and 'Y' coordinates of the piece you want to move: ");
@@ -123,26 +116,25 @@ int main() {
             while ((getchar()) != '\n');
 
             // Convert the coordinates to uppercase
-            toUpper(&move.start.x);
-            toUpper(&move.end.x);
+            coordToUpper(&move.start.x);
+            coordToUpper(&move.end.x);
         }
 
         // Check if move is valid
-        if (isValidMove(&game, move) == 0) {
+        if (isValidMove(game, move) == 0) {
             printf("Invalid move\n");
         } else {
-            makeMove(&game, move);
+            makeMove(game, move);
             printBoard(game);
-            game.player = (game.player == MAXIMIZING_PLAYER) ? MINIMIZING_PLAYER : MAXIMIZING_PLAYER;
         }
 
         // Check if the game is over
-        if (game.winner != EMPTY) {
+        if (game->winner != EMPTY) {
             running = 0;
             // Print the winner
-            if (game.winner == BLACK) {
+            if (game->winner == BLACK) {
                 printf("BLACK wins!\n");
-            } else if (game.winner == WHITE) {
+            } else if (game->winner == WHITE) {
                 printf("WHITE wins!\n");
             } else {
                 printf("It's a draw!\n");

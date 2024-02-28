@@ -3,15 +3,15 @@
 #include "structures.h"
 
 
-void toUpper(char* str) {
+void coordToUpper(char* str) {
     for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] >= 'a' && str[i] <= 'z') {
-            str[i] = str[i] - 32;
+            str[i] = str[i] - ('a' - 'A');
         }
     }
 }
 
-char pieceTypeToChar(PieceType piece) {
+char pieceToChar(Player piece) {
     switch (piece) {
         case BLACK:
             return 'B';
@@ -24,36 +24,56 @@ char pieceTypeToChar(PieceType piece) {
     }
 }
 
-void initializeBoard(GameState* game) {
-    // Initialize the game board
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            game->board[y-1][x].piece = (y + x) % 2 == 0 ? BLACK : WHITE;
-            game->board[y-1][x].position.x = x;
-            game->board[y-1][x].position.y = y;
-        }
-    }
-
-    // Set the player to black
-    game->player = MAXIMIZING_PLAYER;
-
-    // Set the winner to empty
-    game->winner = EMPTY;
-}
-
-void printBoard(GameState game) {
+void printBoard(GameState* game) {
     printf("\n  A B C D E F G H\n");
     for (int y = 8; y > 0; y--) {
         printf("%d ", y);
         for (int x = 0; x < 8; x++) {
-            printf("%c ", pieceTypeToChar(game.board[y-1][x].piece));
+            printf("%c ", pieceToChar(game->board[y - 1][x].piece));
         }
         printf("%d\n", y);
     }
     printf("  A B C D E F G H\n\n");
 }
 
-GameState* copyBoard(GameState game) {
+void initializeBoard(GameState* game) {
+    // Initialize the game board
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            game->board[y - 1][x].piece = (y + x) % 2 == 0 ? BLACK : WHITE;
+            game->board[y - 1][x].position.x = x;
+            game->board[y - 1][x].position.y = y;
+        }
+    }
+
+}
+
+GameState* initializeGameState() {
+    // Allocate memory for the game
+    GameState* game = malloc(sizeof(GameState));
+
+    // Check if memory allocation failed or not
+    if (game == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    // Initialize the game board
+    initializeBoard(game);
+
+    // Set the player to black and maximizer
+    game->turn = BLACK;
+    game->maxPlayer = BLACK;
+    game->minPlayer = WHITE;
+
+    // Set the winner to empty
+    game->winner = EMPTY;
+
+    // Return the game state
+    return game;
+}
+
+GameState* copyGameState(GameState game) {
     // Allocate memory for the new game
     GameState* newGame = malloc(sizeof(GameState));
 
@@ -73,8 +93,13 @@ GameState* copyBoard(GameState game) {
         }
     }
 
-    // Copy the player
-    newGame->player = game.player;
+    // Copy the player info
+    newGame->turn = game.turn;
+    newGame->maxPlayer = game.maxPlayer;
+    newGame->minPlayer = game.minPlayer;
+
+    // Copy the winner
+    newGame->winner = game.winner;
 
     // Return the new game state
     return newGame;
@@ -93,9 +118,9 @@ int isValidFirstMove(GameState* game, Point point) {
     }
 
     // Check if the player is moving their own piece
-    if (game->player == MAXIMIZING_PLAYER && game->board[y][x].piece != BLACK) {
+    if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
         return 0;
-    } else if (game->player == MINIMIZING_PLAYER && game->board[y][x].piece != WHITE) {
+    } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
         return 0;
     }
 
@@ -103,11 +128,6 @@ int isValidFirstMove(GameState* game, Point point) {
 }
 
 int isValidMove(GameState* game, Move move) {
-    // printf("===DEBUG===\n");
-    // printf("Start: %c%d\n", move.start.x, move.start.y);
-    // printf("End: %c%d\n", move.end.x, move.end.y);
-    // printf("===/DEBUG===\n");
-
     // Convert the x coordinates from A-H to 0-7
     int x = move.start.x - 'A';
     int newX = move.end.x - 'A';
@@ -137,23 +157,18 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the player is moving their own piece
-    if (game->player == MAXIMIZING_PLAYER && game->board[y][x].piece != BLACK) {
+    if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
         return 0;
-    } else if (game->player == MINIMIZING_PLAYER && game->board[y][x].piece != WHITE) {
+    } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
         return 0;
     }
 
     // Check if the player is jumping over an opponent's piece
-    if (game->player == MAXIMIZING_PLAYER && game->board[(y + newY) / 2][(x + newX) / 2].piece != WHITE) {
+    if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2].piece != WHITE) {
         return 0;
-    } else if (game->player == MINIMIZING_PLAYER && game->board[(y + newY) / 2][(x + newX) / 2].piece != BLACK) {
+    } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2].piece != BLACK) {
         return 0;
     }
-
-    // printf("===DEBUG===\n");
-    // printf("Start: %c%d\n", 'A' + x, y + 1); // 'A' + 0 = 'A', 0 + 1 = '1'
-    // printf("End: %c%d\n", 'A' + newX, newY + 1); // 'A' + 2 = 'C', 2 + 1 = '3'
-    // printf("===/DEBUG===\n");
 
     return 1;
 }
@@ -176,6 +191,32 @@ void addValidMove(ValidMoves* validMoves, Move move) {
     validMoves->size++;
 }
 
+int isFirstMove(GameState* game) {
+    // Initialize the empty counter
+    int emptyCounter = 0;
+
+    // Count the number of empty spaces, if there are less than 2, then it's the first move
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            if (game->board[y - 1][x].piece == EMPTY) {
+                emptyCounter++;
+            }
+            // Exit early if there are more than 2 empty spaces
+            if (emptyCounter > 2) {
+                return 0;
+            }
+        }
+    }
+    // If there are less than 2 empty spaces, then it's the first move
+    return emptyCounter < 2;
+}
+
+void togglePlayer(GameState* game) {
+    game->turn = (game->turn == BLACK) ? WHITE : BLACK;
+    game->maxPlayer = (game->maxPlayer == BLACK) ? WHITE : BLACK;
+    game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
+}
+
 void makeFirstMove(GameState* game, Point point) {
     // Convert the x coordinates from A-H to 0-7
     int x = point.x - 'A';
@@ -185,6 +226,9 @@ void makeFirstMove(GameState* game, Point point) {
 
     // Make the move
     game->board[y][x].piece = EMPTY;
+
+    // Toggle the player related info
+    togglePlayer(game);
 }
 
 void makeMove(GameState* game, Move move) {
@@ -200,6 +244,9 @@ void makeMove(GameState* game, Move move) {
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
     game->board[oldY][oldX].piece = EMPTY;
     game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2].piece = EMPTY;
+
+    // Toggle the player related info
+    togglePlayer(game);
 }
 
 ValidMoves findValidMoves(GameState* game) {
@@ -279,7 +326,7 @@ void addChild(Node* node, Move move) {
 
     // Add the child to the array
     Node* child = malloc(sizeof(Node));
-    child->game = *copyBoard(node->game);
+    child->game = *copyGameState(node->game);
     makeMove(&child->game, move);
     node->children[node->size] = *child;
     node->size++;

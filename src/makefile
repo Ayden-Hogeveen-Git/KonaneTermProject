@@ -23,7 +23,7 @@ konane.o: konane.c structures.h konane.h
 	$(CC) $(CFLAGS) $< -c
 
 # Phony targets
-.PHONY: valgrind-gameDemo valgrind-agentInterface clean tar
+.PHONY: valgrind-gameDemo valgcoordTind-agentInterface clean tar
 
 valgrind-gameDemo:
 	valgrind --leak-check=full ./gameDemo

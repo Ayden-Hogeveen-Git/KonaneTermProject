@@ -75,9 +75,6 @@ GameState* initalizeGame(char* gameString) {
     // Format the game string
     char* newGameString = formatGameString(gameString);
 
-    printf("%s\n", newGameString);
-
-
     // Initialize the game board
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
@@ -193,10 +190,11 @@ int main(int argc, char* argv[]) {
     // Initialize the game
     GameState* game = initalizeGame(gameString);
 
-    // printf("%s\n", gameString);
-    printBoard(*game);
+    // printBoard(*game);
     // Get the next move
     Move move = minimaxAlphaBeta(game);
+    // Move move = minimaxNew(game);
+    // Move move = minimax(game);
 
     // Output the move
     agentOutput(move);

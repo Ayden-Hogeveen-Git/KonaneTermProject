@@ -2,6 +2,7 @@
 /tests/.newgame.txt
 
 # Executables and Objects
+/src/main
 /src/gameDemo
 /src/agentInterface
 /src/*.o

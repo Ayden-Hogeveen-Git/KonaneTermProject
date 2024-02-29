@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "structures.h"
 #include "konane.h"
 
@@ -23,6 +24,9 @@ Move chooseFirstMove(GameState* game) {
 	Move moveBlack2 = { .start = { .x = 'E', .y = 4 }, .end = { .x = 'E', .y = 4 } };
 	Move moveWhite1 = { .start = { .x = 'D', .y = 4 }, .end = { .x = 'D', .y = 4 } };
 	Move moveWhite2 = { .start = { .x = 'E', .y = 5 }, .end = { .x = 'E', .y = 5 } };
+
+	// Seed the random number generator using the current time
+	srand(time(NULL));
 
 	// If it's the first move for black, return with 50% probability one of the two center pieces
 	if (game->turn == BLACK) {

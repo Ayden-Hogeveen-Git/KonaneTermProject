@@ -23,22 +23,29 @@ konane.o: konane.c structures.h konane.h
 	$(CC) $(CFLAGS) $< -c
 
 # Phony targets
-.PHONY: valgrind-gameDemo valgcoordTind-agentInterface
-		test-agentInterface-newGameB
-		test-agentInterface-newGameW
-		test-agentInterface-game1B
-		test-agentInterface-game1W
-		test-driver-random-random
-		test-driver-random-agent
-		test-driver-agent-random
-		test-driver-agent-agent
+.PHONY: valgrind-gameDemo valgrind-agentInterface \
+		gdb-gameDemo gdb-agentInterface \
+		test-agentInterface-newGameB \
+		test-agentInterface-newGameW \
+		test-agentInterface-game1B \
+		test-agentInterface-game1W \
+		test-driver-random-random \
+		test-driver-random-agent \
+		test-driver-agent-random \
+		test-driver-agent-agent \
 		clean tar
 
 valgrind-gameDemo:
 	valgrind --leak-check=full ./gameDemo
 
 valgrind-agentInterface:
-	valgrind --leak-check=full ./agentInterface
+	valgrind --leak-check=full ./agentInterface ../test/board_states/newGameB.txt B
+
+gdb-gameDemo:
+	gdb ./gameDemo
+
+gdb-agentInterface:
+	gdb ./agentInterface ../test/board_states/newGameB.txt B
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B

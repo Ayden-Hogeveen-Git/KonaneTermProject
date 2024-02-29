@@ -112,12 +112,12 @@ GameState* initalizeGameState(char* gameString, char player) {
 void agentOutput(Move move) {
 	// If the start and end coordinates are the same, then it's a first move
 	if (move.start.x == move.end.x && move.start.y == move.end.y) {
-		printf("%c%d", move.start.x, move.start.y);
+		printf("%c%d\n", move.start.x, move.start.y);
 	}
 
 	// Otherwise, it's a regular move
 	else {
-		printf("%c%d-%c%d", move.start.x, move.start.y, move.end.x, move.end.y);
+		printf("%c%d-%c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
 	}
 }
 
@@ -180,20 +180,67 @@ int main(int argc, char* argv[]) {
     // strcpy(gameStateString, defaultGameString);
 
 
-    // Initialize the game
+
+    // Initialize the game state 
     GameState* game = initalizeGameState(gameStateString, *argv[2]);
-
-    // printBoard(*game);
-    // Get the next move
-    Move move = minimaxAlphaBeta(game);
-    // Move move = minimaxNew(game);
-    // Move move = minimax(game);
-
-    // Output the move
-    agentOutput(move);
 
     // Free the memory
     free(gameStateString);
+
+    // Enter the game loop
+    while (game->winner == EMPTY) {
+        // Get the next move
+        Move move = minimaxAlphaBeta(game);
+        // Move move = minimaxNew(game);
+        // Move move = minimax(game);
+
+        // Make the move
+        makeMove(game, move);
+
+        // Output the move
+        agentOutput(move);
+
+        // // Print the game board
+        // printBoard(game);
+
+        // Scan stdin for the next move
+        char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
+        if (nextMoveString == NULL) {
+            printf("Memory allocation failed\n");
+            return 1;
+        }
+
+        // Read the next move from stdin
+        scanf("%s", nextMoveString);
+
+        // Clear the input buffer
+        while ((getchar()) != '\n');
+
+        // Parse the next move in to a Move struct
+        Move nextMove;
+        if (nextMoveString[2] == '-') {
+            nextMove.start.x = nextMoveString[0];
+            nextMove.start.y = nextMoveString[1] - '0';
+            nextMove.end.x = nextMoveString[3];
+            nextMove.end.y = nextMoveString[4] - '0';
+        } else {
+            nextMove.start.x = nextMoveString[0];
+            nextMove.start.y = nextMoveString[1] - '0';
+            nextMove.end.x = nextMoveString[0];
+            nextMove.end.y = nextMoveString[1] - '0';
+        }
+
+        // Make the next move
+        makeMove(game, nextMove);
+
+        // // Print the game board
+        // printBoard(game);
+
+        // Free the memory
+        free(nextMoveString);
+    }
+
+    // Free the memory
     free(game);
 
     return 0;

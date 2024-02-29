@@ -28,6 +28,10 @@ konane.o: konane.c structures.h konane.h
 		test-agentInterface-newGameW
 		test-agentInterface-game1B
 		test-agentInterface-game1W
+		test-driver-random-random
+		test-driver-random-agent
+		test-driver-agent-random
+		test-driver-agent-agent
 		clean tar
 
 valgrind-gameDemo:
@@ -47,6 +51,18 @@ test-agentInterface-game1B:
 
 test-agentInterface-game1W:
 	./agentInterface ../test/board_states/game1W.txt W
+
+test-driver-random-random:
+	perl ../test/drivercheck.pl ../test/konanerandomplayer ../test/konanerandomplayer
+
+test-driver-random-agent:
+	perl ../test/drivercheck.pl ../test/konanerandomplayer ./agentInterface
+
+test-driver-agent-random:
+	perl ../test/drivercheck.pl ./agentInterface ../test/konanerandomplayer
+
+test-driver-agent-agent:
+	perl ../test/drivercheck.pl ./agentInterface ./agentInterface
 
 clean:
 	rm -f gameDemo agentInterface konane

@@ -74,13 +74,16 @@ GameState* initalizeGameState(char* gameString, char player) {
         for (int x = 0; x < 8; x++) {
             // Convert the character to a piece
             if (gameStringFormatted[(8 - y) * 8 + x] == 'B') {
-                newGame->board[y - 1][x].piece = BLACK;
+                // newGame->board[y - 1][x].piece = BLACK;
+                newGame->board[y - 1][x] = BLACK;
             }
             else if (gameStringFormatted[(8 - y)*8 + x] == 'W') {
-                newGame->board[y - 1][x].piece = WHITE;
+                // newGame->board[y - 1][x].piece = WHITE;
+                newGame->board[y - 1][x] = WHITE;
             }
             else if (gameStringFormatted[(8 - y)*8 + x] == 'O') {
-                newGame->board[y - 1][x].piece = EMPTY;
+                // newGame->board[y - 1][x].piece = EMPTY;
+                newGame->board[y - 1][x] = EMPTY;
             }
             else if (gameStringFormatted[(8 - y)*8 + x] == '\0') {
                 break;
@@ -90,9 +93,9 @@ GameState* initalizeGameState(char* gameString, char player) {
                 exit(1);
             }
 
-            // Set the position of the piece
-            newGame->board[y - 1][x].position.x = x;
-            newGame->board[y - 1][x].position.y = y;
+            // // Set the position of the piece
+            // newGame->board[y - 1][x].position.x = x;
+            // newGame->board[y - 1][x].position.y = y;
         }
     }
 

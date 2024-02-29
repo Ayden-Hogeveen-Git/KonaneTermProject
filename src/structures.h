@@ -23,14 +23,15 @@ typedef struct {
     int size;
 } ValidMoves;
 
-typedef struct {
-    Point position; // Probably not needed
-    Player piece; // 'B' for black, 'W' for white, 'O' for empty
-} Cell;
+// typedef struct {
+//     Point position; // Probably not needed
+//     Player piece; // 'B' for black, 'W' for white, 'O' for empty
+// } Cell;
 
 typedef struct {
     Move prevMove;
-    Cell board[8][8];
+    // Cell board[8][8];
+    Player board[8][8];
     Player turn;
     Player winner;
     Player maxPlayer;

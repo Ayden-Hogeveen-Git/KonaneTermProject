@@ -29,7 +29,8 @@ void printBoard(GameState* game) {
     for (int y = 8; y > 0; y--) {
         printf("%d ", y);
         for (int x = 0; x < 8; x++) {
-            printf("%c ", pieceToChar(game->board[y - 1][x].piece));
+            // printf("%c ", pieceToChar(game->board[y - 1][x].piece));
+            printf("%c ", pieceToChar(game->board[y - 1][x]));
         }
         printf("%d\n", y);
     }
@@ -40,9 +41,10 @@ void initializeBoard(GameState* game) {
     // Initialize the game board
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
-            game->board[y - 1][x].piece = (y + x) % 2 == 0 ? BLACK : WHITE;
-            game->board[y - 1][x].position.x = x;
-            game->board[y - 1][x].position.y = y;
+            // game->board[y - 1][x].piece = (y + x) % 2 == 0 ? BLACK : WHITE;
+            // game->board[y - 1][x].position.x = x;
+            // game->board[y - 1][x].position.y = y;
+            game->board[y - 1][x] = (y + x) % 2 == 0 ? BLACK : WHITE;
         }
     }
 
@@ -118,9 +120,14 @@ int isValidFirstMove(GameState* game, Point point) {
     }
 
     // Check if the player is moving their own piece
-    if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
+    // if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
+    //     return 0;
+    // } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
+    //     return 0;
+    // }
+    if (game->turn == BLACK && game->board[y][x] != BLACK) {
         return 0;
-    } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
+    } else if (game->turn == WHITE && game->board[y][x] != WHITE) {
         return 0;
     }
 
@@ -147,7 +154,10 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the piece is moving to an empty space
-    if (game->board[newY][newX].piece != EMPTY) {
+    // if (game->board[newY][newX].piece != EMPTY) {
+    //     return 0;
+    // }
+    if (game->board[newY][newX] != EMPTY) {
         return 0;
     }
 
@@ -157,16 +167,26 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the player is moving their own piece
-    if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
+    // if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
+    //     return 0;
+    // } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
+    //     return 0;
+    // }
+    if (game->turn == BLACK && game->board[y][x] != BLACK) {
         return 0;
-    } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
+    } else if (game->turn == WHITE && game->board[y][x] != WHITE) {
         return 0;
     }
 
     // Check if the player is jumping over an opponent's piece
-    if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2].piece != WHITE) {
+    // if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2].piece != WHITE) {
+    //     return 0;
+    // } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2].piece != BLACK) {
+    //     return 0;
+    // }
+    if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2] != WHITE) {
         return 0;
-    } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2].piece != BLACK) {
+    } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2] != BLACK) {
         return 0;
     }
 
@@ -198,7 +218,10 @@ int isFirstMove(GameState* game) {
     // Count the number of empty spaces, if there are less than 2, then it's the first move
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
-            if (game->board[y - 1][x].piece == EMPTY) {
+            // if (game->board[y - 1][x].piece == EMPTY) {
+            //     emptyCounter++;
+            // }
+            if (game->board[y - 1][x] == EMPTY) {
                 emptyCounter++;
             }
             // Exit early if there are more than 2 empty spaces
@@ -225,7 +248,8 @@ void makeFirstMove(GameState* game, Point point) {
     int y = point.y - 1;
 
     // Make the move
-    game->board[y][x].piece = EMPTY;
+    // game->board[y][x].piece = EMPTY;
+    game->board[y][x] = EMPTY;
 
     // Toggle the player related info
     togglePlayer(game);
@@ -241,9 +265,12 @@ void makeMove(GameState* game, Move move) {
     int newYIndex = move.end.y - 1;
 
     // Make the move
+    // game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
+    // game->board[oldY][oldX].piece = EMPTY;
+    // game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2].piece = EMPTY;
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
-    game->board[oldY][oldX].piece = EMPTY;
-    game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2].piece = EMPTY;
+    game->board[oldY][oldX] = EMPTY;
+    game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
 
     // Toggle the player related info
     togglePlayer(game);

@@ -23,7 +23,12 @@ konane.o: konane.c structures.h konane.h
 	$(CC) $(CFLAGS) $< -c
 
 # Phony targets
-.PHONY: valgrind-gameDemo valgcoordTind-agentInterface clean tar
+.PHONY: valgrind-gameDemo valgcoordTind-agentInterface
+		test-agentInterface-newGameB
+		test-agentInterface-newGameW
+		test-agentInterface-game1B
+		test-agentInterface-game1W
+		clean tar
 
 valgrind-gameDemo:
 	valgrind --leak-check=full ./gameDemo
@@ -31,8 +36,20 @@ valgrind-gameDemo:
 valgrind-agentInterface:
 	valgrind --leak-check=full ./agentInterface
 
+test-agentInterface-newGameB:
+	./agentInterface ../test/board_states/newGameB.txt B
+
+test-agentInterface-newGameW:
+	./agentInterface ../test/board_states/newGameW.txt W
+
+test-agentInterface-game1B:
+	./agentInterface ../test/board_states/game1B.txt B
+
+test-agentInterface-game1W:
+	./agentInterface ../test/board_states/game1W.txt W
+
 clean:
-	rm -f gameDemo agentInterface konane 
+	rm -f gameDemo agentInterface konane
 	rm -f *.exe *.o *.out
 	rm -f *.~ .*.swo .*.swp .nfo*
 

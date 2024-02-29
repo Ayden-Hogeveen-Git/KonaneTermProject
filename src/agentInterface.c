@@ -6,29 +6,20 @@
 #include "minimaxAgent.h"
 
 
-void whoseTurn(GameState* game) {
-    int black = 0;
-    int white = 0;
-
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            if (game->board[y - 1][x].piece == BLACK) {
-                black++;
-            }
-            else if (game->board[y - 1][x].piece == WHITE) {
-                white++;
-            }
-        }
-    }
-
-    if (black > white) {
-        game->turn = WHITE;
-        game->maxPlayer = WHITE;
-        game->minPlayer = BLACK;
-    } else {
+void setPlayersTurn(GameState* game, char player) {
+    if (player == 'B') {
         game->turn = BLACK;
         game->maxPlayer = BLACK;
         game->minPlayer = WHITE;
+    }
+    else if (player == 'W') {
+        game->turn = WHITE;
+        game->maxPlayer = WHITE;
+        game->minPlayer = BLACK;
+    }
+    else {
+        printf("Invalid player\n");
+        exit(1);
     }
 }
 
@@ -65,7 +56,7 @@ char* formatGameString(char* gameString) {
     return newGameString;
 }
 
-GameState* initalizeGameState(char* gameString) {
+GameState* initalizeGameState(char* gameString, char player) {
     // Allocate memory for the new game
     GameState* newGame = malloc(sizeof(GameState));
 
@@ -105,8 +96,8 @@ GameState* initalizeGameState(char* gameString) {
         }
     }
 
-    // Determine and set the player's turn
-    whoseTurn(newGame);
+    // Set the player's turn
+    setPlayersTurn(newGame, player);
 
     // Set the winner to empty
     newGame->winner = EMPTY;
@@ -131,64 +122,66 @@ void agentOutput(Move move) {
 }
 
 int main(int argc, char* argv[]) {
+    // Check if the user provided a file and whose turn it is
+    if (argc != 3) {
+        fprintf(stderr, "Error: Incorrect number of arguments. Usage: %s <filename> <B|W>\n", argv[0]);
+        return 1;
+    }
+
+    // Check if the second argument is a valid file
+    FILE* file = fopen(argv[1], "r");
+    if (file == NULL) {
+        fprintf(stderr, "Error: Could not open file '%s'.\n", argv[1]);
+        return 1;
+    }
+
+    // Check if the third argument is a valid player
+    if (argv[2][0] != 'B' && argv[2][0] != 'W') {
+        fprintf(stderr, "Error: Invalid player '%s'. Must be either 'B' or 'W'.\n", argv[2]);
+        return 1;
+    }
+
     // Initialize the game string
-    char* gameString = malloc(72); // 64 (8 x 8) + 7 newline characters + 1 null terminator
-    if (gameString == NULL) {
+    char* gameStateString = malloc(72); // 64 (8 x 8) + 7 newline characters + 1 null terminator
+    if (gameStateString == NULL) {
         printf("Memory allocation failed\n");
         return 1;
     }
 
-    // Check if the user provided a file
-    if (argc == 2) {
-        // Initialize the file
-        FILE* file;
-
-        // Open the file
-        file = fopen(argv[1], "r");
-        if (file == NULL) {
-            printf("File not found\n");
-            return 1;
+    // Read all lines of the game from the file, including the newline characters
+    char c;
+    int i = 0;
+    while ((c = fgetc(file)) != EOF) {
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+            gameStateString[i] = c;
+            i++;
         }
-
-        // Read all lines of the game from the file, including the newline characters
-        char c;
-        int i = 0;
-        while ((c = fgetc(file)) != EOF) {
-            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-                gameString[i] = c;
-                i++;
-            }
-        }
-
-        // Add the null terminator to the end of the string
-        gameString[i] = '\0';
-
-        // Close the file
-        if (file != NULL) {
-            fclose(file);
-        }
-
-    } else if (argc == 1) {
-        // Define a default new game string
-        const char* defaultGameString = "BWBWBWBW"
-                                        "WBWBWBWB"
-                                        "BWBWBWBW"
-                                        "WBWBWBWB"
-                                        "BWBWBWBW"
-                                        "WBWBWBWB"
-                                        "BWBWBWBW"
-                                        "WBWBWBWB";
-
-        // Copy the default game string to the game string
-        strcpy(gameString, defaultGameString);
-
-    } else {
-        printf("Usage: %s [file]\n", argv[0]);
-        return 1;
     }
 
+    // Add the null terminator to the end of the string
+    gameStateString[i] = '\0';
+
+    // Close the file
+    if (file != NULL) {
+        fclose(file);
+    }
+
+    // // Define a default new game string
+    // const char *defaultGameString = "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB";
+
+    // // Copy the default game string to the game string
+    // strcpy(gameStateString, defaultGameString);
+
+
     // Initialize the game
-    GameState* game = initalizeGameState(gameString);
+    GameState* game = initalizeGameState(gameStateString, *argv[2]);
 
     // printBoard(*game);
     // Get the next move
@@ -200,7 +193,7 @@ int main(int argc, char* argv[]) {
     agentOutput(move);
 
     // Free the memory
-    free(gameString);
+    free(gameStateString);
     free(game);
 
     return 0;

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <time.h>	
 #include "structures.h"
 #include "konane.h"
 
@@ -63,6 +63,31 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
+int evalCountBW(GameState* game) {
+	// Initialize the counters
+	int blackCount = 0;
+	int whiteCount = 0;
+
+	// Loop through the board
+	for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < 8; i++) {
+			// If the piece is black, increment the black counter
+			if (game->board[j][i] == BLACK) {
+				blackCount++;
+			} else if (game->board[j][i] == WHITE) {
+				whiteCount++;
+			}
+		}
+	}
+
+	// Return the difference between the two counters
+	if (game->turn == BLACK) {
+		return blackCount - whiteCount;
+	} else {
+		return whiteCount - blackCount;
+	}
+}
+
 int minValue(GameState* game, ValidMoves validMoves, int depth) {
     /*
     function MIN-VALUE(game) returns a utility value
@@ -73,9 +98,9 @@ int minValue(GameState* game, ValidMoves validMoves, int depth) {
      return v
     */
 
-    // If terminal game, return utility value of 0
+    // If terminal game, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return 0;
+        return evalCountBW(game);
     }
 
     // Initialize v to positive infinity
@@ -114,9 +139,9 @@ int maxValue(GameState* game, ValidMoves validMoves, int depth) {
      return v
      */
 
-    // If terminal game, return utility value
+    // If terminal game, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return 0;
+        return evalCountBW(game);
     }
 
     // Initialize v to negative infinity
@@ -159,14 +184,9 @@ int minValueNew(Node* node, int depth) {
 	// Generate all the valid moves as children
 	generateChildren(node);
 
-	// If terminal game, return utility value of 0
-	if (node->size == 0) {
-		return 0;
-	}
-
-	// If depth is 0, return heuristic utility value
-	if (depth == 0) {
-		return node->size;
+	// If terminal game, or depth is 0, return utility value
+	if (node->size == 0 || depth == 0) {
+		return evalCountBW(&node->game);
 	}
 
 	// Initialize v to positive infinity
@@ -175,7 +195,7 @@ int minValueNew(Node* node, int depth) {
 	// Loop through valid moves
 	for (int i = 0; i < node->size; i++) {
 		// Get the max value
-		v = min(v, maxValueNew(&node->children[i], depth - 1));
+		v = min(v, maxValueNew(node->children[i], depth - 1));
 	}
 
 	// Return v
@@ -195,14 +215,9 @@ int maxValueNew(Node* node, int depth) {
 	// Generate all the valid moves as children
 	generateChildren(node);
 
-	// If terminal game, return utility value
-	if (node->size == 0) {
-		return 0;
-	}
-
-	// If depth is 0, return heuristic utility value
-	if (depth == 0) {
-		return node->size;
+	// If terminal game, or depth is 0, return utility value
+	if (node->size == 0 || depth == 0) {
+		return evalCountBW(&node->game);
 	}
 
 	// Initialize v to negative infinity
@@ -211,7 +226,7 @@ int maxValueNew(Node* node, int depth) {
 	// Loop through valid moves
 	for (int i = 0; i < node->size; i++) {
 		// Get the min value
-		v = max(v, minValueNew(&node->children[i], depth - 1));
+		v = max(v, minValueNew(node->children[i], depth - 1));
 	}
 
 	// Return v
@@ -228,9 +243,9 @@ int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alp
      return v
     */
 
-    // If terminal state, return utility value of 0
+    // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return 0;
+        return evalCountBW(game);
     }
 
     // Initialize v to positive infinity
@@ -275,9 +290,9 @@ int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alp
      return v
      */
 
-    // If terminal state, return utility value
+    // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return 0;
+        return evalCountBW(game);
     }
 
     // Initialize v to negative infinity
@@ -417,7 +432,7 @@ Move minimaxNew(GameState* game) {
 		// If player is maximizing, get the max value
 		if (node->game.turn == node->game.maxPlayer) {
 			// Get the max value
-			value = maxValueNew(&node->children[i], MAX_DEPTH);
+			value = maxValueNew(node->children[i], MAX_DEPTH);
 
 			// If value is greater than max, update max
 			if (value > max) {
@@ -426,7 +441,7 @@ Move minimaxNew(GameState* game) {
 			}
 		} else if (node->game.turn == node->game.minPlayer) {
 			// Get the min value
-			value = minValueNew(&node->children[i], MAX_DEPTH);
+			value = minValueNew(node->children[i], MAX_DEPTH);
 
 			// If value is less than min, update min
 			if (value < min) {
@@ -437,7 +452,8 @@ Move minimaxNew(GameState* game) {
 	}
 
 	// Store the best move
-	Move bestMove = node->children[bestMoveIndex].game.prevMove;
+	printf("Best move index: %d\n", bestMoveIndex);
+	Move bestMove = node->children[bestMoveIndex]->game.prevMove;
 
 	// Free the memory
 	free(node);
@@ -458,7 +474,7 @@ Move minimaxAlphaBeta(GameState* game) {
     */
     
 	// Determine if it's the first move for black or white
-	if (isFirstMove(game)) {
+	if (game->firstMove && isFirstMove(game)) {
 		// If it's the first move, return the first chosen move
 		return chooseFirstMove(game);
 	}

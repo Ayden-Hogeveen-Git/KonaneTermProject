@@ -99,6 +99,14 @@ GameState* initalizeGameState(char* gameString, char player) {
         }
     }
 
+    // Check if it's a first move
+    if (isFirstMove(newGame)) {
+        newGame->firstMove = 1;
+    }
+    else {
+        newGame->firstMove = 0;
+    }
+
     // Set the player's turn
     setPlayersTurn(newGame, player);
 
@@ -190,6 +198,13 @@ int main(int argc, char* argv[]) {
     // Free the memory
     free(gameStateString);
 
+    // Allocate memory for the next move string
+    char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
+    if (nextMoveString == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
     // Enter the game loop
     while (game->winner == EMPTY) {
         // Get the next move
@@ -200,24 +215,20 @@ int main(int argc, char* argv[]) {
         // Make the move
         makeMove(game, move);
 
-        // Output the move
+        // Output the move to stdout
         agentOutput(move);
 
         // // Print the game board
         // printBoard(game);
-
-        // Scan stdin for the next move
-        char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
-        if (nextMoveString == NULL) {
-            printf("Memory allocation failed\n");
-            return 1;
-        }
 
         // Read the next move from stdin
         scanf("%s", nextMoveString);
 
         // Clear the input buffer
         while ((getchar()) != '\n');
+
+        // Convert the coordinates to uppercase
+        coordToUpper(nextMoveString);
 
         // Parse the next move in to a Move struct
         Move nextMove;
@@ -238,12 +249,10 @@ int main(int argc, char* argv[]) {
 
         // // Print the game board
         // printBoard(game);
-
-        // Free the memory
-        free(nextMoveString);
     }
 
     // Free the memory
+    free(nextMoveString);
     free(game);
 
     return 0;

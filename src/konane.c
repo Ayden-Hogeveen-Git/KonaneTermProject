@@ -226,6 +226,8 @@ int isFirstMove(GameState* game) {
             }
             // Exit early if there are more than 2 empty spaces
             if (emptyCounter > 2) {
+                // Set the first move flag to 0
+                game->firstMove = 0;
                 return 0;
             }
         }
@@ -342,7 +344,7 @@ void addChild(Node* node, Move move) {
     // If the children array is full, double the capacity
     if (node->size == node->capacity) {
         node->capacity *= 2;
-        node->children = realloc(node->children, node->capacity * sizeof(Node));
+        node->children = realloc(node->children, node->capacity * sizeof(Node*));
 
         // Check if memory allocation failed or not
         if (node->children == NULL) {
@@ -351,11 +353,26 @@ void addChild(Node* node, Move move) {
         }
     }
 
-    // Add the child to the array
+    // Allocate memory for the child
     Node* child = malloc(sizeof(Node));
+
+    // Check if memory allocation failed or not
+    if (child == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    // Initialize the child by copying the parent's game state
     child->game = *copyGameState(node->game);
+
+    // Make the move on the child's game state
     makeMove(&child->game, move);
-    node->children[node->size] = *child;
+
+    // Add the current move to the previous move of the child
+    child->game.prevMove = move;
+
+    // Add the child to the children array
+    node->children[node->size] = child;
     node->size++;
 }
 
@@ -364,26 +381,30 @@ void generateChildren(Node* node) {
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
             // Check if the piece can move to the left
-            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
+            Move moveLeft = {{'A' + x, y}, {'A' + x + 2, y}};
             if (isValidMove(&node->game, moveLeft) == 1) {
+                printf("Move Left Child added: %c%d-%c%d\n", moveLeft.start.x, moveLeft.start.y, moveLeft.end.x, moveLeft.end.y);
                 addChild(node, moveLeft);
             }
 
             // Check if the piece can move to the right
-            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
+            Move moveRight = {{'A' + x, y}, {'A' + x - 2, y}};
             if (isValidMove(&node->game, moveRight) == 1) {
+                printf("Move Right Child added: %c%d-%c%d\n", moveRight.start.x, moveRight.start.y, moveRight.end.x, moveRight.end.y);
                 addChild(node, moveRight);
             }
 
             // Check if the piece can move up
-            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
+            Move moveUp = {{'A' + x, y}, {'A' + x, y + 2}};
             if (isValidMove(&node->game, moveUp) == 1) {
+                printf("Move Up Child added: %c%d-%c%d\n", moveUp.start.x, moveUp.start.y, moveUp.end.x, moveUp.end.y);
                 addChild(node, moveUp);
             }
 
             // Check if the piece can move down
-            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
+            Move moveDown = {{'A' + x, y}, {'A' + x, y - 2}};
             if (isValidMove(&node->game, moveDown) == 1) {
+                printf("Move Down Child added: %c%d-%c%d\n", moveDown.start.x, moveDown.start.y, moveDown.end.x, moveDown.end.y);
                 addChild(node, moveDown);
             }
         }

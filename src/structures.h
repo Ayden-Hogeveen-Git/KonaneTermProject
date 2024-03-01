@@ -5,7 +5,7 @@ typedef enum { BLACK, WHITE, EMPTY } Player;
 
 #define MAX_DEPTH 10
 #define MAX_MOVES 32
-#define THINKINGTIME 10
+#define THINKINGTIME 20
 
 typedef struct {
     char x;
@@ -32,6 +32,7 @@ typedef struct {
     Move prevMove;
     // Cell board[8][8];
     Player board[8][8];
+    int firstMove;
     Player turn;
     Player winner;
     Player maxPlayer;
@@ -40,7 +41,7 @@ typedef struct {
 
 typedef struct Node {
     GameState game;
-    struct Node* children;
+    struct Node** children;
     int capacity;
     int size;
 } Node;

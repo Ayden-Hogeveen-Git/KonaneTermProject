@@ -60,16 +60,16 @@ test-agentInterface-game1W:
 	./agentInterface ../test/board_states/game1W.txt W
 
 test-driver-random-random:
-	perl ../test/drivercheck.pl ../test/konanerandomplayer ../test/konanerandomplayer
+	cd ../test && perl drivercheck.pl konanerandomplayer konanerandomplayer
 
 test-driver-random-agent:
-	perl ../test/drivercheck.pl ../test/konanerandomplayer ./agentInterface
+	cd ../test && perl drivercheck.pl konanerandomplayer ../src/agentInterface
 
 test-driver-agent-random:
-	perl ../test/drivercheck.pl ./agentInterface ../test/konanerandomplayer
+	cd ../test && perl drivercheck.pl ../src/agentInterface konanerandomplayer
 
 test-driver-agent-agent:
-	perl ../test/drivercheck.pl ./agentInterface ./agentInterface
+	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface
 
 clean:
 	rm -f gameDemo agentInterface konane

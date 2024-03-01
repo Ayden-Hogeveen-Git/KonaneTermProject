@@ -1,5 +1,5 @@
 # Test related files
-/tests/.newgame.txt
+/test/.newgame.txt
 
 # Executables and Objects
 /src/main

@@ -208,9 +208,9 @@ int main(int argc, char* argv[]) {
     // Enter the game loop
     while (game->winner == EMPTY) {
         // Get the next move
-        Move move = minimaxAlphaBeta(game);
-        // Move move = minimaxNew(game);
         // Move move = minimax(game);
+        // Move move = minimaxNew(game);
+        Move move = minimaxAlphaBeta(game);
 
         // Make the move
         makeMove(game, move);
@@ -218,11 +218,21 @@ int main(int argc, char* argv[]) {
         // Output the move to stdout
         agentOutput(move);
 
-        // // Print the game board
-        // printBoard(game);
+        // Print the entire game state
+        printBoard(game);
+        printf("firstMove: %d\n", game->firstMove);
+        printf("prevMove: %c%d-%c%d\n", game->prevMove.start.x, game->prevMove.start.y, game->prevMove.end.x, game->prevMove.end.y);
+        printf("turn: %c\n", pieceToChar(game->turn));
+        printf("maxPlayer: %c\n", pieceToChar(game->maxPlayer));
+        printf("minPlayer: %c\n", pieceToChar(game->minPlayer));
+        printf("winner: %c\n", pieceToChar(game->winner));
+
 
         // Read the next move from stdin
-        scanf("%s", nextMoveString);
+        if (scanf("%s", nextMoveString) != 1) {
+            fprintf(stderr, "Error: Could not read next move from stdin.\n");
+            return 1;
+        }
 
         // Clear the input buffer
         while ((getchar()) != '\n');
@@ -247,8 +257,14 @@ int main(int argc, char* argv[]) {
         // Make the next move
         makeMove(game, nextMove);
 
-        // // Print the game board
-        // printBoard(game);
+        // Print the entire game state
+        printBoard(game);
+        printf("firstMove: %d\n", game->firstMove);
+        printf("prevMove: %c%d-%c%d\n", game->prevMove.start.x, game->prevMove.start.y, game->prevMove.end.x, game->prevMove.end.y);
+        printf("turn: %c\n", pieceToChar(game->turn));
+        printf("maxPlayer: %c\n", pieceToChar(game->maxPlayer));
+        printf("minPlayer: %c\n", pieceToChar(game->minPlayer));
+        printf("winner: %c\n", pieceToChar(game->winner));
     }
 
     // Free the memory

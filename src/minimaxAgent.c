@@ -80,6 +80,8 @@ int evalCountBW(GameState* game) {
 		}
 	}
 
+	printf("Black: %d, White: %d\n", blackCount, whiteCount);
+
 	// Return the difference between the two counters
 	if (game->turn == BLACK) {
 		return blackCount - whiteCount;
@@ -196,6 +198,7 @@ int minValueNew(Node* node, int depth) {
 	for (int i = 0; i < node->size; i++) {
 		// Get the max value
 		v = min(v, maxValueNew(node->children[i], depth - 1));
+		printf("v: %d\n", v);
 	}
 
 	// Return v
@@ -405,12 +408,35 @@ Move minimaxNew(GameState* game) {
      v←MAX-VALUE(game)
      return the action in SUCCESSORS(game) with value v
     */
+    
+	// Determine if it's the first move for black or white
+	if (game->firstMove && isFirstMove(game)) {
+		// If it's the first move, return the first chosen move
+		return chooseFirstMove(game);
+	}
 
-    // Initialize the root node
+    // Allocate memory for the root node
 	Node* node = malloc(sizeof(Node));
+
+	// Check if memory was allocated
+	if (node == NULL) {
+		printf("Error: Memory not allocated for node\n");
+		exit(1);
+	}
+
+	// Initialize the node
 	node->game = *game;
 	node->capacity = 10;
 	node->size = 0;
+
+	// Allocate memory for the children array
+	node->children = malloc(node->capacity * sizeof(Node*));
+
+	// Check if memory was allocated
+	if (node->children == NULL) {
+		printf("Error: Memory not allocated for children\n");
+		exit(1);
+	}
 
 	// Generate the children
 	generateChildren(node);
@@ -452,14 +478,13 @@ Move minimaxNew(GameState* game) {
 	}
 
 	// Store the best move
-	printf("Best move index: %d\n", bestMoveIndex);
 	Move bestMove = node->children[bestMoveIndex]->game.prevMove;
 
 	// Free the memory
+	for (int i = 0; i < node->size; i++) {
+		free(node->children[i]);
+	}
 	free(node);
-	// for (int i = 0; i < node->size; i++) {
-	// 	free(node->children[i].game.game);
-	// }
 
 	// Return best move
 	return bestMove;

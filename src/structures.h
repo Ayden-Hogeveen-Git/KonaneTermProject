@@ -29,14 +29,14 @@ typedef struct {
 // } Cell;
 
 typedef struct {
-    Move prevMove;
     // Cell board[8][8];
     Player board[8][8];
     int firstMove;
+    Move prevMove;
     Player turn;
-    Player winner;
     Player maxPlayer;
     Player minPlayer;
+    Player winner;
 } GameState;
 
 typedef struct Node {

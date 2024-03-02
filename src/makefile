@@ -1,26 +1,40 @@
 # Variables
 CC = gcc
-CFLAGS = -Wall -std=c99 -g
+CFLAGS = -Wall -std=c99
+DEBUGFLAGS = -g -o $@_debug
+RELEASEFLAGS = -O2 -o $@
+MODE = RELEASE
+
+# Files and dependencies
+EXE = gameDemo agentInterface
+SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
+OBJ = $(SRC:.c=.o)
+DEP = $(OBJ:.o=.d)
+
+# Conditional statements
+
+# Run 'make MODE=DEBUG' to compile in debug mode
+ifeq ($(MODE), DEBUG)
+	CFLAGS += $(DEBUGFLAGS)
+else
+	CFLAGS += $(RELEASEFLAGS)
+endif
 
 # Targets
-all: gameDemo agentInterface
+all: $(EXE)
 
 gameDemo: gameDemo.o konane.o minimaxAgent.o
-	$(CC) $^ -o $@
-
-gameDemo.o: gameDemo.c structures.h konane.h minimaxAgent.h
-	$(CC) $(CFLAGS) $< -c
+	$(CC) $(CFLAGS) $^
 
 agentInterface: agentInterface.o konane.o minimaxAgent.o
-	$(CC) $^ -o $@
+	$(CC) $(CFLAGS) $^
 
-agentInterface.o: agentInterface.c structures.h agentInterface.h minimaxAgent.h
+# Pattern rule for building object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-minimaxAgent.o: minimaxAgent.c structures.h konane.h minimaxAgent.h
-	$(CC) $(CFLAGS) $< -c
-
-konane.o: konane.c structures.h konane.h
-	$(CC) $(CFLAGS) $< -c
+# Include dependency files
+-include $(DEP)
 
 # Phony targets
 .PHONY: valgrind-gameDemo valgrind-agentInterface \
@@ -35,6 +49,7 @@ konane.o: konane.c structures.h konane.h
 		test-driver-agent-agent \
 		clean tar
 
+# Debugging targets
 valgrind-gameDemo:
 	valgrind --leak-check=full ./gameDemo
 
@@ -46,6 +61,12 @@ gdb-gameDemo:
 
 gdb-agentInterface:
 	gdb ./agentInterface ../test/board_states/newGameB.txt B
+
+# Test targets
+test: test-agentInterface-newGameB test-agentInterface-newGameW \
+		test-agentInterface-game1B test-agentInterface-game1W \
+		test-driver-random-random test-driver-random-agent \
+		test-driver-agent-random test-driver-agent-agent
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -71,11 +92,13 @@ test-driver-agent-random:
 test-driver-agent-agent:
 	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface
 
+# Clean target
 clean:
 	rm -f gameDemo agentInterface konane
 	rm -f *.exe *.o *.out
 	rm -f *.~ .*.swo .*.swp .nfo*
 
+# Tar target
 tar:
 	tar -cvzf ../gameDemo.tar.gz -C ../ konane-term-project
 	tar -cvzf ../agentInterface.tar.gz -C ../ konane-term-project

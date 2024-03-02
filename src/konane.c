@@ -75,7 +75,7 @@ GameState* initializeGameState() {
     return game;
 }
 
-GameState* copyGameState(GameState game) {
+GameState* copyGameState(GameState* game) {
     // Allocate memory for the new game
     GameState* newGame = malloc(sizeof(GameState));
 
@@ -85,23 +85,26 @@ GameState* copyGameState(GameState game) {
         exit(1);
     }
 
-    // Copy the previous move
-    newGame->prevMove = game.prevMove;
-
     // Copy the game board state
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
-            newGame->board[y][x] = game.board[y][x];
+            newGame->board[y][x] = game->board[y][x];
         }
     }
 
+    // Copy the first move flag
+    newGame->firstMove = game->firstMove;
+
+    // Copy the previous move
+    newGame->prevMove = game->prevMove;
+
     // Copy the player info
-    newGame->turn = game.turn;
-    newGame->maxPlayer = game.maxPlayer;
-    newGame->minPlayer = game.minPlayer;
+    newGame->turn = game->turn;
+    newGame->maxPlayer = game->maxPlayer;
+    newGame->minPlayer = game->minPlayer;
 
     // Copy the winner
-    newGame->winner = game.winner;
+    newGame->winner = game->winner;
 
     // Return the new game state
     return newGame;
@@ -224,8 +227,8 @@ int isFirstMove(GameState* game) {
             if (game->board[y - 1][x] == EMPTY) {
                 emptyCounter++;
             }
-            // Exit early if there are more than 2 empty spaces
-            if (emptyCounter > 2) {
+            // Exit early if there are 2 or more empty spaces
+            if (emptyCounter >= 2) {
                 // Set the first move flag to 0
                 game->firstMove = 0;
                 return 0;
@@ -363,7 +366,7 @@ void addChild(Node* node, Move move) {
     }
 
     // Initialize the child by copying the parent's game state
-    child->game = *copyGameState(node->game);
+    child->game = *copyGameState(&node->game);
 
     // Make the move on the child's game state
     makeMove(&child->game, move);
@@ -377,35 +380,52 @@ void addChild(Node* node, Move move) {
 }
 
 void generateChildren(Node* node) {
-    // Find valid moves
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            // Check if the piece can move to the left
-            Move moveLeft = {{'A' + x, y}, {'A' + x + 2, y}};
-            if (isValidMove(&node->game, moveLeft) == 1) {
-                printf("Move Left Child added: %c%d-%c%d\n", moveLeft.start.x, moveLeft.start.y, moveLeft.end.x, moveLeft.end.y);
-                addChild(node, moveLeft);
+    // Check if it's the first move
+    if (node->game.firstMove == 1) {
+        // Find valid first moves
+        for (int y = 8; y > 0; y--) {
+            for (int x = 0; x < 8; x++) {
+                Move move = {{'A' + x, y}, {'A' + x, y}};
+                if (isValidFirstMove(&node->game, move.start) == 1) {
+                    move.end.x = move.start.x;
+                    move.end.y = move.start.y;
+                    // printf("First Move Child added: %c%d-%c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+                    addChild(node, move);
+                }
             }
+        }
+        return;
+    } else {
+        // Find valid moves
+        for (int y = 8; y > 0; y--) {
+            for (int x = 0; x < 8; x++) {
+                // Check if the piece can move to the left
+                Move moveLeft = {{'A' + x, y}, {'A' + x + 2, y}};
+                if (isValidMove(&node->game, moveLeft) == 1) {
+                    // printf("Move Left Child added: %c%d-%c%d\n", moveLeft.start.x, moveLeft.start.y, moveLeft.end.x, moveLeft.end.y);
+                    addChild(node, moveLeft);
+                }
 
-            // Check if the piece can move to the right
-            Move moveRight = {{'A' + x, y}, {'A' + x - 2, y}};
-            if (isValidMove(&node->game, moveRight) == 1) {
-                printf("Move Right Child added: %c%d-%c%d\n", moveRight.start.x, moveRight.start.y, moveRight.end.x, moveRight.end.y);
-                addChild(node, moveRight);
-            }
+                // Check if the piece can move to the right
+                Move moveRight = {{'A' + x, y}, {'A' + x - 2, y}};
+                if (isValidMove(&node->game, moveRight) == 1) {
+                    // printf("Move Right Child added: %c%d-%c%d\n", moveRight.start.x, moveRight.start.y, moveRight.end.x, moveRight.end.y);
+                    addChild(node, moveRight);
+                }
 
-            // Check if the piece can move up
-            Move moveUp = {{'A' + x, y}, {'A' + x, y + 2}};
-            if (isValidMove(&node->game, moveUp) == 1) {
-                printf("Move Up Child added: %c%d-%c%d\n", moveUp.start.x, moveUp.start.y, moveUp.end.x, moveUp.end.y);
-                addChild(node, moveUp);
-            }
+                // Check if the piece can move up
+                Move moveUp = {{'A' + x, y}, {'A' + x, y + 2}};
+                if (isValidMove(&node->game, moveUp) == 1) {
+                    // printf("Move Up Child added: %c%d-%c%d\n", moveUp.start.x, moveUp.start.y, moveUp.end.x, moveUp.end.y);
+                    addChild(node, moveUp);
+                }
 
-            // Check if the piece can move down
-            Move moveDown = {{'A' + x, y}, {'A' + x, y - 2}};
-            if (isValidMove(&node->game, moveDown) == 1) {
-                printf("Move Down Child added: %c%d-%c%d\n", moveDown.start.x, moveDown.start.y, moveDown.end.x, moveDown.end.y);
-                addChild(node, moveDown);
+                // Check if the piece can move down
+                Move moveDown = {{'A' + x, y}, {'A' + x, y - 2}};
+                if (isValidMove(&node->game, moveDown) == 1) {
+                    // printf("Move Down Child added: %c%d-%c%d\n", moveDown.start.x, moveDown.start.y, moveDown.end.x, moveDown.end.y);
+                    addChild(node, moveDown);
+                }
             }
         }
     }

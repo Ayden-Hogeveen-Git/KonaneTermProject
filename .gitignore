@@ -6,3 +6,6 @@
 /src/gameDemo
 /src/agentInterface
 /src/*.o
+
+# VSCode related files
+.vscode/

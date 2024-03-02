@@ -2,10 +2,11 @@
 /test/.newgame.txt
 
 # Executables and Objects
-/src/main
 /src/gameDemo
 /src/agentInterface
 /src/*.o
+/src/gameDemo_debug
+/src/agentInterface_debug
 
 # VSCode related files
 .vscode/

@@ -10,6 +10,21 @@ int main() {
     int running = 1; 
     Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
 
+
+    // // Define a default new game string
+    // const char *defaultGameString = "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB"
+    //                                 "BWBWBWBW"
+    //                                 "WBWBWBWB";
+
+    // // Copy the default game string to the game string
+    // strcpy(gameStateString, defaultGameString);
+
+
     // Initialize the game
     GameState* game = initializeGameState();
 

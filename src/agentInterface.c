@@ -177,21 +177,6 @@ int main(int argc, char* argv[]) {
         fclose(file);
     }
 
-    // // Define a default new game string
-    // const char *defaultGameString = "BWBWBWBW"
-    //                                 "WBWBWBWB"
-    //                                 "BWBWBWBW"
-    //                                 "WBWBWBWB"
-    //                                 "BWBWBWBW"
-    //                                 "WBWBWBWB"
-    //                                 "BWBWBWBW"
-    //                                 "WBWBWBWB";
-
-    // // Copy the default game string to the game string
-    // strcpy(gameStateString, defaultGameString);
-
-
-
     // Initialize the game state 
     GameState* game = initalizeGameState(gameStateString, *argv[2]);
 
@@ -208,25 +193,14 @@ int main(int argc, char* argv[]) {
     // Enter the game loop
     while (game->winner == EMPTY) {
         // Get the next move
-        // Move move = minimax(game);
-        // Move move = minimaxNew(game);
-        Move move = minimaxAlphaBeta(game);
+        Move move = minimax(game);
+        // Move move = minimaxAlphaBeta(game);
 
         // Make the move
         makeMove(game, move);
 
         // Output the move to stdout
         agentOutput(move);
-
-        // Print the entire game state
-        printBoard(game);
-        printf("firstMove: %d\n", game->firstMove);
-        printf("prevMove: %c%d-%c%d\n", game->prevMove.start.x, game->prevMove.start.y, game->prevMove.end.x, game->prevMove.end.y);
-        printf("turn: %c\n", pieceToChar(game->turn));
-        printf("maxPlayer: %c\n", pieceToChar(game->maxPlayer));
-        printf("minPlayer: %c\n", pieceToChar(game->minPlayer));
-        printf("winner: %c\n", pieceToChar(game->winner));
-
 
         // Read the next move from stdin
         if (scanf("%s", nextMoveString) != 1) {
@@ -256,15 +230,6 @@ int main(int argc, char* argv[]) {
 
         // Make the next move
         makeMove(game, nextMove);
-
-        // Print the entire game state
-        printBoard(game);
-        printf("firstMove: %d\n", game->firstMove);
-        printf("prevMove: %c%d-%c%d\n", game->prevMove.start.x, game->prevMove.start.y, game->prevMove.end.x, game->prevMove.end.y);
-        printf("turn: %c\n", pieceToChar(game->turn));
-        printf("maxPlayer: %c\n", pieceToChar(game->maxPlayer));
-        printf("minPlayer: %c\n", pieceToChar(game->minPlayer));
-        printf("winner: %c\n", pieceToChar(game->winner));
     }
 
     // Free the memory

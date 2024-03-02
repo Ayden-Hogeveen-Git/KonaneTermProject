@@ -365,7 +365,20 @@ void addChild(Node* node, Move move) {
         exit(1);
     }
 
-    // Initialize the child by copying the parent's game state
+    // Initialize all fields of the child to 0
+    *child = (Node) {0};
+
+    // Allocate memory for the children array with a capacity of 10
+    child->capacity = 10;
+    child->children = malloc(child->capacity * sizeof(Node*));
+
+    // Check if memory allocation failed or not
+    if (child->children == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    // Copy the parent's game state
     child->game = *copyGameState(&node->game);
 
     // Make the move on the child's game state

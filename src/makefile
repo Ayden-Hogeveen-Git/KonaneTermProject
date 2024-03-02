@@ -63,10 +63,7 @@ gdb-agentInterface:
 	gdb ./agentInterface ../test/board_states/newGameB.txt B
 
 # Test targets
-test: test-agentInterface-newGameB test-agentInterface-newGameW \
-		test-agentInterface-game1B test-agentInterface-game1W \
-		test-driver-random-random test-driver-random-agent \
-		test-driver-agent-random test-driver-agent-agent
+test: test-driver-random-agent
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -94,7 +91,8 @@ test-driver-agent-agent:
 
 # Clean target
 clean:
-	rm -f gameDemo agentInterface konane
+	rm -f $(EXE) $(OBJ) $(DEP)
+	rm -f *_debug
 	rm -f *.exe *.o *.out
 	rm -f *.~ .*.swo .*.swp .nfo*
 

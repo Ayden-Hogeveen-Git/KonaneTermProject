@@ -200,6 +200,9 @@ int main(int argc, char* argv[]) {
         // Make the move
         makeMove(game, move);
 
+        // Check for a winner
+        checkForWinner(game);
+
         // Output the move to stdout
         agentOutput(move);
 
@@ -231,6 +234,18 @@ int main(int argc, char* argv[]) {
 
         // Make the next move
         makeMove(game, nextMove);
+
+        // Check for a winner
+        checkForWinner(game);
+    }
+
+    // Print the winner
+    if (game->winner == BLACK) {
+        printf("BLACK wins!\n");
+    } else if (game->winner == WHITE) {
+        printf("WHITE wins!\n");
+    } else {
+        printf("It's a draw!\n");
     }
 
     // Free the memory

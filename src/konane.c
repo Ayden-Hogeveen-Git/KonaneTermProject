@@ -41,9 +41,6 @@ void initializeBoard(GameState* game) {
     // Initialize the game board
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
-            // game->board[y - 1][x].piece = (y + x) % 2 == 0 ? BLACK : WHITE;
-            // game->board[y - 1][x].position.x = x;
-            // game->board[y - 1][x].position.y = y;
             game->board[y - 1][x] = (y + x) % 2 == 0 ? BLACK : WHITE;
         }
     }
@@ -123,11 +120,6 @@ int isValidFirstMove(GameState* game, Point point) {
     }
 
     // Check if the player is moving their own piece
-    // if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
-    //     return 0;
-    // } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
-    //     return 0;
-    // }
     if (game->turn == BLACK && game->board[y][x] != BLACK) {
         return 0;
     } else if (game->turn == WHITE && game->board[y][x] != WHITE) {
@@ -157,9 +149,6 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the piece is moving to an empty space
-    // if (game->board[newY][newX].piece != EMPTY) {
-    //     return 0;
-    // }
     if (game->board[newY][newX] != EMPTY) {
         return 0;
     }
@@ -170,11 +159,6 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the player is moving their own piece
-    // if (game->turn == BLACK && game->board[y][x].piece != BLACK) {
-    //     return 0;
-    // } else if (game->turn == WHITE && game->board[y][x].piece != WHITE) {
-    //     return 0;
-    // }
     if (game->turn == BLACK && game->board[y][x] != BLACK) {
         return 0;
     } else if (game->turn == WHITE && game->board[y][x] != WHITE) {
@@ -182,11 +166,6 @@ int isValidMove(GameState* game, Move move) {
     }
 
     // Check if the player is jumping over an opponent's piece
-    // if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2].piece != WHITE) {
-    //     return 0;
-    // } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2].piece != BLACK) {
-    //     return 0;
-    // }
     if (game->turn == BLACK && game->board[(y + newY) / 2][(x + newX) / 2] != WHITE) {
         return 0;
     } else if (game->turn == WHITE && game->board[(y + newY) / 2][(x + newX) / 2] != BLACK) {
@@ -253,7 +232,6 @@ void makeFirstMove(GameState* game, Point point) {
     int y = point.y - 1;
 
     // Make the move
-    // game->board[y][x].piece = EMPTY;
     game->board[y][x] = EMPTY;
 
     // Toggle the player related info
@@ -270,15 +248,70 @@ void makeMove(GameState* game, Move move) {
     int newYIndex = move.end.y - 1;
 
     // Make the move
-    // game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
-    // game->board[oldY][oldX].piece = EMPTY;
-    // game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2].piece = EMPTY;
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
     game->board[oldY][oldX] = EMPTY;
     game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
 
     // Toggle the player related info
     togglePlayer(game);
+}
+
+void checkForWinner(GameState* game) {
+    // Count the number of possible moves for each player
+    int blackCounter = 0;
+    int whiteCounter = 0;
+
+    // Count the number of possible moves for each player
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            // Check if the piece can move to the left
+            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
+            if (isValidMove(game, moveLeft) == 1) {
+                if (game->board[y][x] == BLACK) {
+                    blackCounter++;
+                } else if (game->board[y][x] == WHITE) {
+                    whiteCounter++;
+                }
+            }
+
+            // Check if the piece can move to the right
+            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
+            if (isValidMove(game, moveRight) == 1) {
+                if (game->board[y][x] == BLACK) {
+                    blackCounter++;
+                } else if (game->board[y][x] == WHITE) {
+                    whiteCounter++;
+                }
+            }
+
+            // Check if the piece can move up
+            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
+            if (isValidMove(game, moveUp) == 1) {
+                if (game->board[y][x] == BLACK) {
+                    blackCounter++;
+                } else if (game->board[y][x] == WHITE) {
+                    whiteCounter++;
+                }
+            }
+
+            // Check if the piece can move down
+            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
+            if (isValidMove(game, moveDown) == 1) {
+                if (game->board[y][x] == BLACK) {
+                    blackCounter++;
+                } else if (game->board[y][x] == WHITE) {
+                    whiteCounter++;
+                }
+            }
+        }
+    }
+
+    // Check if there's a winner
+    if (blackCounter == 0 && game->turn == BLACK) {
+        game->winner = WHITE;
+    } else if (whiteCounter == 0 && game->turn == WHITE) {
+        game->winner = BLACK;
+    }
 }
 
 ValidMoves findValidMoves(GameState* game) {

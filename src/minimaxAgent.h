@@ -18,6 +18,28 @@ return int: The maximum value of two integers.
 int max(int a, int b);
 
 /*
+Returns the utility value of a given game state.
+param GameState* game: The representation of the current game state.
+return int: The utility value of a given game state.
+*/
+int evalCountBW(GameState* game);
+
+/*
+Calculates the mobility of a given player.
+param GameState* game: The representation of the current game state.
+param Player player: The player to calculate the mobility for.
+return int: The mobility of a given player.
+*/
+int calculateMobility(GameState* game, Player player);
+
+/*
+Returns the utility value of a given game state.
+param GameState* game: The representation of the current game state.
+return int: The utility value of a given game state.
+*/
+int evaluateGameState(GameState* game);
+
+/*
 Returns the minimum utility value of a given game state.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.

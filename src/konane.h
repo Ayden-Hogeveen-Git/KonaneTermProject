@@ -90,6 +90,12 @@ param Move move: The coordinates of the piece to move.
 void makeMove(GameState* game, Move move);
 
 /*
+Checks if the game is over or not. If so it updates the winner in the game state.
+param GameState* game: The representation of the current game state.
+*/
+void checkForWinner(GameState* game);
+
+/*
 Adds a move to the list of valid moves.
 param ValidMoves* validMoves: list of valid moves.
 param Move move: coordinates of the piece to move.

@@ -86,18 +86,6 @@ int evalCountBW(GameState* game) {
 	}
 }
 
-int evaluateGameState(GameState* game) {
-    int mobilityMax = calculateMobility(game, game->maxPlayer);
-    int mobilityMin = calculateMobility(game, game->minPlayer);
-
-    // Other evaluation factors?
-
-    // Combine the evaluation factors into an overall evaluation score
-    int evaluation = mobilityMax - mobilityMin;
-
-    return evaluation;
-}
-
 int calculateMobility(GameState* game, Player player) {
     int mobility = 0;
     char playerSymbol = player ? BLACK : WHITE;
@@ -117,10 +105,26 @@ int calculateMobility(GameState* game, Player player) {
     return mobility;
 }
 
+int evaluateGameState(GameState* game) {
+    int mobilityMax = calculateMobility(game, game->maxPlayer);
+    int mobilityMin = calculateMobility(game, game->minPlayer);
+
+    // Other evaluation factors?
+
+    // Combine the evaluation factors into an overall evaluation score
+    int evaluation = mobilityMax - mobilityMin;
+
+    return evaluation;
+}
+
 int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
-		return evalCountBW(&node->game);
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(&node->game);
+		#else
+			return evaluateGameState(&node->game);
+		#endif
 	}
 
 	// Initialize v to positive infinity
@@ -139,7 +143,11 @@ int minValue(Node* node, int depth) {
 int maxValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
-		return evalCountBW(&node->game);
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(&node->game);
+		#else
+			return evaluateGameState(&node->game);
+		#endif
 	}
 
 	// Initialize v to negative infinity
@@ -158,7 +166,11 @@ int maxValue(Node* node, int depth) {
 int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
     // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return evalCountBW(game);
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(game);
+		#else
+			return evaluateGameState(game);
+		#endif
     }
 
     // Initialize v to positive infinity
@@ -196,7 +208,11 @@ int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alp
 int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
     // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
-        return evalCountBW(game);
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(game);
+		#else
+			return evaluateGameState(game);
+		#endif
     }
 
     // Initialize v to negative infinity

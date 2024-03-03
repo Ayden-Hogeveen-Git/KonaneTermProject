@@ -1,45 +1,50 @@
 # Variables
 CC = gcc
-CFLAGS = -Wall -std=c99
-DEBUGFLAGS = -g -o $@_debug
-RELEASEFLAGS = -O2 -o $@
+CFLAGS = -Wall -std=c99 -MMD
+DEBUGFLAGS = -g
+RELEASEFLAGS = -O2
 
 # Files and dependencies
-EXE = gameDemo agentInterface
+EXE = gameDemo agentInterface gameDemo_count_bw agentInterface_count_bw
 DBG = $(EXE:=_debug)
 SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
-OBJ = $(SRC:.c=.o)
+OBJ = $(SRC:.c=.o) minimaxAgent_count_bw.o
 DEP = $(OBJ:.o=.d)
 
-# Conditional statements
-
-# Run 'make MODE=DEBUG' to compile in debug mode
-ifeq ($(MODE), DEBUG)
-	CFLAGS += $(DEBUGFLAGS)
-else
-	CFLAGS += $(RELEASEFLAGS)
-endif
-
-# Targets
+# Release Targets
+all: CFLAGS += $(RELEASEFLAGS)
 all: $(EXE)
 
-gameDemo: gameDemo.o konane.o minimaxAgent.o
-	$(CC) $(CFLAGS) $^
+# Pattern rule for building executables
+%: %.o konane.o minimaxAgent.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-agentInterface: agentInterface.o konane.o minimaxAgent.o
-	$(CC) $(CFLAGS) $^
+# Pattern rule for building executables with the count_bw evaluation function
+%_count_bw: %.o konane.o minimaxAgent_count_bw.o
+	$(CC) $(CFLAGS) $^ -o $@
 
+# Debug Targets
+debug: CFLAGS += $(DEBUGFLAGS)
 debug: $(DBG)
 
-gameDemo_debug: gameDemo.o konane.o minimaxAgent.o
-	$(CC) $(CFLAGS) $^
+# Pattern rule for building debug executables
+$(filter-out %_count_bw_debug, $(DBG)): %_debug: %.o konane.o minimaxAgent.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-agentInterface_debug: agentInterface.o konane.o minimaxAgent.o
-	$(CC) $(CFLAGS) $^
+$(filter %_count_bw_debug, $(DBG)): %_count_bw_debug: %.o konane.o minimaxAgent_count_bw.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 # Pattern rule for building object files
-%.o: %.c structures.h
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Build recipe for object files with the count_bw evaluation function
+%_count_bw.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ -D EVAL_COUNT_BW
+
+# Pattern rule for building dependency files
+%.d: %.c
+	$(CC) -MM $< -o $@
 
 # Include dependency files
 -include $(DEP)
@@ -47,6 +52,7 @@ agentInterface_debug: agentInterface.o konane.o minimaxAgent.o
 # Phony targets
 .PHONY: valgrind-gameDemo valgrind-agentInterface \
 		gdb-gameDemo gdb-agentInterface \
+		test \
 		test-agentInterface-newGameB \
 		test-agentInterface-newGameW \
 		test-agentInterface-game1B \
@@ -97,11 +103,15 @@ test-driver-agent-random:
 test-driver-agent-agent:
 	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface
 
+test-driver-agent-agent-count-bw:
+	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface_count_bw
+
 # Clean target
 clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
-	rm -f *_debug
 	rm -f *.exe *.o *.out
+	rm -f *_debug
+	rm -f *.d
 	rm -f *.~ .*.swo .*.swp .nfo*
 
 # Tar target

@@ -1,12 +1,18 @@
 # Test related files
 /test/.newgame.txt
 
-# Executables and Objects
+# Executables
 /src/gameDemo
 /src/agentInterface
+/src/gameDemo_count_bw
+/src/agentInterface_count_bw
+
+# Debug files
+/src/*_debug
+
+# Object and Dependency files
 /src/*.o
-/src/gameDemo_debug
-/src/agentInterface_debug
+/src/*.d
 
 # VSCode related files
 .vscode/

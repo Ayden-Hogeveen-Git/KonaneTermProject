@@ -9,6 +9,7 @@
 
 # Debug files
 /src/*_debug
+/test/.log.txt
 
 # Object and Dependency files
 /src/*.o

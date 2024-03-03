@@ -9,6 +9,7 @@ EXE = gameDemo agentInterface gameDemo_count_bw agentInterface_count_bw
 DBG = $(EXE:=_debug)
 SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
 OBJ = $(SRC:.c=.o) minimaxAgent_count_bw.o
+DEBUG_OBJ = $(OBJ:%.o=%_debug.o)
 DEP = $(OBJ:.o=.d)
 
 # Release Targets
@@ -35,12 +36,20 @@ $(filter %_count_bw_debug, $(DBG)): %_count_bw_debug: %.o konane.o minimaxAgent_
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Pattern rule for building object files
-%.o: %.c
+$(filter-out %_count_bw.o, $(OBJ)): %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Build recipe for object files with the count_bw evaluation function
-%_count_bw.o: %.c
+# Pattern rule for building object files with the count_bw evaluation function
+$(filter %_count_bw.o, $(OBJ)): %_count_bw.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@ -D EVAL_COUNT_BW
+
+# Pattern rule for building debug object files
+$(filter-out %_count_bw_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG
+
+# Pattern rule for building debug object files with the count_bw evaluation function
+$(filter %_count_bw_debug.o, $(DEBUG_OBJ)): %_count_bw_debug.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG -D EVAL_COUNT_BW
 
 # Pattern rule for building dependency files
 %.d: %.c

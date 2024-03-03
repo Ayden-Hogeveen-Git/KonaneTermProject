@@ -310,7 +310,7 @@ Move minimax(GameState* game) {
 
 	// Check if memory was allocated
 	if (node == NULL) {
-		printf("Error: Memory not allocated for node\n");
+		fprintf(stderr, "Error: Memory not allocated for node\n");
 		exit(1);
 	}
 
@@ -324,12 +324,21 @@ Move minimax(GameState* game) {
 
 	// Check if memory was allocated
 	if (node->children == NULL) {
-		printf("Error: Memory not allocated for children\n");
+		fprintf(stderr, "Error: Memory not allocated for children\n");
 		exit(1);
 	}
 
 	// Generate the children
 	generateChildren(node);
+
+	// If there are no valid moves, set the winner
+	if (node->size == 0) {
+		if (node->game.turn == BLACK) {
+			game->winner = WHITE;
+		} else {
+			game->winner = BLACK;
+		}
+	}
 
 	// Initialize best move index
 	int bestMoveIndex = -1;
@@ -465,7 +474,7 @@ Move minimaxAlphaBetaNew(GameState* game) {
 
 	// Check if memory was allocated
 	if (node == NULL) {
-		printf("Error: Memory not allocated for node\n");
+		fprintf(stderr, "Error: Memory not allocated for node\n");
 		exit(1);
 	}
 
@@ -479,12 +488,21 @@ Move minimaxAlphaBetaNew(GameState* game) {
 
 	// Check if memory was allocated
 	if (node->children == NULL) {
-		printf("Error: Memory not allocated for children\n");
+		fprintf(stderr, "Error: Memory not allocated for children\n");
 		exit(1);
 	}
 
 	// Generate the children
 	generateChildren(node);
+
+	// If there are no valid moves, set the winner
+	if (node->size == 0) {
+		if (node->game.turn == BLACK) {
+			game->winner = WHITE;
+		} else {
+			game->winner = BLACK;
+		}
+	}
 
 	// Initialize best move index
 	int bestMoveIndex = -1;

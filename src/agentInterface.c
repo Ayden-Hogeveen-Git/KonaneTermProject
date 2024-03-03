@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "structures.h"
 #include "konane.h"
 #include "minimaxAgent.h"
@@ -18,7 +19,7 @@ void setPlayersTurn(GameState* game, char player) {
         game->minPlayer = BLACK;
     }
     else {
-        printf("Invalid player\n");
+        fprintf(stderr, "Error: Invalid player\n");
         exit(1);
     }
 }
@@ -37,7 +38,7 @@ char* formatGameString(char* gameString) {
 
     // Check if memory allocation failed or not
     if (newGameString == NULL) {
-        printf("Memory allocation failed\n");
+        fprintf(stderr, "Error: Memory allocation allocation failed\n");
         exit(1);
     }
 
@@ -62,7 +63,7 @@ GameState* initalizeGameState(char* gameString, char player) {
 
     // Check if memory allocation failed or not
     if (newGame == NULL) {
-        printf("Memory allocation failed\n");
+        fprintf(stderr, "Error: Memory allocation allocation failed\n");
         exit(1);
     }
 
@@ -89,7 +90,7 @@ GameState* initalizeGameState(char* gameString, char player) {
                 break;
             }
             else {
-                printf("Invalid character in game string\n");
+                fprintf(stderr, "Error: Invalid character in game string\n");
                 exit(1);
             }
 
@@ -155,7 +156,7 @@ int main(int argc, char* argv[]) {
     // Initialize the game string
     char* gameStateString = malloc(72); // 64 (8 x 8) + 7 newline characters + 1 null terminator
     if (gameStateString == NULL) {
-        printf("Memory allocation failed\n");
+        fprintf(stderr, "Error: Memory allocation allocation failed\n");
         return 1;
     }
 
@@ -186,22 +187,63 @@ int main(int argc, char* argv[]) {
     // Allocate memory for the next move string
     char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
     if (nextMoveString == NULL) {
-        printf("Memory allocation failed\n");
+        fprintf(stderr, "Error: Memory allocation allocation failed\n");
         return 1;
     }
 
     // Enter the game loop
     while (game->winner == EMPTY) {
+        // Open the log file
+        FILE* logFile = fopen(".log.txt", "a");
+
+        // Check if the file was opened successfully
+        if (logFile == NULL) {
+            fprintf(stderr, "Error: Could not open log file.\n");
+            return 1;
+        }
+
+        // Initialize the clock
+        clock_t start_mm, end_mm, start_mmab, end_mmab, start_mmabn, end_mmabn;
+        double cpu_time_mm, cpu_time_mmab, cpu_time_mmabn;
+
+        start_mm = clock();
+
         // Get the next move
-        // Move move = minimax(game);
-        // Move move = minimaxAlphaBeta(game);
+        Move move1 = minimax(game);
+
+        // Stop the clock
+        end_mm = clock();
+
+        // Log the time taken to compute the move
+        cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
+        fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
+
+        start_mmab = clock();
+
+        // Get the next move
+        Move move2 = minimaxAlphaBeta(game);
+
+        // Stop the clock
+        end_mmab = clock();
+
+        // Log the time taken to compute the move
+        cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
+        fprintf(logFile, "minimaxAlphaBeta() computation time: %f\n", cpu_time_mmab);
+
+        start_mmabn = clock();
+
+        // Get the next move
         Move move = minimaxAlphaBetaNew(game);
+
+        // Stop the clock
+        end_mmabn = clock();
+
+        // Log the time taken to compute the move
+        cpu_time_mmabn = ((double) (end_mmabn - start_mmabn)) / CLOCKS_PER_SEC;
+        fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmabn);
 
         // Make the move
         makeMove(game, move);
-
-        // Check for a winner
-        checkForWinner(game);
 
         // Output the move to stdout
         agentOutput(move);
@@ -234,9 +276,6 @@ int main(int argc, char* argv[]) {
 
         // Make the next move
         makeMove(game, nextMove);
-
-        // Check for a winner
-        checkForWinner(game);
     }
 
     // Print the winner

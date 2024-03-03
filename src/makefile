@@ -3,10 +3,10 @@ CC = gcc
 CFLAGS = -Wall -std=c99
 DEBUGFLAGS = -g -o $@_debug
 RELEASEFLAGS = -O2 -o $@
-MODE = RELEASE
 
 # Files and dependencies
 EXE = gameDemo agentInterface
+DBG = $(EXE:=_debug)
 SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
@@ -29,8 +29,16 @@ gameDemo: gameDemo.o konane.o minimaxAgent.o
 agentInterface: agentInterface.o konane.o minimaxAgent.o
 	$(CC) $(CFLAGS) $^
 
+debug: $(DBG)
+
+gameDemo_debug: gameDemo.o konane.o minimaxAgent.o
+	$(CC) $(CFLAGS) $^
+
+agentInterface_debug: agentInterface.o konane.o minimaxAgent.o
+	$(CC) $(CFLAGS) $^
+
 # Pattern rule for building object files
-%.o: %.c
+%.o: %.c structures.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Include dependency files

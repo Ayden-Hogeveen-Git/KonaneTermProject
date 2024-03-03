@@ -28,26 +28,30 @@ void initializeBoard(GameState* game);
 
 /*
 Initializes the game state.
+return GameState*: The representation of the current game state.
 */
 GameState* initializeGameState();
 
 /*
 Copies the entire game board and returns the copy.
 param GameState* game: The representation of the current game state.
+return GameState*: The copy of the game board.
 */
 GameState* copyGameState(GameState game);
 
 /*
-Returns 1 if valid, 0 otherwise.
+Checks if it's a valid first move or not.
 param GameState* game: The representation of the current game state.
 param Point point: The coordinates of the piece to remove.
+return int: 1 if valid, 0 otherwise.
 */
 int isValidFirstMove(GameState* game, Point point);
 
 /*
-Returns 1 if valid, 0 otherwise.
+Checks if it's a valid move or not.
 param GameState* game: The representation of the current game state.
 param Move move: The coordinates of the piece to move.
+return int: 1 if valid, 0 otherwise.
 */
 int isValidMove(GameState* game, Move move);
 
@@ -59,8 +63,9 @@ param Move move: coordinates of the piece to move.
 void addValidMove(ValidMoves* validMoves, Move move);
 
 /*
-Returns 1 if the game is over, 0 otherwise.
+Checks if it's the first move for black or white.
 param GameState* game: The representation of the current game state.
+return int: 1 if it's the first move, 0 otherwise.
 */
 int isFirstMove(GameState* game);
 

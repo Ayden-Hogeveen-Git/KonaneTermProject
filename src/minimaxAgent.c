@@ -11,8 +11,9 @@ int maxValue(Node* node, int depth);
 
 int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta);
 int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta);
-// int minValueAlphaBeta(Node* node, ValidMoves validMoves, int depth, int alpha, int beta);
-// int maxValueAlphaBeta(Node* node, ValidMoves validMoves, int depth, int alpha, int beta);
+
+int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta);
+int maxValueAlphaBetaNew(Node* node, int depth, int alpha, int beta);
 
 
 Move chooseFirstMove(GameState* game) {
@@ -86,15 +87,6 @@ int evalCountBW(GameState* game) {
 }
 
 int minValue(Node* node, int depth) {
-	/*
-	function MIN-VALUE(game) returns a utility value
-	 if TERMINAL-TEST(game) then return UTILITY(game)
-	 v ← ∞
-	 for a,s in SUCCESSORS(game) do
-	 v ← MIN(v,MAX-VALUE(s))
-	 return v
-	*/
-
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
 		return evalCountBW(&node->game);
@@ -114,15 +106,6 @@ int minValue(Node* node, int depth) {
 }
 
 int maxValue(Node* node, int depth) {
-	/*
-	function MAX-VALUE(game) returns a utility value
-	 if TERMINAL-TEST(game) then return UTILITY(game)
-	 v ← - ∞
-	 for a,s in SUCCESSORS(game) do
-	 v ← MAX(v,MIN-VALUE(s))
-	 return v
-	*/
-
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
 		return evalCountBW(&node->game);
@@ -142,15 +125,6 @@ int maxValue(Node* node, int depth) {
 }
 
 int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
-    /*
-    function MIN-VALUE(state) returns a utility value
-     if TERMINAL-TEST(state) then return UTILITY(state)
-     v ← ∞
-     for a,s in SUCCESSORS(state) do
-     v ← MIN(v,MAX-VALUE(s))
-     return v
-    */
-
     // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
         return evalCountBW(game);
@@ -189,15 +163,6 @@ int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alp
 }
 
 int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
-    /*
-    function MAX-VALUE(state) returns a utility value
-     if TERMINAL-TEST(state) then return UTILITY(state)
-     v ← - ∞
-     for a,s in SUCCESSORS(state) do
-     v ← MAX(v,MIN-VALUE(s))
-     return v
-     */
-
     // If terminal state, or depth is 0, return utility value
     if (validMoves.size == 0 || depth == 0) {
         return evalCountBW(game);
@@ -236,14 +201,57 @@ int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alp
     return v;
 }
 
-Move minimax(GameState* game) {
-    /*
-    function MINIMAX-DECISION(game) returns an action
-     inputs: game, current game in game
-     v←MAX-VALUE(game)
-     return the action in SUCCESSORS(game) with value v
-    */
-    
+int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
+	// If terminal state, or depth is 0, return utility value
+	if (node->size == 0 || depth == 0) {
+		return evalCountBW(&node->game);
+	}
+
+	// Initialize v to positive infinity
+	int v = 1000;
+
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the max value
+		v = min(v, maxValueAlphaBetaNew(node->children[i], depth - 1, alpha, beta));
+
+	// Perform Alpha-Beta Pruning
+	if (v <= alpha) {
+		return v;
+	}
+	beta = min(beta, v);
+	}
+
+	// Return v
+	return v;
+}
+
+int maxValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
+	// If terminal state, or depth is 0, return utility value
+	if (node->size == 0 || depth == 0) {
+		return evalCountBW(&node->game);
+	}
+
+	// Initialize v to negative infinity
+	int v = -1000;
+
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the min value
+		v = max(v, minValueAlphaBetaNew(node->children[i], depth - 1, alpha, beta));
+
+	// Perform Alpha-Beta Pruning
+	if (v >= beta) {
+		return v;
+	}
+	alpha = max(alpha, v);
+	}
+
+	// Return v
+	return v;
+}
+
+Move minimax(GameState* game) {  
 	// Determine if it's the first move for black or white
 	if (game->firstMove && isFirstMove(game)) {
 		// If it's the first move, return the first chosen move
@@ -326,13 +334,6 @@ Move minimax(GameState* game) {
 }
 
 Move minimaxAlphaBeta(GameState* game) {
-	/*
-    function MINIMAX-DECISION(state) returns an action
-     inputs: state, current state in game
-     v←MAX-VALUE(state)
-     return the action in SUCCESSORS(state) with value v
-    */
-    
 	// Determine if it's the first move for black or white
 	if (game->firstMove && isFirstMove(game)) {
 		// If it's the first move, return the first chosen move
@@ -403,4 +404,84 @@ Move minimaxAlphaBeta(GameState* game) {
 
     // Return best move
     return bestMove;
+}
+
+Move minimaxAlphaBetaNew(GameState* game) {
+	// Determine if it's the first move for black or white
+	if (game->firstMove && isFirstMove(game)) {
+		// If it's the first move, return the first chosen move
+		return chooseFirstMove(game);
+	}
+
+	// Allocate memory for the root node
+	Node* node = malloc(sizeof(Node));
+
+	// Check if memory was allocated
+	if (node == NULL) {
+		printf("Error: Memory not allocated for node\n");
+		exit(1);
+	}
+
+	// Initialize the node
+	node->game = *game;
+	node->capacity = 10;
+	node->size = 0;
+
+	// Allocate memory for the children array
+	node->children = malloc(node->capacity * sizeof(Node*));
+
+	// Check if memory was allocated
+	if (node->children == NULL) {
+		printf("Error: Memory not allocated for children\n");
+		exit(1);
+	}
+
+	// Generate the children
+	generateChildren(node);
+
+	// Initialize best move index
+	int bestMoveIndex = -1;
+
+	// Initialize Alpha and Beta
+	int alpha = -1000;
+	int beta = 1000;
+
+	// Loop through valid moves
+	for (int i = 0; i < node->size; i++) {
+		// Get the value of the next game
+		int value;
+
+		// If player is maximizing, get the max value
+		if (node->game.turn == node->game.maxPlayer) {
+			// Get the max value
+			value = maxValueAlphaBetaNew(node->children[i], MAX_DEPTH, alpha, beta);
+
+			// If value is greater than alpha, update alpha
+			if (value > alpha) {
+				alpha = value;
+				bestMoveIndex = i;
+			}
+		} else if (node->game.turn == node->game.minPlayer) {
+			// Get the min value
+			value = minValueAlphaBetaNew(node->children[i], MAX_DEPTH, alpha, beta);
+
+			// If value is less than beta, update beta
+			if (value < beta) {
+				beta = value;
+				bestMoveIndex = i;
+			}
+		}
+	}
+
+	// Store the best move
+	Move bestMove = node->children[bestMoveIndex]->game.prevMove;
+
+	// Free the memory
+	for (int i = 0; i < node->size; i++) {
+		free(node->children[i]);
+	}
+	free(node);
+
+	// Return best move
+	return bestMove;
 }

@@ -193,8 +193,9 @@ int main(int argc, char* argv[]) {
     // Enter the game loop
     while (game->winner == EMPTY) {
         // Get the next move
-        Move move = minimax(game);
+        // Move move = minimax(game);
         // Move move = minimaxAlphaBeta(game);
+        Move move = minimaxAlphaBetaNew(game);
 
         // Make the move
         makeMove(game, move);

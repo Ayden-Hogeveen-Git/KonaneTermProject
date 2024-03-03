@@ -175,23 +175,6 @@ int isValidMove(GameState* game, Move move) {
     return 1;
 }
 
-void addValidMove(ValidMoves* validMoves, Move move) {
-    // If the valid moves array is full, double the capacity
-    if (validMoves->size == validMoves->capacity) {
-        validMoves->capacity *= 2;
-        validMoves->moves = realloc(validMoves->moves, validMoves->capacity * sizeof(Move));
-
-        // Check if memory allocation failed or not
-        if (validMoves->moves == NULL) {
-            fprintf(stderr, "Error: Memory allocation failed\n");
-            exit(1);
-        }
-    }
-
-    // Add the valid move to the array
-    validMoves->moves[validMoves->size] = move;
-    validMoves->size++;
-}
 
 int isFirstMove(GameState* game) {
     // Initialize the empty counter
@@ -265,7 +248,7 @@ void checkForWinner(GameState* game) {
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
             // Check if the piece can move to the left
-            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
+            Move moveLeft = {{'A' + x, y}, {'A' + x + 2, y}};
             if (isValidMove(game, moveLeft) == 1) {
                 if (game->board[y][x] == BLACK) {
                     blackCounter++;
@@ -275,7 +258,7 @@ void checkForWinner(GameState* game) {
             }
 
             // Check if the piece can move to the right
-            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
+            Move moveRight = {{'A' + x, y}, {'A' + x - 2, y}};
             if (isValidMove(game, moveRight) == 1) {
                 if (game->board[y][x] == BLACK) {
                     blackCounter++;
@@ -285,7 +268,7 @@ void checkForWinner(GameState* game) {
             }
 
             // Check if the piece can move up
-            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
+            Move moveUp = {{'A' + x, y}, {'A' + x, y + 2}};
             if (isValidMove(game, moveUp) == 1) {
                 if (game->board[y][x] == BLACK) {
                     blackCounter++;
@@ -295,7 +278,7 @@ void checkForWinner(GameState* game) {
             }
 
             // Check if the piece can move down
-            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
+            Move moveDown = {{'A' + x, y}, {'A' + x, y - 2}};
             if (isValidMove(game, moveDown) == 1) {
                 if (game->board[y][x] == BLACK) {
                     blackCounter++;
@@ -316,68 +299,6 @@ void checkForWinner(GameState* game) {
     } else if (blackCounter == 0 && game->turn == BLACK) {
         game->winner = WHITE;
     }
-}
-
-ValidMoves findValidMoves(GameState* game) {
-    // Initialize the valid moves array
-    ValidMoves validMoves;
-    validMoves.capacity = 10;
-
-    // Allocate memory for valid moves array
-    validMoves.moves = malloc(validMoves.capacity * sizeof(Move));
-    
-    // Check if memory allocation failed or not
-    if (validMoves.moves == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
-        exit(1);
-    }
-
-    // Initialize valid moves array
-    validMoves.size = 0;
-
-    // Find valid moves
-    int index = 0;
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            // Check if the piece can move to the left
-            Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
-            if (isValidMove(game, moveLeft) == 1) {
-                addValidMove(&validMoves, moveLeft);
-                index++;
-            }
-
-            // Check if the piece can move to the right
-            Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
-            if (isValidMove(game, moveRight) == 1) {
-                addValidMove(&validMoves, moveRight);
-                index++;
-            }
-
-            // Check if the piece can move up
-            Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
-            if (isValidMove(game, moveUp) == 1) {
-                addValidMove(&validMoves, moveUp);
-                index++;
-            }
-
-            // Check if the piece can move down
-            Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
-            if (isValidMove(game, moveDown) == 1) {
-                addValidMove(&validMoves, moveDown);
-                index++;
-            }
-        }
-    }
-
-    // Return valid moves array
-    return validMoves;
-}
-
-void freeValidMoves(ValidMoves* validMoves) {
-    free(validMoves->moves);
-    validMoves->moves = NULL;
-    validMoves->size = 0;
-    validMoves->capacity = 0;
 }
 
 void addChild(Node* node, Move move) {

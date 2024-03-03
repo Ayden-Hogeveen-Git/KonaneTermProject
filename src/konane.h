@@ -56,13 +56,6 @@ return int: 1 if valid, 0 otherwise.
 int isValidMove(GameState* game, Move move);
 
 /*
-Adds a valid move to the list of valid moves.
-param ValidMoves* validMoves: list of valid moves.
-param Move move: coordinates of the piece to move.
-*/
-void addValidMove(ValidMoves* validMoves, Move move);
-
-/*
 Checks if it's the first move for black or white.
 param GameState* game: The representation of the current game state.
 return int: 1 if it's the first move, 0 otherwise.
@@ -94,25 +87,6 @@ Checks if the game is over or not. If so it updates the winner in the game state
 param GameState* game: The representation of the current game state.
 */
 void checkForWinner(GameState* game);
-
-/*
-Adds a move to the list of valid moves.
-param ValidMoves* validMoves: list of valid moves.
-param Move move: coordinates of the piece to move.
-*/
-void addMove(ValidMoves* validMoves, Move move);
-
-/*
-Returns a list of valid moves for a given player's turn.
-param GameState* game: 2D array representation of game game.
-*/
-ValidMoves findValidMoves(GameState* game);
-
-/*
-Frees the memory allocated for the list of valid moves.
-param ValidMoves* validMoves: list of valid moves.
-*/
-void freeValidMoves(ValidMoves* validMoves);
 
 /*
 Adds a child node to the parent node by making a move.

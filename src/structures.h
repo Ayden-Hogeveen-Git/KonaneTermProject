@@ -18,12 +18,6 @@ typedef struct {
 } Move;
 
 typedef struct {
-    Move* moves;
-    int capacity;
-    int size;
-} ValidMoves;
-
-typedef struct {
     Player board[8][8];
     int firstMove;
     Move prevMove;

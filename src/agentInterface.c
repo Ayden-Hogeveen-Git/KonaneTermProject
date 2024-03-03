@@ -93,10 +93,6 @@ GameState* initalizeGameState(char* gameString, char player) {
                 fprintf(stderr, "Error: Invalid character in game string\n");
                 exit(1);
             }
-
-            // // Set the position of the piece
-            // newGame->board[y - 1][x].position.x = x;
-            // newGame->board[y - 1][x].position.y = y;
         }
     }
 
@@ -110,6 +106,16 @@ GameState* initalizeGameState(char* gameString, char player) {
 
     // Set the player's turn
     setPlayersTurn(newGame, player);
+
+    // Set the max and min players
+    if (newGame->turn == BLACK) {
+        newGame->maxPlayer = BLACK;
+        newGame->minPlayer = WHITE;
+    }
+    else if (newGame->turn == WHITE) {
+        newGame->maxPlayer = WHITE;
+        newGame->minPlayer = BLACK;
+    }
 
     // Set the winner to empty
     newGame->winner = EMPTY;
@@ -191,59 +197,51 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Open the log file
+    FILE *logFile = fopen(".log.txt", "a");
+
+    // Check if the file was opened successfully
+    if (logFile == NULL) {
+        fprintf(stderr, "Error: Could not open log file.\n");
+        return 1;
+    }
+
     // Enter the game loop
-    while (game->winner == EMPTY) {
-        // Open the log file
-        FILE* logFile = fopen(".log.txt", "a");
+    while (game->winner == EMPTY) {        
+        // // Initialize the clock
+        // clock_t start_mm, end_mm, start_mmab, end_mmab;
+        // double cpu_time_mm, cpu_time_mmab;
 
-        // Check if the file was opened successfully
-        if (logFile == NULL) {
-            fprintf(stderr, "Error: Could not open log file.\n");
-            return 1;
-        }
-
-        // Initialize the clock
-        clock_t start_mm, end_mm, start_mmab, end_mmab, start_mmabn, end_mmabn;
-        double cpu_time_mm, cpu_time_mmab, cpu_time_mmabn;
-
-        start_mm = clock();
+        // start_mm = clock();
 
         // Get the next move
-        Move move1 = minimax(game);
+        Move move = minimax(game);
 
-        // Stop the clock
-        end_mm = clock();
+        // // Stop the clock
+        // end_mm = clock();
 
-        // Log the time taken to compute the move
-        cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
-        fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
+        // // Log the time taken to compute the move
+        // cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
+        // fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
 
-        start_mmab = clock();
+        // // Start the clock
+        // start_mmab = clock();
 
-        // Get the next move
-        Move move2 = minimaxAlphaBeta(game);
+        // // Get the next move
+        // Move move = minimaxAlphaBeta(game);
 
-        // Stop the clock
-        end_mmab = clock();
+        // // Stop the clock
+        // end_mmab = clock();
 
-        // Log the time taken to compute the move
-        cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
-        fprintf(logFile, "minimaxAlphaBeta() computation time: %f\n", cpu_time_mmab);
-
-        start_mmabn = clock();
-
-        // Get the next move
-        Move move = minimaxAlphaBetaNew(game);
-
-        // Stop the clock
-        end_mmabn = clock();
-
-        // Log the time taken to compute the move
-        cpu_time_mmabn = ((double) (end_mmabn - start_mmabn)) / CLOCKS_PER_SEC;
-        fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmabn);
+        // // Log the time taken to compute the move
+        // cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
+        // fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmab);
 
         // Make the move
         makeMove(game, move);
+
+        // // Check for a winner
+        // checkForWinner(game);
 
         // Output the move to stdout
         agentOutput(move);
@@ -276,6 +274,9 @@ int main(int argc, char* argv[]) {
 
         // Make the next move
         makeMove(game, nextMove);
+
+        // // Check for a winner
+        // checkForWinner(game);
     }
 
     // Print the winner
@@ -285,6 +286,11 @@ int main(int argc, char* argv[]) {
         printf("WHITE wins!\n");
     } else {
         printf("It's a draw!\n");
+    }
+
+    // Close the log file
+    if (logFile != NULL) {
+        fclose(logFile);
     }
 
     // Free the memory

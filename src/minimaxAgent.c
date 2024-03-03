@@ -9,11 +9,8 @@
 int minValue(Node* node, int depth);
 int maxValue(Node* node, int depth);
 
-int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta);
-int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta);
-
-int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta);
-int maxValueAlphaBetaNew(Node* node, int depth, int alpha, int beta);
+int minValueAlphaBeta(Node* node, int depth, int alpha, int beta);
+int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta);
 
 
 Move chooseFirstMove(GameState* game) {
@@ -86,35 +83,82 @@ int evalCountBW(GameState* game) {
 	}
 }
 
-int calculateMobility(GameState* game, Player player) {
-    int mobility = 0;
-    char playerSymbol = player ? BLACK : WHITE;
+// int calculateMobility(GameState* game, Player player) {
+//     int mobility = 0;
+//     char playerSymbol = player ? BLACK : WHITE;
 
-    // Loop through the board
-	for (int j = 8; j > 0; j--) {
-		for (int i = 0; i < 8; i++) {
-			// Counts the valid moves of the player
-            if (game->board[j][i] == playerSymbol) {
-                ValidMoves validMoves = findValidMoves(game);
-                mobility += validMoves.size;
-                freeValidMoves(&validMoves);
-            }
-        }
-    }
+//     // Loop through the board
+// 	for (int j = 8; j > 0; j--) {
+// 		for (int i = 0; i < 8; i++) {
+// 			// Counts the valid moves of the player
+//             if (game->board[j][i] == playerSymbol) {
+//                 ValidMoves validMoves = findValidMoves(game);
+//                 mobility += validMoves.size;
+//                 freeValidMoves(&validMoves);
+//             }
+//         }
+//     }
 
-    return mobility;
-}
+//     return mobility;
+// }
 
-int evaluateGameState(GameState* game) {
-    int mobilityMax = calculateMobility(game, game->maxPlayer);
-    int mobilityMin = calculateMobility(game, game->minPlayer);
+// int evaluateGameState(GameState* game) {
+//     int mobilityMax = calculateMobility(game, game->maxPlayer);
+//     int mobilityMin = calculateMobility(game, game->minPlayer);
 
-    // Other evaluation factors?
+//     // Other evaluation factors?
 
-    // Combine the evaluation factors into an overall evaluation score
-    int evaluation = mobilityMax - mobilityMin;
+//     // Combine the evaluation factors into an overall evaluation score
+//     int evaluation = mobilityMax - mobilityMin;
 
-    return evaluation;
+//     return evaluation;
+// }
+
+int evaluateGameState(Node* node) {
+	// Get the number of valid moves for the current player
+	int currentValidMoves = node->size;
+
+	// Generate a temporary node for the other player
+	Node* tempNode = malloc(sizeof(Node));
+
+	//	Check if memory was allocated
+	if (tempNode == NULL) {
+		fprintf(stderr, "Error: Memory not allocated for tempNode\n");
+		exit(1);
+	}
+
+	// Initialize the temporary node
+	tempNode->game = node->game;
+	tempNode->capacity = 10;
+	tempNode->size = 0;
+
+	// Allocate memory for the children array
+	tempNode->children = malloc(tempNode->capacity * sizeof(Node*));
+
+	// Check if memory was allocated
+	if (tempNode->children == NULL) {
+		fprintf(stderr, "Error: Memory not allocated for children\n");
+		exit(1);
+	}
+
+	// Switch the turn
+	togglePlayer(&tempNode->game);
+
+	// Generate the children
+	generateChildren(tempNode);
+
+	// Get the number of valid moves for the other player
+	int otherValidMoves = tempNode->size;
+
+	// Free the memory
+	for (int i = 0; i < tempNode->size; i++) {
+		free(tempNode->children[i]);
+	}
+	free(tempNode);
+
+	// Return the difference between the two valid move counts
+	// return currentValidMoves - otherValidMoves;
+	return (node->game.turn == node->game.maxPlayer) ? currentValidMoves - otherValidMoves : otherValidMoves - currentValidMoves;
 }
 
 int minValue(Node* node, int depth) {
@@ -123,7 +167,7 @@ int minValue(Node* node, int depth) {
 		#ifdef EVAL_COUNT_BW
 			return evalCountBW(&node->game);
 		#else
-			return evaluateGameState(&node->game);
+			return evaluateGameState(node);
 		#endif
 	}
 
@@ -146,7 +190,7 @@ int maxValue(Node* node, int depth) {
 		#ifdef EVAL_COUNT_BW
 			return evalCountBW(&node->game);
 		#else
-			return evaluateGameState(&node->game);
+			return evaluateGameState(node);
 		#endif
 	}
 
@@ -163,96 +207,15 @@ int maxValue(Node* node, int depth) {
 	return v;
 }
 
-int minValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
-    // If terminal state, or depth is 0, return utility value
-    if (validMoves.size == 0 || depth == 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(game);
-		#else
-			return evaluateGameState(game);
-		#endif
-    }
-
-    // Initialize v to positive infinity
-    int v = 1000;
-
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        GameState* nextState = copyGameState(*game);
-
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
-
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
-
-        // Get the max value
-        v = min(v, maxValueAlphaBeta(nextState, nextValidMoves, depth - 1, alpha, beta));
-
-        // Free the memory
-        free(nextState);
-		free(nextValidMoves.moves);
-
-	// Perform Alpha-Beta Pruning
-	if (v <= alpha) {
-		return v;
-	}
-	beta = min(beta, v);
-    }
-
-    // Return v
-    return v;
-}
-
-int maxValueAlphaBeta(GameState* game, ValidMoves validMoves, int depth, int alpha, int beta) {
-    // If terminal state, or depth is 0, return utility value
-    if (validMoves.size == 0 || depth == 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(game);
-		#else
-			return evaluateGameState(game);
-		#endif
-    }
-
-    // Initialize v to negative infinity
-    int v = -1000;
-
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        GameState* nextState = copyGameState(*game);
-
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
-
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
-
-        // Get the min value
-        v = max(v, minValueAlphaBeta(nextState, nextValidMoves, depth - 1, alpha, beta));
-	
-		// Free the memory
-		free(nextState);
-		free(nextValidMoves.moves);
-
-	// Perform Alpha-Beta Pruning
-	if (v >= beta) {
-		return v;
-	}
-	alpha = max(alpha, v);
-    }
-
-
-    // Return v
-    return v;
-}
-
-int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
+int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evalCountBW(&node->game);
-	}
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(&node->game);
+		#else
+			return evaluateGameState(node);
+		#endif
+    }
 
 	// Initialize v to positive infinity
 	int v = 1000;
@@ -260,7 +223,7 @@ int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
 	// Loop through valid moves
 	for (int i = 0; i < node->size; i++) {
 		// Get the max value
-		v = min(v, maxValueAlphaBetaNew(node->children[i], depth - 1, alpha, beta));
+		v = min(v, maxValueAlphaBeta(node->children[i], depth - 1, alpha, beta));
 
 	// Perform Alpha-Beta Pruning
 	if (v <= alpha) {
@@ -273,10 +236,14 @@ int minValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
 	return v;
 }
 
-int maxValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
+int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evalCountBW(&node->game);
+		#ifdef EVAL_COUNT_BW
+			return evalCountBW(&node->game);
+		#else
+			return evaluateGameState(node);
+		#endif
 	}
 
 	// Initialize v to negative infinity
@@ -285,7 +252,7 @@ int maxValueAlphaBetaNew(Node* node, int depth, int alpha, int beta) {
 	// Loop through valid moves
 	for (int i = 0; i < node->size; i++) {
 		// Get the min value
-		v = max(v, minValueAlphaBetaNew(node->children[i], depth - 1, alpha, beta));
+		v = max(v, minValueAlphaBeta(node->children[i], depth - 1, alpha, beta));
 
 	// Perform Alpha-Beta Pruning
 	if (v >= beta) {
@@ -331,15 +298,6 @@ Move minimax(GameState* game) {
 	// Generate the children
 	generateChildren(node);
 
-	// If there are no valid moves, set the winner
-	if (node->size == 0) {
-		if (node->game.turn == BLACK) {
-			game->winner = WHITE;
-		} else {
-			game->winner = BLACK;
-		}
-	}
-
 	// Initialize best move index
 	int bestMoveIndex = -1;
 
@@ -351,13 +309,10 @@ Move minimax(GameState* game) {
 
 	// Loop through valid moves
 	for (int i = 0; i < node->size; i++) {
-		// Get the value of the next game
-		int value;
-
 		// If player is maximizing, get the max value
 		if (node->game.turn == node->game.maxPlayer) {
 			// Get the max value
-			value = maxValue(node->children[i], MAX_DEPTH);
+			int value = maxValue(node->children[i], MAX_DEPTH);
 
 			// If value is greater than max, update max
 			if (value > max) {
@@ -366,7 +321,7 @@ Move minimax(GameState* game) {
 			}
 		} else if (node->game.turn == node->game.minPlayer) {
 			// Get the min value
-			value = minValue(node->children[i], MAX_DEPTH);
+			int value = minValue(node->children[i], MAX_DEPTH);
 
 			// If value is less than min, update min
 			if (value < min) {
@@ -390,79 +345,6 @@ Move minimax(GameState* game) {
 }
 
 Move minimaxAlphaBeta(GameState* game) {
-	// Determine if it's the first move for black or white
-	if (game->firstMove && isFirstMove(game)) {
-		// If it's the first move, return the first chosen move
-		return chooseFirstMove(game);
-	}
-
-    // Find valid moves
-    ValidMoves validMoves = findValidMoves(game);
-
-    // Initialize best move index
-    int bestMoveIndex = -1;
-
-    // Initialize Alpha and Beta
-    int alpha = -1000;
-    int beta = 1000;
-	
-    // Initialize max and min values
-    // Max wants to maximize the total number of valid moves
-    // Min wants to minimize the total number of valid moves
-    //int max = -1000; // Max is initialized to negative infinity
-    //int min = 1000; // Min is initialized to positive infinity
-
-    // Loop through valid moves
-    for (int i = 0; i < validMoves.size; i++) {
-        // Copy the board
-        GameState* nextState = copyGameState(*game);
-
-        // Make the move on the copy
-        makeMove(nextState, validMoves.moves[i]);
-
-		// Calculate the valid moves for the next state
-		ValidMoves nextValidMoves = findValidMoves(nextState);
-
-        // Get the value of the next state
-        int value;
-
-        // If player is maximizing, get the max value
-        if (game->turn == game->maxPlayer) {
-            // Get the max value
-            value = maxValueAlphaBeta(nextState, nextValidMoves, MAX_DEPTH, alpha, beta);
-            
-            // If value is greater than max, update max
-            if (value > alpha) {
-                alpha = value;
-                bestMoveIndex = i;
-            }
-        } else if (game->turn == game->minPlayer) {
-            // Get the min value
-            value = minValueAlphaBeta(nextState, nextValidMoves, MAX_DEPTH, alpha, beta);
-
-            // If value is less than min, update min
-            if (value < beta) {
-                beta = value;
-                bestMoveIndex = i;
-            }
-        }
-
-        // Free the memory
-        free(nextState);
-		free(nextValidMoves.moves);
-	}
-
-	// Store the best move
-	Move bestMove = validMoves.moves[bestMoveIndex];
-
-	// Free the memory
-	freeValidMoves(&validMoves);
-
-    // Return best move
-    return bestMove;
-}
-
-Move minimaxAlphaBetaNew(GameState* game) {
 	// Determine if it's the first move for black or white
 	if (game->firstMove && isFirstMove(game)) {
 		// If it's the first move, return the first chosen move
@@ -495,15 +377,6 @@ Move minimaxAlphaBetaNew(GameState* game) {
 	// Generate the children
 	generateChildren(node);
 
-	// If there are no valid moves, set the winner
-	if (node->size == 0) {
-		if (node->game.turn == BLACK) {
-			game->winner = WHITE;
-		} else {
-			game->winner = BLACK;
-		}
-	}
-
 	// Initialize best move index
 	int bestMoveIndex = -1;
 
@@ -519,7 +392,7 @@ Move minimaxAlphaBetaNew(GameState* game) {
 		// If player is maximizing, get the max value
 		if (node->game.turn == node->game.maxPlayer) {
 			// Get the max value
-			value = maxValueAlphaBetaNew(node->children[i], MAX_DEPTH, alpha, beta);
+			value = maxValueAlphaBeta(node->children[i], MAX_DEPTH, alpha, beta);
 
 			// If value is greater than alpha, update alpha
 			if (value > alpha) {
@@ -528,7 +401,7 @@ Move minimaxAlphaBetaNew(GameState* game) {
 			}
 		} else if (node->game.turn == node->game.minPlayer) {
 			// Get the min value
-			value = minValueAlphaBetaNew(node->children[i], MAX_DEPTH, alpha, beta);
+			value = minValueAlphaBeta(node->children[i], MAX_DEPTH, alpha, beta);
 
 			// If value is less than beta, update beta
 			if (value < beta) {

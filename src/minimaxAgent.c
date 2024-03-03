@@ -86,6 +86,37 @@ int evalCountBW(GameState* game) {
 	}
 }
 
+int evaluateGameState(GameState* game) {
+    int mobilityMax = calculateMobility(game, game->maxPlayer);
+    int mobilityMin = calculateMobility(game, game->minPlayer);
+
+    // Other evaluation factors?
+
+    // Combine the evaluation factors into an overall evaluation score
+    int evaluation = mobilityMax - mobilityMin;
+
+    return evaluation;
+}
+
+int calculateMobility(GameState* game, Player player) {
+    int mobility = 0;
+    char playerSymbol = player ? BLACK : WHITE;
+
+    // Loop through the board
+	for (int j = 8; j > 0; j--) {
+		for (int i = 0; i < 8; i++) {
+			// Counts the valid moves of the player
+            if (game->board[j][i] == playerSymbol) {
+                ValidMoves validMoves = findValidMoves(game);
+                mobility += validMoves.size;
+                freeValidMoves(&validMoves);
+            }
+        }
+    }
+
+    return mobility;
+}
+
 int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {

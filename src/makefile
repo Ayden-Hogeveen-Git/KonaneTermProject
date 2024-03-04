@@ -69,6 +69,8 @@ $(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
 		test-driver-random-random \
 		test-driver-random-agent \
 		test-driver-agent-random \
+		test-driver-random-agent_ab \
+		test-driver-agent_ab-random \
 		test-driver-agent-agent \
 		test-driver-agent-agent_ab \
 		clean tar
@@ -87,7 +89,7 @@ gdb-agentInterface:
 	gdb --args agentInterface_debug ../test/board_states/newGameB.txt B
 
 # Test targets
-test: test-driver-agent-agent_ab
+test: test-driver-random-agent_ab
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -109,6 +111,12 @@ test-driver-random-agent:
 
 test-driver-agent-random:
 	cd ../test && perl drivercheck.pl ../src/agentInterface konanerandomplayer
+
+test-driver-random-agent_ab:
+	cd ../test && perl drivercheck.pl konanerandomplayer ../src/agentInterface_alpha_beta
+
+test-driver-agent_ab-random:
+	cd ../test && perl drivercheck.pl ../src/agentInterface_alpha_beta konanerandomplayer
 
 test-driver-agent-agent:
 	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface

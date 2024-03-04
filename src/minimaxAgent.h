@@ -18,9 +18,9 @@ return int: The maximum value of two integers.
 int max(int a, int b);
 
 /*
-Returns the utility value of a given game state.
+Calculates how many pieces are on the board for each player.
 param GameState* game: The representation of the current game state.
-return int: The utility value of a given game state.
+return int: The difference between the number of pieces for each player.
 */
 int evalCountBW(GameState* game);
 
@@ -33,14 +33,29 @@ return int: The mobility of a given player.
 int calculateMobility(GameState* game, Player player);
 
 /*
-Returns the utility value of a given game state.
+Calculates the utility value of a given game state.
 param GameState* game: The representation of the current game state.
 return int: The utility value of a given game state.
 */
 int evaluateGameState(GameState* game);
 
 /*
-Returns the minimum utility value of a given game state.
+Calculates the difference between the valid moves for the current player and the opponent.
+param Node* node: The representation of the current game state.
+return int: The difference between the valid moves for the current player and the opponent.
+*/
+int evalCalcMobility(Node* node);
+
+/*
+Calculates the respective utility value of a given game state.
+param Node* node: The representation of the current game state.
+param int type: The type of the evaluation function.
+return int: The respective utility value of a given game state.
+*/
+int evaluationFunction(Node* node, int type);
+
+/*
+Calculates the minimum utility value of a given game state.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
 return int: The minimum utility value of a given game state.
@@ -48,7 +63,7 @@ return int: The minimum utility value of a given game state.
 int minValue(Node* node, int depth);
 
 /*
-Returns the maximum utility value of a given game state.
+Calculates the maximum utility value of a given game state.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
 return int: The maximum utility value of a given game state.
@@ -56,31 +71,35 @@ return int: The maximum utility value of a given game state.
 int maxValue(Node* node, int depth);
 
 /*
-Returns the minimum utility value of a given game state using alpha-beta pruning.
+Calculates the minimum utility value of a given game state using alpha-beta pruning.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
 param int alpha: The alpha value of the alpha-beta pruning algorithm.
 param int beta: The beta value of the alpha-beta pruning algorithm.
+return int: The minimum utility value of a given game state.
 */
 int minValueAlphaBeta(Node* node, int depth, int alpha, int beta);
 
 /*
-Returns the maximum utility value of a given game state using alpha-beta pruning.
+Calculates the maximum utility value of a given game state using alpha-beta pruning.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
 param int alpha: The alpha value of the alpha-beta pruning algorithm.
 param int beta: The beta value of the alpha-beta pruning algorithm.
+return int: The maximum utility value of a given game state.
 */
 int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta);
 
 /*
-Returns the best move for the current player using the minimax algorithm.
+Determines the best move for the current player using the minimax algorithm.
 param GameState* game: The representation of the current game state.
+return Move: The best move for the current player using the minimax algorithm.
 */
 Move minimax(GameState* game);
 
 /*
-Returns the best move for the current player using the minimax algorithm with alpha-beta pruning.
+Determines the best move for the current player using the minimax algorithm with alpha-beta pruning.
 param GameState* game: The representation of the current game state.
+return Move: The best move for the current player using the minimax algorithm with alpha-beta pruning.
 */
 Move minimaxAlphaBeta(GameState* game);

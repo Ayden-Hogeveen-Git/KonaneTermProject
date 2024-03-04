@@ -5,10 +5,10 @@ DEBUGFLAGS = -g
 RELEASEFLAGS = -O2
 
 # Files and dependencies
-EXE = gameDemo agentInterface gameDemo_count_bw agentInterface_count_bw
+EXE = gameDemo agentInterface gameDemo_alpha_beta agentInterface_alpha_beta
 DBG = $(EXE:=_debug)
 SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
-OBJ = $(SRC:.c=.o) minimaxAgent_count_bw.o
+OBJ = $(SRC:.c=.o) minimaxAgent_alpha_beta.o
 DEBUG_OBJ = $(OBJ:%.o=%_debug.o)
 DEP = $(OBJ:.o=.d)
 
@@ -20,8 +20,8 @@ all: $(EXE)
 %: %.o konane.o minimaxAgent.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-# Pattern rule for building executables with the count_bw evaluation function
-%_count_bw: %.o konane.o minimaxAgent_count_bw.o
+# Pattern rule for building executables with the alpha_beta algorithm
+%_alpha_beta: %.o konane.o minimaxAgent_alpha_beta.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Debug Targets
@@ -29,27 +29,27 @@ debug: CFLAGS += $(DEBUGFLAGS)
 debug: $(DBG)
 
 # Pattern rule for building debug executables
-$(filter-out %_count_bw_debug, $(DBG)): %_debug: %.o konane.o minimaxAgent.o
+$(filter-out %_alpha_beta_debug, $(DBG)): %_debug: %_debug.o konane_debug.o minimaxAgent_debug.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(filter %_count_bw_debug, $(DBG)): %_count_bw_debug: %.o konane.o minimaxAgent_count_bw.o
+$(filter %_alpha_beta_debug, $(DBG)): %_alpha_beta_debug: %_debug.o konane_debug.o minimaxAgent_alpha_beta_debug.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Pattern rule for building object files
-$(filter-out %_count_bw.o, $(OBJ)): %.o: %.c
+$(filter-out %_alpha_beta.o, $(OBJ)): %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Pattern rule for building object files with the count_bw evaluation function
-$(filter %_count_bw.o, $(OBJ)): %_count_bw.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -D EVAL_COUNT_BW
+# Pattern rule for building object files with the alpha_beta algorithm
+$(filter %_alpha_beta.o, $(OBJ)): %_alpha_beta.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ -D ALPHA_BETA
 
 # Pattern rule for building debug object files
-$(filter-out %_count_bw_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
+$(filter-out %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG
 
-# Pattern rule for building debug object files with the count_bw evaluation function
-$(filter %_count_bw_debug.o, $(DEBUG_OBJ)): %_count_bw_debug.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG -D EVAL_COUNT_BW
+# Pattern rule for building debug object files with the alpha_beta algorithm
+$(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG -D ALPHA_BETA
 
 # Pattern rule for building dependency files
 %.d: %.c
@@ -70,6 +70,7 @@ $(filter %_count_bw_debug.o, $(DEBUG_OBJ)): %_count_bw_debug.o: %.c
 		test-driver-random-agent \
 		test-driver-agent-random \
 		test-driver-agent-agent \
+		test-driver-agent-agent_ab \
 		clean tar
 
 # Debugging targets
@@ -80,13 +81,13 @@ valgrind-agentInterface:
 	valgrind --leak-check=full ./agentInterface ../test/board_states/newGameB.txt B
 
 gdb-gameDemo:
-	gdb ./gameDemo
+	gdb --args gameDemo_debug
 
 gdb-agentInterface:
-	gdb ./agentInterface ../test/board_states/newGameB.txt B
+	gdb --args agentInterface_debug ../test/board_states/newGameB.txt B
 
 # Test targets
-test: test-driver-random-agent
+test: test-driver-agent-agent_ab
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -112,8 +113,8 @@ test-driver-agent-random:
 test-driver-agent-agent:
 	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface
 
-test-driver-agent-agent-count-bw:
-	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface_count_bw
+test-driver-agent-agent_ab:
+	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface_alpha_beta
 
 # Clean target
 clean:

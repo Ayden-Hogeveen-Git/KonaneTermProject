@@ -4,8 +4,8 @@
 # Executables
 /src/gameDemo
 /src/agentInterface
-/src/gameDemo_count_bw
-/src/agentInterface_count_bw
+/src/gameDemo_alpha_beta
+/src/agentInterface_alpha_beta
 
 # Debug files
 /src/*_debug

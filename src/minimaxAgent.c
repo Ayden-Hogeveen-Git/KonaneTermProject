@@ -114,7 +114,7 @@ int evalCountBW(GameState* game) {
 //     return evaluation;
 // }
 
-int evaluateGameState(Node* node) {
+int evalCalcMobility(Node* node) {
 	// Get the number of valid moves for the current player
 	int currentValidMoves = node->size;
 
@@ -158,17 +158,27 @@ int evaluateGameState(Node* node) {
 
 	// Return the difference between the two valid move counts
 	// return currentValidMoves - otherValidMoves;
-	return (node->game.turn == node->game.maxPlayer) ? currentValidMoves - otherValidMoves : otherValidMoves - currentValidMoves;
+	return (node->game.turn == node->game.maxPlayer) ?
+		currentValidMoves - otherValidMoves : otherValidMoves - currentValidMoves;
+}
+
+int evaluationFunction(Node* node, int type) {
+	if (type == 1) {
+		return evalCountBW(&node->game);
+	} else if (type == 2) {
+		return evalCalcMobility(node);
+	} else if (type == 3) {
+		return evalCountBW(&node->game) + evalCalcMobility(node);
+	} else {
+		fprintf(stderr, "Error: Invalid evaluation function type!\n");
+		exit(1);
+	}
 }
 
 int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(&node->game);
-		#else
-			return evaluateGameState(node);
-		#endif
+		return evaluationFunction(node, 1);
 	}
 
 	// Initialize v to positive infinity
@@ -187,11 +197,7 @@ int minValue(Node* node, int depth) {
 int maxValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	if (node->size == 0 || depth <= 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(&node->game);
-		#else
-			return evaluateGameState(node);
-		#endif
+		return evaluationFunction(node, 1);
 	}
 
 	// Initialize v to negative infinity
@@ -210,11 +216,7 @@ int maxValue(Node* node, int depth) {
 int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(&node->game);
-		#else
-			return evaluateGameState(node);
-		#endif
+		return evaluationFunction(node, 3);
     }
 
 	// Initialize v to positive infinity
@@ -239,11 +241,7 @@ int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		#ifdef EVAL_COUNT_BW
-			return evalCountBW(&node->game);
-		#else
-			return evaluateGameState(node);
-		#endif
+		return evaluationFunction(node, 3);
 	}
 
 	// Initialize v to negative infinity
@@ -298,6 +296,19 @@ Move minimax(GameState* game) {
 	// Generate the children
 	generateChildren(node);
 
+	// If there are no valid moves, determine the winner
+	if (node->size == 0) {
+		// If the current player is black, the winner is white
+		if (game->turn == BLACK) {
+			game->winner = WHITE;
+			return (Move) { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
+		} else if (game->turn == WHITE) {
+			// If the current player is white, the winner is black
+			game->winner = BLACK;
+			return (Move) { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
+		}
+	}
+
 	// Initialize best move index
 	int bestMoveIndex = -1;
 
@@ -329,6 +340,12 @@ Move minimax(GameState* game) {
 				bestMoveIndex = i;
 			}
 		}
+	}
+
+	// Check if the best move index is still -1
+	if (bestMoveIndex == -1) {
+		fprintf(stderr, "Warning: No best move found!\n");
+		exit(1);
 	}
 
 	// Store the best move
@@ -377,6 +394,19 @@ Move minimaxAlphaBeta(GameState* game) {
 	// Generate the children
 	generateChildren(node);
 
+	// If there are no valid moves, determine the winner
+	if (node->size == 0) {
+		// If the current player is black, the winner is white
+		if (game->turn == BLACK) {
+			game->winner = WHITE;
+			return (Move) { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
+		} else if (game->turn == WHITE) {
+			// If the current player is white, the winner is black
+			game->winner = BLACK;
+			return (Move) { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
+		}
+	}
+
 	// Initialize best move index
 	int bestMoveIndex = -1;
 
@@ -409,6 +439,12 @@ Move minimaxAlphaBeta(GameState* game) {
 				bestMoveIndex = i;
 			}
 		}
+	}
+
+	// Check if the best move index is still -1
+	if (bestMoveIndex == -1) {
+		fprintf(stderr, "Warning: No best move found!\n");
+		exit(1);
 	}
 
 	// Store the best move

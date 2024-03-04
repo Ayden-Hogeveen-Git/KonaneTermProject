@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Open the log file
-    FILE *logFile = fopen(".log.txt", "a");
+    FILE *logFile = fopen("../test/.log.txt", "a");
 
     // Check if the file was opened successfully
     if (logFile == NULL) {
@@ -215,7 +215,11 @@ int main(int argc, char* argv[]) {
         // start_mm = clock();
 
         // Get the next move
-        Move move = minimax(game);
+        #ifdef ALPHA_BETA
+            Move move = minimaxAlphaBeta(game);
+        #else
+            Move move = minimax(game);
+        #endif
 
         // // Stop the clock
         // end_mm = clock();
@@ -240,8 +244,14 @@ int main(int argc, char* argv[]) {
         // Make the move
         makeMove(game, move);
 
-        // // Check for a winner
+        // Check for a winner
         // checkForWinner(game);
+        // if (move.start.y == -1 && move.end.y == -1) {
+        //     break;
+        // }
+        if (game->winner != EMPTY) {
+            break;
+        }
 
         // Output the move to stdout
         agentOutput(move);
@@ -275,8 +285,14 @@ int main(int argc, char* argv[]) {
         // Make the next move
         makeMove(game, nextMove);
 
-        // // Check for a winner
+        // Check for a winner
         // checkForWinner(game);
+        // if (nextMove.start.y == -1 && nextMove.end.y == -1) {
+        //     break;
+        // }
+        if (game->winner != EMPTY) {
+            break;
+        }
     }
 
     // Print the winner

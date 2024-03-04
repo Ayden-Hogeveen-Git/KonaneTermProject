@@ -3,8 +3,7 @@
 
 typedef enum { BLACK, WHITE, EMPTY } Player;
 
-#define MAX_DEPTH 1000
-#define MAX_CHILDREN 1000
+#define MAX_DEPTH 5
 #define THINKINGTIME 20
 
 typedef struct {

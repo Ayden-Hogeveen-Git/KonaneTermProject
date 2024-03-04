@@ -29,12 +29,29 @@ void printBoard(GameState* game) {
     for (int y = 8; y > 0; y--) {
         printf("%d ", y);
         for (int x = 0; x < 8; x++) {
-            // printf("%c ", pieceToChar(game->board[y - 1][x].piece));
             printf("%c ", pieceToChar(game->board[y - 1][x]));
         }
         printf("%d\n", y);
     }
     printf("  A B C D E F G H\n\n");
+}
+
+void logBoard(GameState* game) {
+    // Open the log file
+    FILE* file = fopen("../test/.log.txt", "a");
+
+    fprintf(file, "\n  A B C D E F G H\n");
+    for (int y = 8; y > 0; y--) {
+        fprintf(file, "%d ", y);
+        for (int x = 0; x < 8; x++) {
+            fprintf(file, "%c ", pieceToChar(game->board[y - 1][x]));
+        }
+        fprintf(file, "%d\n", y);
+    }
+    fprintf(file, "  A B C D E F G H\n\n");
+
+    // Close the log file
+    fclose(file);
 }
 
 void initializeBoard(GameState* game) {
@@ -345,7 +362,7 @@ void addChild(Node* node, Move move) {
     node->size++;
 }
 
-void generateChildren(Node* node) {
+void generateChildren(Node* node, int depth) {
     // Check if it's the first move
     if (node->game.firstMove == 1) {
         // Find valid first moves
@@ -361,7 +378,12 @@ void generateChildren(Node* node) {
         }
         return;
     } else {
-        // Find valid moves
+        // Base case to stop the recursion
+        if (depth == 0) {
+            return;
+        }
+
+        // Generate children for the current node
         for (int y = 8; y > 0; y--) {
             for (int x = 0; x < 8; x++) {
                 // Check if there's a piece at the current position
@@ -391,6 +413,11 @@ void generateChildren(Node* node) {
                     }
                 }
             }
+        }
+
+        // Generate children for each child
+        for (int i = 0; i < node->size; i++) {
+            generateChildren(node->children[i], depth - 1);
         }
     }
 }

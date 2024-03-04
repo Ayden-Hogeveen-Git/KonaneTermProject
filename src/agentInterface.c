@@ -208,38 +208,41 @@ int main(int argc, char* argv[]) {
 
     // Enter the game loop
     while (game->winner == EMPTY) {        
-        // // Initialize the clock
-        // clock_t start_mm, end_mm, start_mmab, end_mmab;
-        // double cpu_time_mm, cpu_time_mmab;
+        // // Get the next move
+        // #ifdef ALPHA_BETA
+        //     Move move = minimaxAlphaBeta(game);
+        // #else
+        //     Move move = minimax(game);
+        // #endif
 
-        // start_mm = clock();
+        // Initialize the clock
+        clock_t start_mm, end_mm, start_mmab, end_mmab;
+        double cpu_time_mm, cpu_time_mmab;
+
+        start_mm = clock();
 
         // Get the next move
-        #ifdef ALPHA_BETA
-            Move move = minimaxAlphaBeta(game);
-        #else
-            Move move = minimax(game);
-        #endif
+        Move move1 = minimax(game);
 
-        // // Stop the clock
-        // end_mm = clock();
+        // Stop the clock
+        end_mm = clock();
 
-        // // Log the time taken to compute the move
-        // cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
-        // fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
+        // Log the time taken to compute the move
+        cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
+        fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
 
-        // // Start the clock
-        // start_mmab = clock();
+        // Start the clock
+        start_mmab = clock();
 
-        // // Get the next move
-        // Move move = minimaxAlphaBeta(game);
+        // Get the next move
+        Move move = minimaxAlphaBeta(game);
 
-        // // Stop the clock
-        // end_mmab = clock();
+        // Stop the clock
+        end_mmab = clock();
 
-        // // Log the time taken to compute the move
-        // cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
-        // fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmab);
+        // Log the time taken to compute the move
+        cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
+        fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmab);
 
         // Make the move
         makeMove(game, move);

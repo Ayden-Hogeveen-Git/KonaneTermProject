@@ -64,22 +64,25 @@ int evalCountBW(GameState* game) {
 	int whiteCount = 0;
 
 	// Loop through the board
-	for (int j = 8; j > 0; j--) {
-		for (int i = 0; i < 8; i++) {
+	for (int y = 8; y > 0; y--) {
+		for (int x = 0; x < 8; x++) {
 			// If the piece is black, increment the black counter
-			if (game->board[j - 1][i] == BLACK) {
+			if (game->board[y - 1][x] == BLACK) {
 				blackCount++;
-			} else if (game->board[j - 1][i] == WHITE) {
+			} else if (game->board[y - 1][x] == WHITE) {
 				whiteCount++;
 			}
 		}
 	}
 
 	// Return the difference between the two counters
-	if (game->turn == BLACK) {
+	if (game->maxPlayer == BLACK) {
 		return blackCount - whiteCount;
-	} else {
+	} else if (game->maxPlayer == WHITE) {
 		return whiteCount - blackCount;
+	} else {
+		fprintf(stderr, "Error: Invalid max player!\n");
+		exit(1);
 	}
 }
 
@@ -145,7 +148,7 @@ int evalCalcMobility(Node* node) {
 	togglePlayer(&tempNode->game);
 
 	// Generate the children
-	generateChildren(tempNode);
+	generateChildren(tempNode, 1);
 
 	// Get the number of valid moves for the other player
 	int otherValidMoves = tempNode->size;
@@ -177,8 +180,9 @@ int evaluationFunction(Node* node, int type) {
 
 int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
-	if (node->size == 0 || depth <= 0) {
-		return evaluationFunction(node, 1);
+	// if (node->size == 0 || depth <= 0) {
+	if (depth <= 0) {
+		return evaluationFunction(node, 2);
 	}
 
 	// Initialize v to positive infinity
@@ -196,8 +200,9 @@ int minValue(Node* node, int depth) {
 
 int maxValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
-	if (node->size == 0 || depth <= 0) {
-		return evaluationFunction(node, 1);
+	// if (node->size == 0 || depth <= 0) {
+	if (depth <= 0) {
+		return evaluationFunction(node, 2);
 	}
 
 	// Initialize v to negative infinity
@@ -216,7 +221,7 @@ int maxValue(Node* node, int depth) {
 int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evaluationFunction(node, 3);
+		return evaluationFunction(node, 2);
     }
 
 	// Initialize v to positive infinity
@@ -241,7 +246,7 @@ int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evaluationFunction(node, 3);
+		return evaluationFunction(node, 2);
 	}
 
 	// Initialize v to negative infinity
@@ -294,7 +299,7 @@ Move minimax(GameState* game) {
 	}
 
 	// Generate the children
-	generateChildren(node);
+	generateChildren(node, MAX_DEPTH);
 
 	// If there are no valid moves, determine the winner
 	if (node->size == 0) {
@@ -310,7 +315,7 @@ Move minimax(GameState* game) {
 	}
 
 	// Initialize best move index
-	int bestMoveIndex = -1;
+	int bestMoveIndex = 0;
 
 	// Initialize max and min values
 	// Max wants to maximize the total number of valid moves
@@ -392,7 +397,7 @@ Move minimaxAlphaBeta(GameState* game) {
 	}
 
 	// Generate the children
-	generateChildren(node);
+	generateChildren(node, MAX_DEPTH);
 
 	// If there are no valid moves, determine the winner
 	if (node->size == 0) {

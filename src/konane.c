@@ -256,6 +256,30 @@ void makeMove(GameState* game, Move move) {
     togglePlayer(game);
 }
 
+Move getLeftMove(int jumps, int x, int y) {
+	//Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
+	Move moveLeft = {{'A' + x, y}, {'A' + x - jumps * 2, y}};
+	return moveLeft;
+}
+
+Move getRightMove(int jumps, int x, int y) {
+	//Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
+	Move moveRight = {{'A' + x, y}, {'A' + x + jumps * 2, y}};
+	return moveRight;
+}
+
+Move getUpMove(int jumps, int x, int y) {
+	//Move moveUp = {{'A' + x, y}, {'A' + x, y - 2}};
+	Move moveUp = {{'A' + x, y}, {'A' + x, y - jumps * 2}};
+	return moveUp;
+}
+
+Move getDownMove(int jumps, int x, int y) {
+	//Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
+	Move moveDown = {{'A' + x, y}, {'A' + x, y + jumps * 2}};
+	return moveDown;
+}
+
 void checkForWinner(GameState* game) {
     // Count the number of possible moves for each player
     int blackCounter = 0;

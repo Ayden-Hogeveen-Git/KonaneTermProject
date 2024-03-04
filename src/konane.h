@@ -83,6 +83,26 @@ param Move move: The coordinates of the piece to move.
 void makeMove(GameState* game, Move move);
 
 /*
+TODO
+*/
+Move getLeftMove(int jumps, int x, int y);
+
+/*
+TODO
+*/
+Move getRightMove(int jumps, int x, int y);
+
+/*
+TODO
+*/
+Move getUpMove(int jumps, int x, int y);
+
+/*
+TODO
+*/
+Move getDownMove(int jumps, int x, int y);
+
+/*
 Checks if the game is over or not. If so it updates the winner in the game state.
 param GameState* game: The representation of the current game state.
 */

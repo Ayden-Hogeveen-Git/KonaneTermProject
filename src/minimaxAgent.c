@@ -9,8 +9,8 @@
 int minValue(Node* node, int depth);
 int maxValue(Node* node, int depth);
 
-int minValueAlphaBeta(Node* node, int depth, int alpha, int beta);
-int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta);
+int minValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
+int maxValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
 
 
 Move chooseFirstMove(GameState* game) {
@@ -117,9 +117,26 @@ int evalCountBW(GameState* game) {
 //     return evaluation;
 // }
 
+int countChildren(Node* node) {
+	// Initialize the counter
+	int count = 0;
+
+	// Loop through the node's children
+	for (int i = 0; i < node->size; i++) {
+		// Increment the counter
+		count += countChildren(node->children[i]);
+	}
+
+	// Return the counter
+	return count;
+}
+
 int evalCalcMobility(Node* node) {
-	// Get the number of valid moves for the current player
-	int currentValidMoves = node->size;
+	// Generate the children up to the max depth
+	generateChildren(node, MAX_DEPTH);
+
+	// Count the total number of children
+	int currentValidMoves = countChildren(node);
 
 	// Generate a temporary node for the other player
 	Node* tempNode = malloc(sizeof(Node));
@@ -148,21 +165,21 @@ int evalCalcMobility(Node* node) {
 	togglePlayer(&tempNode->game);
 
 	// Generate the children
-	generateChildren(tempNode, 1);
+	generateChildren(tempNode, MAX_DEPTH);
 
 	// Get the number of valid moves for the other player
-	int otherValidMoves = tempNode->size;
+	int opponentValidMoves = tempNode->size;
 
 	// Free the memory
 	for (int i = 0; i < tempNode->size; i++) {
 		free(tempNode->children[i]);
 	}
+	free(tempNode->children);
 	free(tempNode);
 
 	// Return the difference between the two valid move counts
-	// return currentValidMoves - otherValidMoves;
 	return (node->game.turn == node->game.maxPlayer) ?
-		currentValidMoves - otherValidMoves : otherValidMoves - currentValidMoves;
+		currentValidMoves - opponentValidMoves : opponentValidMoves - currentValidMoves;
 }
 
 int evaluationFunction(Node* node, int type) {
@@ -182,7 +199,7 @@ int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	// if (node->size == 0 || depth <= 0) {
 	if (depth <= 0) {
-		return evaluationFunction(node, 2);
+		return evaluationFunction(node, 3);
 	}
 
 	// Initialize v to positive infinity
@@ -202,7 +219,7 @@ int maxValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	// if (node->size == 0 || depth <= 0) {
 	if (depth <= 0) {
-		return evaluationFunction(node, 2);
+		return evaluationFunction(node, 3);
 	}
 
 	// Initialize v to negative infinity
@@ -218,10 +235,10 @@ int maxValue(Node* node, int depth) {
 	return v;
 }
 
-int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
+int minValueAlphaBeta(Node* node, int depth, int* alpha, int* beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evaluationFunction(node, 2);
+		return evaluationFunction(node, 3);
     }
 
 	// Initialize v to positive infinity
@@ -232,21 +249,26 @@ int minValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 		// Get the max value
 		v = min(v, maxValueAlphaBeta(node->children[i], depth - 1, alpha, beta));
 
-	// Perform Alpha-Beta Pruning
-	if (v <= alpha) {
-		return v;
-	}
-	beta = min(beta, v);
+		// Perform Alpha-Beta Pruning
+		if (v <= *alpha) {
+			return v;
+		}
+		*beta = min(*beta, v);
+
+		// If beta is less than or equal to alpha, break the loop
+		if (*beta <= *alpha) {
+			break;
+		}
 	}
 
 	// Return v
 	return v;
 }
 
-int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
+int maxValueAlphaBeta(Node* node, int depth, int* alpha, int* beta) {
 	// If terminal state, or depth is 0, return utility value
 	if (node->size == 0 || depth == 0) {
-		return evaluationFunction(node, 2);
+		return evaluationFunction(node, 3);
 	}
 
 	// Initialize v to negative infinity
@@ -257,11 +279,16 @@ int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta) {
 		// Get the min value
 		v = max(v, minValueAlphaBeta(node->children[i], depth - 1, alpha, beta));
 
-	// Perform Alpha-Beta Pruning
-	if (v >= beta) {
-		return v;
-	}
-	alpha = max(alpha, v);
+		// Perform Alpha-Beta Pruning
+		if (v >= *beta) {
+			return v;
+		}
+		*alpha = max(*alpha, v);
+		
+		// If alpha is greater than or equal to beta, break the loop
+		if (*alpha >= *beta) {
+			break;
+		}
 	}
 
 	// Return v
@@ -427,7 +454,7 @@ Move minimaxAlphaBeta(GameState* game) {
 		// If player is maximizing, get the max value
 		if (node->game.turn == node->game.maxPlayer) {
 			// Get the max value
-			value = maxValueAlphaBeta(node->children[i], MAX_DEPTH, alpha, beta);
+			value = maxValueAlphaBeta(node->children[i], MAX_DEPTH, &alpha, &beta);
 
 			// If value is greater than alpha, update alpha
 			if (value > alpha) {
@@ -436,7 +463,7 @@ Move minimaxAlphaBeta(GameState* game) {
 			}
 		} else if (node->game.turn == node->game.minPlayer) {
 			// Get the min value
-			value = minValueAlphaBeta(node->children[i], MAX_DEPTH, alpha, beta);
+			value = minValueAlphaBeta(node->children[i], MAX_DEPTH, &alpha, &beta);
 
 			// If value is less than beta, update beta
 			if (value < beta) {

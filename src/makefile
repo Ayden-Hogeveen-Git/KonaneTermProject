@@ -82,6 +82,12 @@ valgrind-gameDemo:
 valgrind-agentInterface:
 	valgrind --leak-check=full ./agentInterface ../test/board_states/newGameB.txt B
 
+valgrind-mem-gameDemo:
+	valgrind --tool=massif ./gameDemo
+
+valgrind-mem-agentInterface:
+	valgrind --tool=massif ./agentInterface ../test/board_states/newGameB.txt B
+
 gdb-gameDemo:
 	gdb --args gameDemo_debug
 

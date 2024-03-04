@@ -74,21 +74,21 @@ int maxValue(Node* node, int depth);
 Calculates the minimum utility value of a given game state using alpha-beta pruning.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
-param int alpha: The alpha value of the alpha-beta pruning algorithm.
-param int beta: The beta value of the alpha-beta pruning algorithm.
+param int* alpha: The alpha value of the alpha-beta pruning algorithm.
+param int* beta: The beta value of the alpha-beta pruning algorithm.
 return int: The minimum utility value of a given game state.
 */
-int minValueAlphaBeta(Node* node, int depth, int alpha, int beta);
+int minValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
 
 /*
 Calculates the maximum utility value of a given game state using alpha-beta pruning.
 param Node* node: The representation of the current game state.
 param int depth: The depth limit of the minimax tree.
-param int alpha: The alpha value of the alpha-beta pruning algorithm.
-param int beta: The beta value of the alpha-beta pruning algorithm.
+param int* alpha: The alpha value of the alpha-beta pruning algorithm.
+param int* beta: The beta value of the alpha-beta pruning algorithm.
 return int: The maximum utility value of a given game state.
 */
-int maxValueAlphaBeta(Node* node, int depth, int alpha, int beta);
+int maxValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
 
 /*
 Determines the best move for the current player using the minimax algorithm.

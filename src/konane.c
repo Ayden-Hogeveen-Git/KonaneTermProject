@@ -412,29 +412,45 @@ void generateChildren(Node* node, int depth) {
             for (int x = 0; x < 8; x++) {
                 // Check if there's a piece at the current position
                 if (node->game.board[y - 1][x] == BLACK || node->game.board[y - 1][x] == WHITE) {
-                    // Check if the piece can move to the left
-                    Move moveLeft = {{'A' + x, y}, {'A' + x - 2, y}};
-                    if (isValidMove(&node->game, node->game.turn, moveLeft) == 1) {
-                        addChild(node, moveLeft);
-                    }
+					for (int jumps = 1; jumps < 4; jumps++) {
+						// Check if the piece can move to the left
+						Move moveLeft = getLeftMove(jumps, x, y);
+						if (isValidMove(&node->game, node->game.turn, moveLeft) == 1) {
+							addChild(node, moveLeft);
+						} else {
+							break;
+						}
+					}
 
-                    // Check if the piece can move to the right
-                    Move moveRight = {{'A' + x, y}, {'A' + x + 2, y}};
-                    if (isValidMove(&node->game, node->game.turn, moveRight) == 1) {
-                        addChild(node, moveRight);
-                    }
+					for (int jumps = 1; jumps < 4; jumps++) {
+						// Check if the piece can move to the right
+						Move moveRight = getRightMove(jumps, x, y);
+						if (isValidMove(&node->game, node->game.turn, moveRight) == 1) {
+							addChild(node, moveRight);
+						} else {
+							break;
+						}
+					}
 
-                    // Check if the piece can move up
-                    Move moveUp = {{'A' + x, y}, {'A' + x, y + 2}};
-                    if (isValidMove(&node->game, node->game.turn, moveUp) == 1) {
-                        addChild(node, moveUp);
-                    }
+					for (int jumps = 1; jumps < 4; jumps++) {
+						// Check if the piece can move up
+						Move moveUp = getUpMove(jumps, x, y);
+						if (isValidMove(&node->game, node->game.turn, moveUp) == 1) {
+							addChild(node, moveUp);
+						} else {
+							break;
+						}
+					}
 
-                    // Check if the piece can move down
-                    Move moveDown = {{'A' + x, y}, {'A' + x, y - 2}};
-                    if (isValidMove(&node->game, node->game.turn, moveDown) == 1) {
-                        addChild(node, moveDown);
-                    }
+					for (int jumps = 1; jumps < 4; jumps++) {
+						// Check if the piece can move to the left
+						Move moveDown = getDownMove(jumps, x, y);
+						if (isValidMove(&node->game, node->game.turn, moveDown) == 1) {
+							addChild(node, moveDown);
+						} else {
+							break;
+						}
+					}
                 }
             }
         }

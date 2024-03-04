@@ -199,7 +199,7 @@ int minValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	// if (node->size == 0 || depth <= 0) {
 	if (depth <= 0) {
-		return evaluationFunction(node, 3);
+		return evaluationFunction(node, 1);
 	}
 
 	// Initialize v to positive infinity
@@ -219,7 +219,7 @@ int maxValue(Node* node, int depth) {
 	// If terminal game, or depth is 0, return utility value
 	// if (node->size == 0 || depth <= 0) {
 	if (depth <= 0) {
-		return evaluationFunction(node, 3);
+		return evaluationFunction(node, 1);
 	}
 
 	// Initialize v to negative infinity
@@ -295,7 +295,26 @@ int maxValueAlphaBeta(Node* node, int depth, int* alpha, int* beta) {
 	return v;
 }
 
-Move minimax(GameState* game) {  
+Move minimax(GameState* game) {
+
+// function MINIMAX-DECISION(state) returns an action
+// inputs: state, current state in game
+//  v←MAX-VALUE(state)
+//  return the action in SUCCESSORS(state) with value v
+// function MIN-VALUE(state) returns a utility value
+//  if TERMINAL-TEST(state) then return UTILITY(state)
+//  v ← ∞
+//  for a,s in SUCCESSORS(state) do
+//  v ← MIN(v,MAX-VALUE(s))
+//  return v
+// function MAX-VALUE(state) returns a utility value
+//  if TERMINAL-TEST(state) then return UTILITY(state)
+//  v ← - ∞
+//  for a,s in SUCCESSORS(state) do
+//  v ← MAX(v,MIN-VALUE(s))
+//  return v
+
+
 	// Determine if it's the first move for black or white
 	if (game->firstMove && isFirstMove(game)) {
 		// If it's the first move, return the first chosen move

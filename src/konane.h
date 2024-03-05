@@ -135,3 +135,9 @@ param Node* node: The parent node.
 param int depth: The depth limit of the minimax tree.
 */
 void generateTree(Node* node, int depth);
+
+/*
+Frees the minimax tree.
+param Node* node: The parent node.
+*/
+void freeTree(Node* node);

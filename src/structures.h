@@ -2,6 +2,7 @@
 #define STRUCTURES_H
 
 typedef enum { BLACK, WHITE, EMPTY } Player;
+typedef enum { LEFT = -2, RIGHT = 2, UP = 2, DOWN = -2, FIRST = 0 } Direction;
 
 #define MAX_DEPTH 1
 #define THINKINGTIME 20
@@ -14,7 +15,7 @@ typedef struct {
 typedef struct {
     Point start;
     Point end;
-    char direction;
+    Direction direction;
     int jumps;
 } Move;
 

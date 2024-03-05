@@ -95,7 +95,7 @@ gdb-agentInterface:
 	gdb --args agentInterface_debug ../test/board_states/newGameB.txt B
 
 # Test targets
-test: test-driver-random-agent_ab
+test: test-driver-random-agent
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -108,6 +108,12 @@ test-agentInterface-game1B:
 
 test-agentInterface-game1W:
 	./agentInterface ../test/board_states/game1W.txt W
+
+test-agentInterface-blackWinsW:
+	./agentInterface ../test/board_states/blackWinsW.txt W
+
+test-agentInterface-whiteWinsB:
+	./agentInterface ../test/board_states/whiteWinsB.txt B
 
 test-driver-random-random:
 	cd ../test && perl drivercheck.pl konanerandomplayer konanerandomplayer

@@ -58,7 +58,7 @@ int countChildren(Node* node) {
 
 int evalCalcMobility(Node* node) {
 	// Generate the children up to the max depth
-	generateChildren(node, 1);
+	generateChildren(node);
 
 	// Count the total number of children
 	int currentValidMoves = countChildren(node);
@@ -90,7 +90,7 @@ int evalCalcMobility(Node* node) {
 	togglePlayer(&tempNode->game);
 
 	// Generate the children
-	generateChildren(tempNode, 1);
+	generateChildren(tempNode);
 
 	// Get the number of valid moves for the other player
 	int opponentValidMoves = tempNode->size;
@@ -127,6 +127,9 @@ int minimax(Node* node, int depth, Move* bestMove) {
 		return evaluationFunction(node, 3);
 	}
 
+	// // Initialize a temporary move
+	// Move tempMove;
+
 	// Recursive Case:
 	if (node->game.turn == node->game.maxPlayer) {
 		// Initialize bestValue to negative infinity
@@ -134,13 +137,16 @@ int minimax(Node* node, int depth, Move* bestMove) {
 
 		// Loop through valid moves
 		for (int i = 0; i < node->size; i++) {
+			Move tempMove = node->children[i]->game.prevMove;
 			int value = minimax(node->children[i], depth - 1, bestMove);
+			// int value = minimax(node->children[i], depth - 1, &tempMove);
 
 			// If value is greater than bestValue, update bestValue
 			if (value > bestValue) {
 				bestValue = value;
 				// Update bestMove
-				*bestMove = node->children[i]->game.prevMove;
+				// *bestMove = node->children[i]->game.prevMove;
+				*bestMove = tempMove;
 			}
 		}
 		return bestValue;
@@ -151,13 +157,16 @@ int minimax(Node* node, int depth, Move* bestMove) {
 
 		// Loop through valid moves
 		for (int i = 0; i < node->size; i++) {
+			Move tempMove = node->children[i]->game.prevMove;
 			int value = minimax(node->children[i], depth - 1, bestMove);
+			// int value = minimax(node->children[i], depth - 1, &tempMove);
 
 			// If value is less than bestValue, update bestValue
 			if (value < bestValue) {
 				bestValue = value;
 				// Update bestMove
-				*bestMove = node->children[i]->game.prevMove;
+				// *bestMove = node->children[i]->game.prevMove;
+				*bestMove = tempMove;
 			}
 		}
 		return bestValue;

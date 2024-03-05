@@ -215,46 +215,8 @@ int isValidMove(GameState* game, Player player, Move move, int jumps) {
 				return 0;
 			}
 		}
-	
 	}
-	for (int i = 1; i <= jumps; i++) {
-		if (x - newX > 0 && y == newY) { // is a move left
-			int yIndex = (y + newY) / 2;
-			int xIndex = (x + newX) / 2 - (jumps - 1);
-			if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-				return 0;
-			} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-				return 0;
-			}
-			
-		} else if (x - newX < 0 && y == newY) { // is a move right
-			int yIndex = (y + newY) / 2;
-			int xIndex = (x + newX) / 2 + (jumps - 1);
-			if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-				return 0;
-			} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-				return 0;
-			}
-		} else if (x == newX && y - newY < 0) { // is a move up
-			int yIndex = (y + newY) / 2 + (jumps - 1);
-			int xIndex = (x + newX) / 2;
-			if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-				return 0;
-			} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-				return 0;
-			}
-		} else if (x == newX && y - newY > 0){ // is a move down
-			int yIndex = (y + newY) / 2 - (jumps - 1);
-			int xIndex = (x + newX) / 2;
-			if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-				return 0;
-			} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-				return 0;
-			}
-		}
-	
-	}
-    return 1;
+	return 1;
 }
 
 void isFirstMove(GameState* game, int* firstMoveFlag) {
@@ -465,17 +427,13 @@ void addChild(Node* node, Move move) {
     node->size++;
 }
 
-void generateChildren(Node* node, int depth) {
-    // Base case to stop the recursion
-    if (depth == 0) {
-        return;
-    }
-
+void generateChildren(Node* node) {
     // Generate children for the current node
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
             // Check if there's a piece at the current position
             if (node->game.board[y - 1][x] == BLACK || node->game.board[y - 1][x] == WHITE) {
+                
                 for (int jumps = 1; jumps <= 3; jumps++) {
                     // Check if the piece can move to the left
                     Move moveLeft = getLeftMove(jumps, x, y);
@@ -518,9 +476,19 @@ void generateChildren(Node* node, int depth) {
             }
         }
     }
+}
+
+void generateTree(Node* node, int depth) {
+    // Base case to stop the recursion
+    if (depth == 0) {
+        return;
+    }
+
+    // Generate children for the current node
+    generateChildren(node);
 
     // Generate children for each child
     for (int i = 0; i < node->size; i++) {
-        generateChildren(node->children[i], depth - 1);
+        generateTree(node->children[i], depth - 1);
     }
 }

@@ -125,6 +125,12 @@ void addChild(Node* node, Move move);
 /*
 Generates the children of a given node by finding all valid moves.
 param Node* node: The parent node.
+*/
+void generateChildren(Node* node);
+
+/*
+Generates the minimax tree for a given node.
+param Node* node: The parent node.
 param int depth: The depth limit of the minimax tree.
 */
-void generateChildren(Node* node, int depth);
+void generateTree(Node* node, int depth);

@@ -250,11 +250,11 @@ int main(int argc, char* argv[]) {
         // Check if it's the first move
         isFirstMove(game, &firstMoveFlag);
 
-        // Get the opponent's move
+        // Get the opponent's first move
         Move nextMove = getOpponentsMove(game, nextMoveString);
         
-        // Make the next move
-        makeMove(game, nextMove);
+        // Make the next first move
+        makeFirstMove(game, nextMove.start);
     }
 
     // Initialize the bestMove
@@ -287,7 +287,10 @@ int main(int argc, char* argv[]) {
         }
 
         // Generate the children
-        generateChildren(node, MAX_DEPTH);
+        generateChildren(node);
+
+        // Generate the tree of children
+        generateTree(node, MAX_DEPTH);
 
         // If there are no valid moves, determine the winner
         if (node->size == 0) {
@@ -346,11 +349,11 @@ int main(int argc, char* argv[]) {
         // Make the move
         makeMove(game, bestMove);
 
-        // Check for a winner
-        checkForWinner(game);
-        if (game->winner != EMPTY) {
-            break;
-        }
+        // // Check for a winner
+        // checkForWinner(game);
+        // if (game->winner != EMPTY) {
+        //     break;
+        // }
 
         // Output the move to stdout
         agentOutput(bestMove);
@@ -361,11 +364,11 @@ int main(int argc, char* argv[]) {
         // Make the next move
         makeMove(game, nextMove);
 
-        // Check for a winner
-        checkForWinner(game);
-        if (game->winner != EMPTY) {
-            break;
-        }
+        // // Check for a winner
+        // checkForWinner(game);
+        // if (game->winner != EMPTY) {
+        //     break;
+        // }
 
         // Free the memory
         for (int i = 0; i < node->size; i++) {

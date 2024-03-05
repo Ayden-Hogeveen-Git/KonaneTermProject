@@ -270,6 +270,8 @@ void makeFirstMove(GameState* game, Point point) {
 }
 
 void makeMove(GameState* game, Move move) {
+    int jumps = 0;
+
     // Convert the x coordinates from A-H to 0-7
     int oldX = move.start.x - 'A';
     int newXIndex = move.end.x - 'A';
@@ -278,10 +280,26 @@ void makeMove(GameState* game, Move move) {
     int oldY = move.start.y - 1;
     int newYIndex = move.end.y - 1;
 
+    if (oldX == newXIndex) {
+        jumps = abs(oldY - newYIndex) / 2;
+    } else if (oldY == newYIndex) {
+        jumps = abs(oldX - newXIndex) / 2;
+    }
+
     // Make the move
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
     game->board[oldY][oldX] = EMPTY;
-    game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
+    if (jumps == 1)
+        game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
+    else if (jumps == 2) {
+        if (oldY == newYIndex) {
+            game->board[(oldY + newYIndex) / 2][((oldX + newXIndex) / 2) - 1] = EMPTY;
+            game->board[(oldY + newYIndex) / 2][((oldX + newXIndex) / 2) + 1] = EMPTY;
+        } else if (oldX == newXIndex) {
+            game->board[(oldY + newYIndex) / 2][((oldX + newXIndex) / 2) + 1] = EMPTY;
+            game->board[(oldY + newYIndex) / 2][((oldX + newXIndex) / 2) + 1] = EMPTY;
+        }
+    }
 
     // Toggle the player related info
     togglePlayer(game);

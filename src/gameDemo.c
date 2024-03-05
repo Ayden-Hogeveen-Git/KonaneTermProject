@@ -100,6 +100,7 @@ int main() {
     while (running == 1) {
         // Initialize move
         Move move;
+        int jumps = 0;
 
         // Get the next move
         if (game->turn == BLACK) {
@@ -135,12 +136,19 @@ int main() {
             coordToUpper(&move.end.x);
         }
 
+        if (move.start.x == move.end.x) {
+            jumps = abs(move.end.y - move.start.y) / 2;
+        } else if (move.start.y == move.end.y) {
+            jumps = abs(move.end.x - move.start.x) / 2;
+        }
+
         // Check if move is valid
-        if (isValidMove(game, move) == 0) {
+        if (isValidMove(game, game->turn, move, jumps) == 0) {
             printf("Invalid move\n");
         } else {
             makeMove(game, move);
             printBoard(game);
+            printf("jumps: %d\n", jumps);
         }
 
         // Check if the game is over

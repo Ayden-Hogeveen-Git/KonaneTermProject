@@ -53,7 +53,7 @@ param GameState* game: The representation of the current game state.
 param Move move: The coordinates of the piece to move.
 return int: 1 if valid, 0 otherwise.
 */
-int isValidMove(GameState* game, Move move);
+int isValidMove(GameState* game, Player player, Move move, int jumps);
 
 /*
 Checks if it's the first move for black or white.

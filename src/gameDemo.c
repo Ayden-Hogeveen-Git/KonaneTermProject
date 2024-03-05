@@ -135,13 +135,13 @@ int main() {
             coordToUpper(&move.end.x);
         }
 
-        // Check if move is valid
-        if (isValidMove(game, move) == 0) {
-            printf("Invalid move\n");
-        } else {
-            makeMove(game, move);
-            printBoard(game);
-        }
+        // // Check if move is valid
+        // if (isValidMove(game, move) == 0) {
+        //     printf("Invalid move\n");
+        // } else {
+        //     makeMove(game, move);
+        //     printBoard(game);
+        // }
 
         // Check if the game is over
         if (game->winner != EMPTY) {

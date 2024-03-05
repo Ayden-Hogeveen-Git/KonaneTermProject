@@ -421,24 +421,7 @@ void checkForWinner(GameState* game) {
 					} else if (isValidMove(game, WHITE, moveLeft, jumps) == 1) {
 						whiteCounter++;
 					}
-			for (int jumps = 1; jumps <= 3; jumps++){
-				// Check if there's a piece at the current position
-				if (game->board[y - 1][x] == BLACK || game->board[y - 1][x] == WHITE) {
-					// Check if the piece can move to the left
-					Move moveLeft = getLeftMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveLeft, jumps) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveLeft, jumps) == 1) {
-						whiteCounter++;
-					}
 
-					// Check if the piece can move to the right
-					Move moveRight = getRightMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveRight, jumps) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveRight, jumps) == 1) {
-						whiteCounter++;
-					}
 					// Check if the piece can move to the right
 					Move moveRight = getRightMove(jumps, x, y);
 					if (isValidMove(game, BLACK, moveRight, jumps) == 1) {
@@ -454,13 +437,6 @@ void checkForWinner(GameState* game) {
 					} else if (isValidMove(game, WHITE, moveUp, jumps) == 1) {
 						whiteCounter++;
 					}
-					// Check if the piece can move up
-					Move moveUp = getUpMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveUp, jumps) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveUp, jumps) == 1) {
-						whiteCounter++;
-					}
 
 					// Check if the piece can move down
 					Move moveDown = getDownMove(jumps, x, y);
@@ -469,17 +445,8 @@ void checkForWinner(GameState* game) {
 					} else if (isValidMove(game, WHITE, moveDown, jumps) == 1) {
 						whiteCounter++;
 					}
-				}
-			}
-					// Check if the piece can move down
-					Move moveDown = getDownMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveDown, jumps) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveDown, jumps) == 1) {
-						whiteCounter++;
-					}
-				}
-			}
+                }
+            }
         }
     }
 

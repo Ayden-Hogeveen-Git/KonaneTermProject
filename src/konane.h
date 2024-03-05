@@ -15,10 +15,11 @@ return char: The char representation of the piece type.
 char pieceToChar(Player piece);
 
 /*
-Prints the game board to the console.
-param GameState game: The representation of the current game state.
+Converts the board state to a string.
+param GameState* game: The representation of the current game state.
+return char*: The string representation of the board state.
 */
-void printBoard(GameState* game);
+char* gameStateToString(GameState* game);
 
 /*
 Initializes the board.

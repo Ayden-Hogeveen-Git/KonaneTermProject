@@ -30,7 +30,15 @@ int main() {
 
     // Print out the initial game
     printf("Initial game:\n");
-    printBoard(game);
+
+    // Initialize the game state string
+    char* gameStateString = NULL;
+
+    // Get the game as a string
+    gameStateString = gameStateToString(game);
+
+    // Print the game
+    printf("%s", gameStateString);
 
     // Get the first move for black
     while (1) {
@@ -62,7 +70,12 @@ int main() {
 
     // Print out the move and the updated game
     printf("BLACK removes %c%d\n", firstMoveBlack.x, firstMoveBlack.y);
-    printBoard(game);
+
+    // Get the game as a string
+    gameStateString = gameStateToString(game);
+
+    // Print the game
+    printf("%s", gameStateString);
 
     // Get the first move for white
     while (1) {
@@ -94,7 +107,12 @@ int main() {
 
     // Print out the move and the updated game
     printf("WHITE removes %c%d\n", firstMoveWhite.x, firstMoveWhite.y);
-    printBoard(game);
+
+    // Get the game as a string
+    gameStateString = gameStateToString(game);
+
+    // Print the game
+    printf("%s", gameStateString);
 
     // Main Game Loop
     while (running == 1) {
@@ -140,7 +158,11 @@ int main() {
         //     printf("Invalid move\n");
         // } else {
         //     makeMove(game, move);
-        //     printBoard(game);
+        // // Get the game as a string
+        // gameStateString = gameStateToString(game);
+
+        // // Print the game
+        // printf("%s", gameStateString);
         // }
 
         // Check if the game is over
@@ -166,5 +188,7 @@ int main() {
 
         // // Free the memory
         // freeValidMoves(&validMoves);
+        free(gameStateString);
+        free(game);
     }
 }

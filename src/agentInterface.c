@@ -8,6 +8,31 @@
 #include "minimaxAgent.h"
 
 
+void logMove(FILE* file, Move move) {
+    // If the start and end coordinates are the same, then it's a first move
+    if (move.start.x == move.end.x && move.start.y == move.end.y) {
+        fprintf(file, "First move: %c%d\n", move.start.x, move.start.y);
+    }
+
+    // Otherwise, it's a regular move
+    else {
+        fprintf(file, "Move: %c%d-%c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+    }
+}
+
+void logGameState(FILE* file, GameState* game) {
+    // Print the game board to the log file
+    fprintf(file, "  A B C D E F G H\n");
+    for (int y = 8; y > 0; y--) {
+        fprintf(file, "%d ", y);
+        for (int x = 0; x < 8; x++) {
+            fprintf(file, "%c ", pieceToChar(game->board[y - 1][x]));
+        }
+        fprintf(file, "%d\n", y);
+    }
+    fprintf(file, "  A B C D E F G H\n\n");
+}
+
 void setPlayersTurn(GameState* game, char player) {
     if (player == 'B') {
         game->turn = BLACK;
@@ -219,8 +244,7 @@ int main(int argc, char* argv[]) {
     // Initialize the game state 
     GameState* game = initalizeGameState(gameStateString, *argv[2]);
 
-    // Free the memory
-    free(gameStateString);
+
 
     // Allocate memory for the next move string
     char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
@@ -241,8 +265,15 @@ int main(int argc, char* argv[]) {
     // Initialize the bestMove
     Move bestMove = { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
 
+    // Log the new game
+    fprintf(logFile, "NEW GAME:\n");
+    
+    // Log the game state
+    logGameState(logFile, game);
+
     // Enter the main game loop
     while (game->winner == EMPTY) {
+
         // Allocate memory for the root node
         Node* node = malloc(sizeof(Node));
 
@@ -319,11 +350,17 @@ int main(int argc, char* argv[]) {
         // Make the move
         makeMove(game, bestMove);
 
-        // // Check for a winner
+        // Log the move
+        fprintf(logFile, "Agent's move: %c%d-%c%d\n", bestMove.start.x, bestMove.start.y, bestMove.end.x, bestMove.end.y);
+        // Log the game state
+        logGameState(logFile, game);
+
+
+        // Check for a winner
         // checkForWinner(game);
-        // if (game->winner != EMPTY) {
-        //     break;
-        // }
+        if (game->winner != EMPTY) {
+            break;
+        }
 
         // Output the move to stdout
         agentOutput(bestMove);
@@ -334,11 +371,16 @@ int main(int argc, char* argv[]) {
         // Make the next move
         makeMove(game, nextMove);
 
-        // // Check for a winner
+        // Log the opponent's move
+        fprintf(logFile, "Opponent's move: %c%d-%c%d\n", nextMove.start.x, nextMove.start.y, nextMove.end.x, nextMove.end.y);
+        // Log the game state
+        logGameState(logFile, game);
+
+        // Check for a winner
         // checkForWinner(game);
-        // if (game->winner != EMPTY) {
-        //     break;
-        // }
+        if (game->winner != EMPTY) {
+            break;
+        }
 
         // Free the memory
         for (int i = 0; i < node->size; i++) {
@@ -363,6 +405,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Free the memory
+    free(gameStateString);
     free(nextMoveString);
     free(game);
 

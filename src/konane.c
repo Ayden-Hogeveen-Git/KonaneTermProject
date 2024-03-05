@@ -24,34 +24,30 @@ char pieceToChar(Player piece) {
     }
 }
 
-void printBoard(GameState* game) {
-    printf("\n  A B C D E F G H\n");
-    for (int y = 8; y > 0; y--) {
-        printf("%d ", y);
-        for (int x = 0; x < 8; x++) {
-            printf("%c ", pieceToChar(game->board[y - 1][x]));
-        }
-        printf("%d\n", y);
+char* gameStateToString(GameState* game) {
+    // Allocate memory for the game string
+    char* gameString = malloc(65 * sizeof(char));
+
+    // Check if memory allocation failed or not
+    if (gameString == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        exit(1);
     }
-    printf("  A B C D E F G H\n\n");
-}
 
-void logBoard(GameState* game) {
-    // Open the log file
-    FILE* file = fopen("../test/.log.txt", "a");
-
-    fprintf(file, "\n  A B C D E F G H\n");
+    // Copy the game board to the game string
+    int index = 0;
     for (int y = 8; y > 0; y--) {
-        fprintf(file, "%d ", y);
         for (int x = 0; x < 8; x++) {
-            fprintf(file, "%c ", pieceToChar(game->board[y - 1][x]));
+            gameString[index] = pieceToChar(game->board[y - 1][x]);
+            index++;
         }
-        fprintf(file, "%d\n", y);
     }
-    fprintf(file, "  A B C D E F G H\n\n");
 
-    // Close the log file
-    fclose(file);
+    // Add the null terminator to the end of the game string
+    gameString[64] = '\0';
+
+    // Return the game string
+    return gameString;
 }
 
 void initializeBoard(GameState* game) {
@@ -276,7 +272,40 @@ void makeMove(GameState* game, Move move) {
     // Make the move
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
     game->board[oldY][oldX] = EMPTY;
-    game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
+
+    // Calculate how many jumps were made
+    int jumpsX = (oldX - newXIndex) / 2;
+    int jumpsY = (oldY - newYIndex) / 2;
+    int jumps = jumpsX + jumpsY;
+
+    // Handle multiple jumps
+    for (int i = 1; i <= jumps; i++) {
+        if (oldX - newXIndex > 0 && oldY == newYIndex) { // is a move left
+            int yIndex = (oldY + newYIndex) / 2;
+            int xIndex = (oldX + newXIndex) / 2 - (jumps - 1);
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
+        } else if (oldX - newXIndex < 0 && oldY == newYIndex) { // is a move right
+            int yIndex = (oldY + newYIndex) / 2;
+            int xIndex = (oldX + newXIndex) / 2 + (jumps - 1);
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
+        } else if (oldX == newXIndex && oldY - newYIndex < 0) { // is a move up
+            int yIndex = (oldY + newYIndex) / 2 + (jumps - 1);
+            int xIndex = (oldX + newXIndex) / 2;
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
+        } else if (oldX == newXIndex && oldY - newYIndex > 0){ // is a move down
+            int yIndex = (oldY + newYIndex) / 2 - (jumps - 1);
+            int xIndex = (oldX + newXIndex) / 2;
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
+        }
+    }
 
     // Toggle the player related info
     togglePlayer(game);

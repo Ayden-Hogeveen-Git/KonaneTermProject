@@ -117,28 +117,6 @@ GameState* copyGameState(GameState* game) {
     return newGame;
 }
 
-int isValidFirstMove(GameState* game, Point point) {
-    // Convert the x coordinates from A-H to 0-7
-    int x = point.x - 'A';
-
-    // Convert the y coordinates from 1-8 to 0-7
-    int y = point.y - 1;
-
-    // Verify that the start coordinates are within the board starting area
-    if (x < 3 || x > 4 || y < 3 || y > 4) {
-        return 0;
-    }
-
-    // Verify that the player is moving their own piece
-    if (game->turn == BLACK && game->board[y][x] != BLACK) {
-        return 0;
-    } else if (game->turn == WHITE && game->board[y][x] != WHITE) {
-        return 0;
-    }
-
-    return 1;
-}
-
 int isValidMove(GameState* game, Player player, Move move) {
     // Convert the x coordinates from A-H to 0-7
     int x = move.start.x - 'A';
@@ -148,97 +126,114 @@ int isValidMove(GameState* game, Player player, Move move) {
     int y = move.start.y - 1;
     int newY = move.end.y - 1;
 
-    // Verify that the start coordinates are within the game board
-    if (x < 0 || x > 7 || y < 0 || y > 7) {
-        return 0;
-    }
-
-    // Verify that the end coordinates are within the game board
-    if (newX < 0 || newX > 7 || newY < 0 || newY > 7) {
-        return 0;
-    }
-
-    // Verify that the piece is moving to an empty space
-    if (game->board[newY][newX] != EMPTY) {
-        return 0;
-    }
-
-    // Verify that the piece is moving in a straight line
-    if (newY != y && newX != x) {
-        return 0;
-    }
-
-    // Verify that the player is moving their own piece
-    if (player == BLACK && game->board[y][x] != BLACK) {
-        return 0;
-    } else if (player == WHITE && game->board[y][x] != WHITE) {
-        return 0;
-    }
-
-    // Initialize the x and y index for validating the jumped pieces
-    int xIndex, yIndex;
-
-    // Handle single jump validation
-    if (move.jumps == 1) {
-        xIndex = (x + newX) / 2;
-        yIndex = (y + newY) / 2;
-
-        // Verify that the player is jumping over an opponent's piece
-        if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-            return 0;
-        } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+    // Check if it's the first move or not
+    if (game->firstMove == 1 && move.jumps == 0) {
+        // Verify that the start coordinates are within the board starting area
+        if (x < 3 || x > 4 || y < 3 || y > 4) {
             return 0;
         }
-    }
 
-    // Handle double jump validation
-    if (move.jumps == 2) {
-        return 0;
-    }
+        // Verify that the player is removing their own piece
+        if (player == BLACK && game->board[y][x] != BLACK) {
+            return 0;
+        } else if (player == WHITE && game->board[y][x] != WHITE) {
+            return 0;
+        }
 
-    // Handle triple jump validation
-    if (move.jumps == 3) {
-        return 0;
-    }
+        return 1;
+    } else {
+        // Verify that the start coordinates are within the game board
+        if (x < 0 || x > 7 || y < 0 || y > 7) {
+            return 0;
+        }
 
-    // Verify that the player is jumping over an opponent's piece
-	// for (int i = 1; i <= move.jumps; i++) {
-	// 	if (move.direction == LEFT) {
-	// 		int yIndex = (y + newY) / 2;
-	// 		int xIndex = (x + newX) / 2 - (move.jumps - 1);
-	// 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-	// 			return 0;
-	// 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-	// 			return 0;
-	// 		}
-			
-	// 	} else if (move.direction == RIGHT) {
-	// 		int yIndex = (y + newY) / 2;
-	// 		int xIndex = (x + newX) / 2 + (move.jumps - 1);
-	// 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-	// 			return 0;
-	// 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-	// 			return 0;
-	// 		}
-	// 	} else if (move.direction == UP) {
-	// 		int yIndex = (y + newY) / 2 + (move.jumps - 1);
-	// 		int xIndex = (x + newX) / 2;
-	// 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-	// 			return 0;
-	// 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-	// 			return 0;
-	// 		}
-	// 	} else if (move.direction == DOWN) {
-	// 		int yIndex = (y + newY) / 2 - (move.jumps - 1);
-	// 		int xIndex = (x + newX) / 2;
-	// 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-	// 			return 0;
-	// 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-	// 			return 0;
-	// 		}
-	// 	}
-	// }
-	return 1;
+        // Verify that the end coordinates are within the game board
+        if (newX < 0 || newX > 7 || newY < 0 || newY > 7) {
+            return 0;
+        }
+
+        // Verify that the piece is moving to an empty space
+        if (game->board[newY][newX] != EMPTY) {
+            return 0;
+        }
+
+        // Verify that the piece is moving in a straight line
+        if (newY != y && newX != x) {
+            return 0;
+        }
+
+        // Verify that the player is moving their own piece
+        if (player == BLACK && game->board[y][x] != BLACK) {
+            return 0;
+        } else if (player == WHITE && game->board[y][x] != WHITE) {
+            return 0;
+        }
+
+        // Initialize the x and y index for validating the jumped pieces
+        int xIndex, yIndex;
+
+        // Handle single jump validation
+        if (move.jumps == 1) {
+            xIndex = (x + newX) / 2;
+            yIndex = (y + newY) / 2;
+
+            // Verify that the player is jumping over an opponent's piece
+            if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                return 0;
+            } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                return 0;
+            }
+        }
+
+        // Handle double jump validation
+        if (move.jumps == 2) {
+            return 0;
+        }
+
+        // Handle triple jump validation
+        if (move.jumps == 3) {
+            return 0;
+        }
+
+        // Verify that the player is jumping over an opponent's piece
+        // for (int i = 1; i <= move.jumps; i++) {
+        // 	if (move.direction == LEFT) {
+        // 		int yIndex = (y + newY) / 2;
+        // 		int xIndex = (x + newX) / 2 - (move.jumps - 1);
+        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+        // 			return 0;
+        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+        // 			return 0;
+        // 		}
+                
+        // 	} else if (move.direction == RIGHT) {
+        // 		int yIndex = (y + newY) / 2;
+        // 		int xIndex = (x + newX) / 2 + (move.jumps - 1);
+        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+        // 			return 0;
+        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+        // 			return 0;
+        // 		}
+        // 	} else if (move.direction == UP) {
+        // 		int yIndex = (y + newY) / 2 + (move.jumps - 1);
+        // 		int xIndex = (x + newX) / 2;
+        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+        // 			return 0;
+        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+        // 			return 0;
+        // 		}
+        // 	} else if (move.direction == DOWN) {
+        // 		int yIndex = (y + newY) / 2 - (move.jumps - 1);
+        // 		int xIndex = (x + newX) / 2;
+        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+        // 			return 0;
+        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+        // 			return 0;
+        // 		}
+        // 	}
+        // }
+        return 1;
+    }
 }
 
 int isFirstMove(GameState* game) {
@@ -299,20 +294,25 @@ void makeMove(GameState* game, Move move) {
     // Initialize the x and y index for removing the jumped pieces
     int xIndex, yIndex;
 
+    // Handle first move
+    if (game->firstMove == 1 && move.jumps == 0) {
+        yIndex = oldY;
+        xIndex = oldX;
+
+        // Remove the piece at the current position
+        if (game->board[yIndex][xIndex] != EMPTY) {
+            game->board[yIndex][xIndex] = EMPTY;
+        }
+    }
+
     // Handle single jumps
-    if (move.jumps == 1) {
-        if (move.direction == LEFT) {
-            xIndex = (oldX + newX) / 2;
-            yIndex = (oldY + newY) / 2;
-        } else if (move.direction == RIGHT) {
-            xIndex = (oldX + newX) / 2;
-            yIndex = (oldY + newY) / 2;
-        } else if (move.direction == UP) {
-            yIndex = (oldY + newY) / 2;
-            xIndex = (oldX + newX) / 2;
-        } else if (move.direction == DOWN) {
-            yIndex = (oldY + newY) / 2;
-            xIndex = (oldX + newX) / 2;
+    if (move.jumps >= 1) {
+        if (move.direction == LEFT || move.direction == RIGHT) {
+            xIndex = oldX + (1 * move.direction);
+            yIndex = oldY;
+        } else if (move.direction == UP || move.direction == DOWN) {
+            xIndex = oldX;
+            yIndex = oldY + (1 * move.direction);
         } else if (move.direction == FIRST) {
             yIndex = oldY;
             xIndex = oldX;
@@ -327,42 +327,51 @@ void makeMove(GameState* game, Move move) {
         }
     }
 
-    // // Handle multiple jumps
-    // for (int i = 1; i < move.jumps - 1; i++) {
-    //     int xIndex, yIndex;
-    //     if (move.direction == LEFT || move.direction == RIGHT) {
-    //         xIndex = oldX + move.direction * i / 2;
-    //         yIndex = oldY;
-    //         // yIndex = (oldY + newY) / 2;
-    //         // xIndex = (oldX + newX) / 2;
-    //     // } else if (move.direction == RIGHT) {
-    //     //     xIndex = oldX + move.direction * i + 1;
-    //     //     yIndex = oldY;
-    //         // yIndex = (oldY + newY) / 2;
-    //         // xIndex = (oldX + (move.direction * (2 * i + 1)));
-    //     } else if (move.direction == UP || move.direction == DOWN) {
-    //         xIndex = oldX;
-    //         yIndex = oldY + move.direction * i / 2;
-    //         // yIndex = (oldY + (move.direction * (2 * i + 1)));
-    //         // xIndex = (oldX + newX) / 2;
-    //     // } else if (move.direction == DOWN) {
-    //     //     xIndex = oldX;
-    //     //     yIndex = oldY + move.direction * i - 1;
-    //         // yIndex = (oldY + (move.direction * (2 * i + 1)));
-    //         // xIndex = (oldX + newX) / 2;
-    //     } else if (move.direction == FIRST) {
-    //         yIndex = oldY;
-    //         xIndex = oldX;
-    //     } else {
-    //         fprintf(stderr, "Error: Invalid move direction\n");
-    //         exit(1);
-    //     }
+    // Handle double jumps
+    if (move.jumps >= 2) {
+        int xIndex, yIndex;
+        if (move.direction == LEFT || move.direction == RIGHT) {
+            xIndex = oldX + (3 * move.direction);
+            yIndex = oldY;
+        } else if (move.direction == UP || move.direction == DOWN) {
+            xIndex = oldX;
+            yIndex = oldY + (3 * move.direction);
+        } else if (move.direction == FIRST) {
+            yIndex = oldY;
+            xIndex = oldX;
+        } else {
+            fprintf(stderr, "Error: Invalid move direction\n");
+            exit(1);
+        }
 
-    //     // Remove the piece at the current position
-    //     if (game->board[yIndex][xIndex] != EMPTY) {
-    //         game->board[yIndex][xIndex] = EMPTY;
-    //     }
-    // }
+        // Remove the piece at the current position
+        if (game->board[yIndex][xIndex] != EMPTY) {
+            game->board[yIndex][xIndex] = EMPTY;
+        }
+    }
+
+    // Handle triple jumps
+    if (move.jumps >= 3) {
+        int xIndex, yIndex;
+        if (move.direction == LEFT || move.direction == RIGHT) {
+            xIndex = oldX + (5 * move.direction);
+            yIndex = oldY;
+        } else if (move.direction == UP || move.direction == DOWN) {
+            xIndex = oldX;
+            yIndex = oldY + (5 * move.direction);
+        } else if (move.direction == FIRST) {
+            yIndex = oldY;
+            xIndex = oldX;
+        } else {
+            fprintf(stderr, "Error: Invalid move direction\n");
+            exit(1);
+        }
+
+        // Remove the piece at the current position
+        if (game->board[yIndex][xIndex] != EMPTY) {
+            game->board[yIndex][xIndex] = EMPTY;
+        }
+    }
 
     // Toggle the player related info
     togglePlayer(game);
@@ -377,7 +386,7 @@ Move getLeftMove(int jumps, int x, int y) {
 
     // Set the start and end coordinates for the move
     moveLeft.start.x = 'A' + x;
-    moveLeft.end.x = 'A' + x + moveLeft.direction * jumps;
+    moveLeft.end.x = 'A' + x + (2 * moveLeft.direction * jumps);
     moveLeft.start.y = y + 1;
     moveLeft.end.y = y + 1;
 
@@ -393,7 +402,7 @@ Move getRightMove(int jumps, int x, int y) {
 
     // Set the start and end coordinates for the move
     moveRight.start.x = 'A' + x;
-    moveRight.end.x = 'A' + x + moveRight.direction * jumps;
+    moveRight.end.x = 'A' + x + (2 * moveRight.direction * jumps);
     moveRight.start.y = y + 1;
     moveRight.end.y = y + 1;
     
@@ -411,7 +420,7 @@ Move getUpMove(int jumps, int x, int y) {
     moveUp.start.x = 'A' + x;
     moveUp.end.x = 'A' + x;
     moveUp.start.y = y + 1;
-    moveUp.end.y = y + 1 + moveUp.direction * jumps;
+    moveUp.end.y = y + 1 + (2 * moveUp.direction * jumps);
 
     return moveUp;
 }
@@ -427,7 +436,7 @@ Move getDownMove(int jumps, int x, int y) {
     moveDown.start.x = 'A' + x;
     moveDown.end.x = 'A' + x;
     moveDown.start.y = y + 1;
-    moveDown.end.y = y + 1 + moveDown.direction * jumps;
+    moveDown.end.y = y + 1 + (2 * moveDown.direction * jumps);
 
     return moveDown;
 }

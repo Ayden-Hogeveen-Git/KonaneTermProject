@@ -41,20 +41,13 @@ return GameState*: The copy of the game board.
 GameState* copyGameState(GameState game);
 
 /*
-Checks if it's a valid first move or not.
-param GameState* game: The representation of the current game state.
-param Point point: The coordinates of the piece to remove.
-return int: 1 if valid, 0 otherwise.
-*/
-int isValidFirstMove(GameState* game, Point point);
-
-/*
 Checks if it's a valid move or not.
 param GameState* game: The representation of the current game state.
+param Player player: The player to check the move for.
 param Move move: The coordinates of the piece to move.
 return int: 1 if valid, 0 otherwise.
 */
-int isValidMove(GameState* game, Player player, Move move, int jumps);
+int isValidMove(GameState* game, Player player, Move move);
 
 /*
 Checks if it's the first move for black or white.

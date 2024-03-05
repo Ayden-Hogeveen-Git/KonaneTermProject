@@ -8,7 +8,7 @@
 int main() {
     // Game Variables
     int running = 1; 
-    Point firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
+    Move firstMoveBlack, firstMoveWhite;  // Coordinates of the first two moves
 
 
     // // Define a default new game string
@@ -38,14 +38,14 @@ int main() {
     gameStateString = gameStateToString(game);
 
     // Print the game
-    printf("%s", gameStateString);
+    fprintf(stdout, "%s", gameStateString);
 
     // Get the first move for black
     while (1) {
         // Get a valid first move for black
         printf("BLACK's move:\n");
         printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        if (scanf(" %c %d", &firstMoveBlack.x, &firstMoveBlack.y) != 2) {
+        if (scanf(" %c %d", &firstMoveBlack.start.x, &firstMoveBlack.start.y) != 2) {
             printf("Invalid input\n");
             continue;
         }
@@ -53,11 +53,14 @@ int main() {
         // Clear the input buffer
         while ((getchar()) != '\n');
 
-        // Convert the coordinates to uppercase
-        coordToUpper(&firstMoveBlack.x);
+        // Convert the x letter coordinates to uppercase
+        coordToUpper(&firstMoveBlack.start.x);
+
+        // Copy the start coordinates to the end coordinates
+        firstMoveBlack.end.x = firstMoveBlack.start.x;
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(game, firstMoveBlack) == 1) {
+        if (isValidMove(game, game->turn, firstMoveBlack) == 1) {
             break;
         }
 
@@ -66,23 +69,23 @@ int main() {
     }
 
     // Make the first move for black and print the game
-    makeFirstMove(game, firstMoveBlack);
+    makeMove(game, firstMoveBlack);
 
     // Print out the move and the updated game
-    printf("BLACK removes %c%d\n", firstMoveBlack.x, firstMoveBlack.y);
+    fprintf(stdout, "BLACK removes %c%d\n", firstMoveBlack.start.x, firstMoveBlack.start.y);
 
     // Get the game as a string
     gameStateString = gameStateToString(game);
 
     // Print the game
-    printf("%s", gameStateString);
+    fprintf(stdout, "%s", gameStateString);
 
     // Get the first move for white
     while (1) {
         // Get a valid first move for white
         printf("WHITE's move:\n");
         printf("Enter the 'X' and 'Y' coordinates of the piece you want to remove: ");
-        if (scanf(" %c %d", &firstMoveWhite.x, &firstMoveWhite.y) != 2) {
+        if (scanf(" %c %d", &firstMoveWhite.start.x, &firstMoveWhite.start.y) != 2) {
             printf("Invalid input\n");
             continue;
         }
@@ -91,10 +94,13 @@ int main() {
         while ((getchar()) != '\n');
 
         // Convert the coordinates to uppercase
-        coordToUpper(&firstMoveWhite.x);
+        coordToUpper(&firstMoveWhite.start.x);
+
+        // Copy the start coordinates to the end coordinates
+        firstMoveWhite.end.x = firstMoveWhite.start.x;
 
         // Check if the move is valid, if so, break the loop
-        if (isValidFirstMove(game, firstMoveWhite) == 1) {
+        if (isValidMove(game, game->turn, firstMoveWhite) == 1) {
             break;
         }
 
@@ -103,16 +109,17 @@ int main() {
     }
 
     // Make the first move for white and print the game
-    makeFirstMove(game, firstMoveWhite);
+    // makeFirstMove(game, firstMoveWhite);
+    makeMove(game, firstMoveWhite);
 
     // Print out the move and the updated game
-    printf("WHITE removes %c%d\n", firstMoveWhite.x, firstMoveWhite.y);
+    fprintf(stdout, "WHITE removes %c%d\n", firstMoveWhite.start.x, firstMoveWhite.start.y);
 
     // Get the game as a string
     gameStateString = gameStateToString(game);
 
     // Print the game
-    printf("%s", gameStateString);
+    fprintf(stdout, "%s", gameStateString);
 
     // Main Game Loop
     while (running == 1) {
@@ -125,7 +132,7 @@ int main() {
             // move = minimax(&game);
             // printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
             // move = minimaxAlphaBeta(game);
-            printf("minimaxAlphaBeta... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+            fprintf(stdout, "minimaxAlphaBeta... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
         } else if (game->turn == WHITE) {
             // Get a valid start move for white
             printf("WHITE's move:\n");

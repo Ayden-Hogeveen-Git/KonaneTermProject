@@ -16,27 +16,31 @@ Move chooseFirstMove(GameState* game) {
 	// If it's the first move for black, return with 50% probability one of the two center pieces
 	if (game->turn == BLACK) {
 		// Validate both first moves for black
-		if (isValidFirstMove(game, moveBlack1.start) && isValidFirstMove(game, moveBlack2.start)) {
+		if (isValidMove(game, game->turn, moveBlack1) && isValidMove(game, game->turn, moveBlack2)) {
 			int random = rand() % 2;
 			if (random == 0) {
 				return moveBlack1;
 			} else {
 				return moveBlack2;
 			}
-		} else if (isValidFirstMove(game, moveBlack1.start)) {
+		} else if (isValidMove(game, game->turn, moveBlack1)) {
 			return moveBlack1;
-		} else if (isValidFirstMove(game, moveBlack2.start)) {
+		} else if (isValidMove(game, game->turn, moveBlack2)) {
 			return moveBlack2;
 		}
 	} else if (game->turn == WHITE) {
 		// Validate both first moves for white
-		if (isValidFirstMove(game, moveWhite1.start) && isValidFirstMove(game, moveWhite2.start)) {
+		if (isValidMove(game, game->turn, moveWhite1) && isValidMove(game, game->turn, moveWhite2)) {
 			int random = rand() % 2;
 			if (random == 0) {
 				return moveWhite1;
 			} else {
 				return moveWhite2;
 			}
+		} else if (isValidMove(game, game->turn, moveWhite1)) {
+			return moveWhite1;
+		} else if (isValidMove(game, game->turn, moveWhite2)) {
+			return moveWhite2;
 		}
 	}
 	

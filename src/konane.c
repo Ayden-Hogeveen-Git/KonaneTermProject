@@ -219,28 +219,29 @@ int isValidMove(GameState* game, Player player, Move move, int jumps) {
 	return 1;
 }
 
-void isFirstMove(GameState* game, int* firstMoveFlag) {
+int isFirstMove(GameState* game) {
     // Initialize the empty counter
     int emptyCounter = 0;
 
     // Count the number of empty spaces, if there are less than 2, then it's the first move
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
-            // Check if there's a piece at the current position
+            // if (game->board[y - 1][x].piece == EMPTY) {
+            //     emptyCounter++;
+            // }
             if (game->board[y - 1][x] == EMPTY) {
                 emptyCounter++;
             }
             // Exit early if there are 2 or more empty spaces
             if (emptyCounter >= 2) {
                 // Set the first move flag to 0
-                *firstMoveFlag = 0;
-                return;
+                game->firstMove = 0;
+                return 0;
             }
         }
     }
-
-    // Set the first move flag to 1 otherwise
-    *firstMoveFlag = 1;
+    // If there are less than 2 empty spaces, then it's the first move
+    return emptyCounter < 2;
 }
 
 void togglePlayer(GameState* game) {

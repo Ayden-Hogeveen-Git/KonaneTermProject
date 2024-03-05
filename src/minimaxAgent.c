@@ -6,6 +6,43 @@
 #include "konane.h"
 
 
+Move chooseFirstMove(GameState* game) {
+	// Define all four possible first moves
+	Move moveBlack1 = { .start = { .x = 'D', .y = 5 }, .end = { .x = 'D', .y = 5 } };
+	Move moveBlack2 = { .start = { .x = 'E', .y = 4 }, .end = { .x = 'E', .y = 4 } };
+	Move moveWhite1 = { .start = { .x = 'D', .y = 4 }, .end = { .x = 'D', .y = 4 } };
+	Move moveWhite2 = { .start = { .x = 'E', .y = 5 }, .end = { .x = 'E', .y = 5 } };
+
+	// Seed the random number generator using the current time
+	srand(time(NULL));
+
+	// If it's the first move for black, return with 50% probability one of the two center pieces
+	if (game->turn == BLACK) {
+		// Validate both first moves for black
+		if (isValidFirstMove(game, moveBlack1.start) && isValidFirstMove(game, moveBlack2.start)) {
+			int random = rand() % 2;
+			if (random == 0) {
+				return moveBlack1;
+			} else {
+				return moveBlack2;
+			}
+		}
+	} else if (game->turn == WHITE) {
+		// Validate both first moves for white
+		if (isValidFirstMove(game, moveWhite1.start) && isValidFirstMove(game, moveWhite2.start)) {
+			int random = rand() % 2;
+			if (random == 0) {
+				return moveWhite1;
+			} else {
+				return moveWhite2;
+			}
+		}
+	}
+	
+	// Default move
+	return moveBlack1;
+}
+
 int min(int a, int b) {
     return (a < b) ? a : b;
 }
@@ -121,6 +158,13 @@ int evaluationFunction(Node* node, int type) {
 }
 
 int minimax(Node* node, int depth, Move* bestMove) {
+	// Check if it's the first move for black or white
+	if (node->game.firstMove && isFirstMove(&node->game)) {
+		// Return the first move
+		*bestMove = chooseFirstMove(&node->game);
+		return 0;
+	}
+
 	// Base Case: if depth is 0, or terminal node, compute the utility value of the node
 	if (depth == 0 || isTerminal(node)) {
 		// node->value = evaluationFunction(node, 3);
@@ -227,41 +271,4 @@ int minimaxAlphaBeta(Node* node, int depth, int alpha, int beta, Move* bestMove)
 		}
 		return bestValue;
 	}
-}
-
-Move chooseFirstMove(GameState* game) {
-	// Define all four possible first moves
-	Move moveBlack1 = { .start = { .x = 'D', .y = 5 }, .end = { .x = 'D', .y = 5 } };
-	Move moveBlack2 = { .start = { .x = 'E', .y = 4 }, .end = { .x = 'E', .y = 4 } };
-	Move moveWhite1 = { .start = { .x = 'D', .y = 4 }, .end = { .x = 'D', .y = 4 } };
-	Move moveWhite2 = { .start = { .x = 'E', .y = 5 }, .end = { .x = 'E', .y = 5 } };
-
-	// Seed the random number generator using the current time
-	srand(time(NULL));
-
-	// If it's the first move for black, return with 50% probability one of the two center pieces
-	if (game->turn == BLACK) {
-		// Validate both first moves for black
-		if (isValidFirstMove(game, moveBlack1.start) && isValidFirstMove(game, moveBlack2.start)) {
-			int random = rand() % 2;
-			if (random == 0) {
-				return moveBlack1;
-			} else {
-				return moveBlack2;
-			}
-		}
-	} else if (game->turn == WHITE) {
-		// Validate both first moves for white
-		if (isValidFirstMove(game, moveWhite1.start) && isValidFirstMove(game, moveWhite2.start)) {
-			int random = rand() % 2;
-			if (random == 0) {
-				return moveWhite1;
-			} else {
-				return moveWhite2;
-			}
-		}
-	}
-	
-	// Default move
-	return moveBlack1;
 }

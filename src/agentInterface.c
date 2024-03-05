@@ -96,6 +96,14 @@ GameState* initalizeGameState(char* gameString, char player) {
             }
         }
     }
+    
+    // Check if it's a first move
+    if (isFirstMove(newGame)) {
+        newGame->firstMove = 1;
+    }
+    else {
+        newGame->firstMove = 0;
+    }
 
     // Set the player's turn
     setPlayersTurn(newGame, player);
@@ -230,33 +238,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Initialize the first move flag
-    int firstMoveFlag = 1;
-
-    // Check if it's the first move
-    isFirstMove(game, &firstMoveFlag);
-
-    // If it's the first move then run a first move game loop
-    while (firstMoveFlag) {
-        // If it's the first move, get the first move
-        Move firstMove = chooseFirstMove(game);
-
-        // Make the first move
-        makeFirstMove(game, firstMove.start);
-
-        // Output the agent's move to stdout
-        agentOutput(firstMove);
-
-        // Check if it's the first move
-        isFirstMove(game, &firstMoveFlag);
-
-        // Get the opponent's first move
-        Move nextMove = getOpponentsMove(game, nextMoveString);
-        
-        // Make the next first move
-        makeFirstMove(game, nextMove.start);
-    }
-
     // Initialize the bestMove
     Move bestMove = { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
 
@@ -291,17 +272,6 @@ int main(int argc, char* argv[]) {
 
         // Generate the tree of children
         generateTree(node, MAX_DEPTH);
-
-        // If there are no valid moves, determine the winner
-        if (node->size == 0) {
-            // If the current player is black, the winner is white
-            if (game->turn == BLACK) {
-                game->winner = WHITE;
-            } else if (game->turn == WHITE) {
-                // If the current player is white, the winner is black
-                game->winner = BLACK;
-            }
-        }
 
         // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA

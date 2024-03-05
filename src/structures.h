@@ -14,6 +14,7 @@ typedef struct {
 typedef struct {
     Point start;
     Point end;
+	int jumps;
 } Move;
 
 typedef struct {

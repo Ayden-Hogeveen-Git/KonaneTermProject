@@ -281,7 +281,25 @@ void makeMove(GameState* game, Move move) {
     // Make the move
     game->board[newYIndex][newXIndex] = game->board[oldY][oldX];
     game->board[oldY][oldX] = EMPTY;
-    game->board[(oldY + newYIndex) / 2][(oldX + newXIndex) / 2] = EMPTY;
+	for (int i = 1; i <= move.jumps; i++) {
+		if (oldX - newXIndex > 0 && oldY == newYIndex) { // is a move left
+			int yIndex = (oldY + newYIndex) / 2;
+			int xIndex = (oldX + newXIndex) / 2 - (move.jumps - 1);
+    		game->board[yIndex][xIndex] = EMPTY;
+		} else if (oldX - newXIndex < 0 && oldY == newYIndex) { // is a move right
+			int yIndex = (oldY + newYIndex) / 2;
+			int xIndex = (oldX + newXIndex) / 2 + (move.jumps - 1);
+    		game->board[yIndex][xIndex] = EMPTY;
+		} else if (oldX == newXIndex && oldY - newYIndex < 0) { // is a move up
+			int yIndex = (oldY + newYIndex) / 2 + (move.jumps - 1);
+			int xIndex = (oldX + newXIndex) / 2;
+    		game->board[yIndex][xIndex] = EMPTY;
+		} else if (oldX == newXIndex && oldY - newYIndex > 0){ // is a move down
+			int yIndex = (oldY + newYIndex) / 2 - (move.jumps - 1);
+			int xIndex = (oldX + newXIndex) / 2;
+    		game->board[yIndex][xIndex] = EMPTY;
+		}
+	}
 
     // Toggle the player related info
     togglePlayer(game);
@@ -449,6 +467,7 @@ void generateChildren(Node* node, int depth) {
 						// Check if the piece can move to the left
 						Move moveLeft = getLeftMove(jumps, x, y);
 						if (isValidMove(&node->game, node->game.turn, moveLeft, jumps) == 1) {
+							moveLeft.jumps = jumps;
 							addChild(node, moveLeft);
 						} else {
 							break;
@@ -459,6 +478,7 @@ void generateChildren(Node* node, int depth) {
 						// Check if the piece can move to the right
 						Move moveRight = getRightMove(jumps, x, y);
 						if (isValidMove(&node->game, node->game.turn, moveRight, jumps) == 1) {
+							moveRight.jumps = jumps;
 							addChild(node, moveRight);
 						} else {
 							break;
@@ -469,6 +489,7 @@ void generateChildren(Node* node, int depth) {
 						// Check if the piece can move up
 						Move moveUp = getUpMove(jumps, x, y);
 						if (isValidMove(&node->game, node->game.turn, moveUp, jumps) == 1) {
+							moveUp.jumps = jumps;
 							addChild(node, moveUp);
 						} else {
 							break;
@@ -479,6 +500,7 @@ void generateChildren(Node* node, int depth) {
 						// Check if the piece can move to the left
 						Move moveDown = getDownMove(jumps, x, y);
 						if (isValidMove(&node->game, node->game.turn, moveDown, jumps) == 1) {
+							moveDown.jumps = jumps;
 							addChild(node, moveDown);
 						} else {
 							break;

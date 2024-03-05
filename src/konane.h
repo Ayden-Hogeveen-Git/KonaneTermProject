@@ -111,6 +111,14 @@ return int: 1 if terminal, 0 otherwise.
 int isTerminal(Node* node);
 
 /*
+Counts the number of valid moves for a given player in the current game state.
+param GameState* game: The representation of the current game state.
+param Player player: The player to count the valid moves for.
+return int: The number of valid moves for a given player in the current game state.
+*/
+int countValidMoves(GameState* game, Player player);
+
+/*
 Checks if the game is over or not. If so it updates the winner in the game state.
 param GameState* game: The representation of the current game state.
 */

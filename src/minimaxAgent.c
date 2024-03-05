@@ -58,12 +58,12 @@ int evalCountBW(GameState* game) {
 	int whiteCount = 0;
 
 	// Loop through the board
-	for (int y = 8; y > 0; y--) {
-		for (int x = 0; x < 8; x++) {
+	for (int y = 7; y >= 0; y--) {
+		for (int x = 0; x <= 7; x++) {
 			// If the piece is black, increment the black counter
-			if (game->board[y - 1][x] == BLACK) {
+			if (game->board[y][x] == BLACK) {
 				blackCount++;
-			} else if (game->board[y - 1][x] == WHITE) {
+			} else if (game->board[y][x] == WHITE) {
 				whiteCount++;
 			}
 		}

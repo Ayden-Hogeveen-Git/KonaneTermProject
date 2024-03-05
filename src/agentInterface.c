@@ -66,10 +66,10 @@ void logGameState(GameState* game, Move move) {
 
     // Print the game board to the log file
     fprintf(logFile, "  A B C D E F G H\n");
-    for (int y = 8; y > 0; y--) {
+    for (int y = 7; y >= 0; y--) {
         fprintf(logFile, "%d ", y);
-        for (int x = 0; x < 8; x++) {
-            fprintf(logFile, "%c ", pieceToChar(game->board[y - 1][x]));
+        for (int x = 0; x <= 7; x++) {
+            fprintf(logFile, "%c ", pieceToChar(game->board[y][x]));
         }
         fprintf(logFile, "%d\n", y);
     }
@@ -143,22 +143,19 @@ GameState* initalizeGameState(char* gameString, char player) {
     char* gameStringFormatted = formatGameString(gameString);
 
     // Initialize the game board
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
             // Convert the character to a piece
-            if (gameStringFormatted[(8 - y) * 8 + x] == 'B') {
-                // newGame->board[y - 1][x].piece = BLACK;
-                newGame->board[y - 1][x] = BLACK;
+            if (gameStringFormatted[(7 - y) * 8 + x] == 'B') {
+                newGame->board[y][x] = BLACK;
             }
-            else if (gameStringFormatted[(8 - y)*8 + x] == 'W') {
-                // newGame->board[y - 1][x].piece = WHITE;
-                newGame->board[y - 1][x] = WHITE;
+            else if (gameStringFormatted[(7 - y) * 8 + x] == 'W') {
+                newGame->board[y][x] = WHITE;
             }
-            else if (gameStringFormatted[(8 - y)*8 + x] == 'O') {
-                // newGame->board[y - 1][x].piece = EMPTY;
-                newGame->board[y - 1][x] = EMPTY;
+            else if (gameStringFormatted[(7 - y) * 8 + x] == 'O') {
+                newGame->board[y][x] = EMPTY;
             }
-            else if (gameStringFormatted[(8 - y)*8 + x] == '\0') {
+            else if (gameStringFormatted[(7 - y) * 8 + x] == '\0') {
                 break;
             }
             else {
@@ -348,7 +345,6 @@ int main(int argc, char* argv[]) {
         node->game = *game;
         node->capacity = 10;
         node->size = 0;
-        // node->value = 0;
 
         // Allocate memory for the children array
         node->children = malloc(node->capacity * sizeof(Node*));
@@ -414,9 +410,11 @@ int main(int argc, char* argv[]) {
         // Log the game state and chose move
         logGameState(game, bestMove);
 
+        // Free the memory
+        freeTree(node);
 
         // Check for a winner
-        // checkForWinner(game);
+        checkForWinner(game);
         if (game->winner != EMPTY) {
             break;
         }
@@ -432,15 +430,6 @@ int main(int argc, char* argv[]) {
 
         // Log the game state and opponent's move
         logGameState(game, nextMove);
-
-        // Check for a winner
-        // checkForWinner(game);
-        if (game->winner != EMPTY) {
-            break;
-        }
-
-        // Free the memory
-        freeTree(node); 
     }
 
     // Print the winner

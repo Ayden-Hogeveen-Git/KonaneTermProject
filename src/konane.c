@@ -36,9 +36,9 @@ char* gameStateToString(GameState* game) {
 
     // Copy the game board to the game string
     int index = 0;
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            gameString[index] = pieceToChar(game->board[y - 1][x]);
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
+            gameString[index] = pieceToChar(game->board[y][x]);
             index++;
         }
     }
@@ -52,9 +52,9 @@ char* gameStateToString(GameState* game) {
 
 void initializeBoard(GameState* game) {
     // Initialize the game board
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            game->board[y - 1][x] = (y + x) % 2 == 0 ? BLACK : WHITE;
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
+            game->board[y][x] = (y + x) % 2 == 0 ? BLACK : WHITE;
         }
     }
 
@@ -96,8 +96,8 @@ GameState* copyGameState(GameState* game) {
     }
 
     // Copy the game board state
-    for (int x = 0; x < 8; x++) {
-        for (int y = 0; y < 8; y++) {
+    for (int y = 7; y <= 0; y++) {
+        for (int x = 0; x <= 7; x++) {
             newGame->board[y][x] = game->board[y][x];
         }
     }
@@ -182,35 +182,22 @@ int isValidMove(GameState* game, Player player, Move move) {
     if (move.jumps == 1) {
         xIndex = (x + newX) / 2;
         yIndex = (y + newY) / 2;
-        if (move.direction == LEFT) {
-            if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-                return 0;
-            } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-                return 0;
-            }
-        } else if (move.direction == RIGHT) {
-            if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-                return 0;
-            } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-                return 0;
-            }
-        } else if (move.direction == UP) {
-            if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-                return 0;
-            } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-                return 0;
-            }
-        } else if (move.direction == DOWN) {
-            if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-                return 0;
-            } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-                return 0;
-            }
+
+        // Verify that the player is jumping over an opponent's piece
+        if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+            return 0;
+        } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+            return 0;
         }
     }
 
-    // Handle multiple jump validation
-    if (move.jumps > 1) {
+    // Handle double jump validation
+    if (move.jumps == 2) {
+        return 0;
+    }
+
+    // Handle triple jump validation
+    if (move.jumps == 3) {
         return 0;
     }
 
@@ -259,12 +246,9 @@ int isFirstMove(GameState* game) {
     int emptyCounter = 0;
 
     // Count the number of empty spaces, if there are less than 2, then it's the first move
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-            // if (game->board[y - 1][x].piece == EMPTY) {
-            //     emptyCounter++;
-            // }
-            if (game->board[y - 1][x] == EMPTY) {
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
+            if (game->board[y][x] == EMPTY) {
                 emptyCounter++;
             }
             // Exit early if there are 2 or more empty spaces
@@ -394,8 +378,8 @@ Move getLeftMove(int jumps, int x, int y) {
     // Set the start and end coordinates for the move
     moveLeft.start.x = 'A' + x;
     moveLeft.end.x = 'A' + x + moveLeft.direction * jumps;
-    moveLeft.start.y = y;
-    moveLeft.end.y = y;
+    moveLeft.start.y = y + 1;
+    moveLeft.end.y = y + 1;
 
 	return moveLeft;
 }
@@ -410,8 +394,8 @@ Move getRightMove(int jumps, int x, int y) {
     // Set the start and end coordinates for the move
     moveRight.start.x = 'A' + x;
     moveRight.end.x = 'A' + x + moveRight.direction * jumps;
-    moveRight.start.y = y;
-    moveRight.end.y = y;
+    moveRight.start.y = y + 1;
+    moveRight.end.y = y + 1;
     
     return moveRight;
 }
@@ -426,8 +410,8 @@ Move getUpMove(int jumps, int x, int y) {
     // Set the start and end coordinates for the move
     moveUp.start.x = 'A' + x;
     moveUp.end.x = 'A' + x;
-    moveUp.start.y = y;
-    moveUp.end.y = y + moveUp.direction * jumps;
+    moveUp.start.y = y + 1;
+    moveUp.end.y = y + 1 + moveUp.direction * jumps;
 
     return moveUp;
 }
@@ -442,8 +426,8 @@ Move getDownMove(int jumps, int x, int y) {
     // Set the start and end coordinates for the move
     moveDown.start.x = 'A' + x;
     moveDown.end.x = 'A' + x;
-    moveDown.start.y = y;
-    moveDown.end.y = y + moveDown.direction * jumps;
+    moveDown.start.y = y + 1;
+    moveDown.end.y = y + 1 + moveDown.direction * jumps;
 
     return moveDown;
 }
@@ -462,62 +446,86 @@ int isTerminal(Node* node) {
     return 0;
 }
 
-void checkForWinner(GameState* game) {
-    // Count the number of possible moves for each player
-    int blackCounter = 0;
-    int whiteCounter = 0;
+int countValidMoves(GameState* game, Player player) {
+    // Count the number of possible moves for the current player
+    int counter = 0;
 
-    // Count the number of possible moves for each player
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
-			for (int jumps = 1; jumps <= 3; jumps++) {
-				// Check if there's a piece at the current position
-				if (game->board[y - 1][x] == BLACK || game->board[y - 1][x] == WHITE) {
-					// Check if the piece can move to the left
-					Move moveLeft = getLeftMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveLeft) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveLeft) == 1) {
-						whiteCounter++;
-					}
+    // Count the number of possible moves for the current player
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
+            // Check if there's a piece at the current position
+            if (game->board[y][x] == player) {
 
-					// Check if the piece can move to the right
-					Move moveRight = getRightMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveRight) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveRight) == 1) {
-						whiteCounter++;
-					}
+                // Check if the piece can move left
+                for (int jumps = 1; jumps <= 3; jumps++) {
+                    Move moveLeft = getLeftMove(jumps, x, y);
+                    if (isValidMove(game, player, moveLeft) == 1) {
+                        counter++;
+                    } else {
+                        break;
+                    }
+                }
 
-					// Check if the piece can move up
-					Move moveUp = getUpMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveUp) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveUp) == 1) {
-						whiteCounter++;
-					}
+                // Check if the piece can move right
+                for (int jumps = 1; jumps <= 3; jumps++) {
+                    Move moveRight = getRightMove(jumps, x, y);
+                    if (isValidMove(game, player, moveRight) == 1) {
+                        counter++;
+                    } else {
+                        break;
+                    }
+                }
 
-					// Check if the piece can move down
-					Move moveDown = getDownMove(jumps, x, y);
-					if (isValidMove(game, BLACK, moveDown) == 1) {
-						blackCounter++;
-					} else if (isValidMove(game, WHITE, moveDown) == 1) {
-						whiteCounter++;
-					}
+                // Check if the piece can move up
+                for (int jumps = 1; jumps <= 3; jumps++) {
+                    Move moveUp = getUpMove(jumps, x, y);
+                    if (isValidMove(game, player, moveUp) == 1) {
+                        counter++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // Check if the piece can move down
+                for (int jumps = 1; jumps <= 3; jumps++) {
+                    Move moveDown = getDownMove(jumps, x, y);
+                    if (isValidMove(game, player, moveDown) == 1) {
+                        counter++;
+                    } else {
+                        break;
+                    }
                 }
             }
         }
     }
 
+    return counter == 0;
+}
+
+void checkForWinner(GameState* game) {
+    // Count the number of possible moves for each player
+    int blackCounter = countValidMoves(game, BLACK);
+    int whiteCounter = countValidMoves(game, WHITE);
+
     // Check if there's a winner
-    if (blackCounter == 0 && whiteCounter == 0 && game->turn == BLACK) {
-        game->winner = WHITE;
-    } else if (blackCounter == 0 && whiteCounter == 0 && game->turn == WHITE) {
-        game->winner = BLACK;
-    } else if (whiteCounter == 0 && game->turn == WHITE) {
-        game->winner = BLACK;
-    } else if (blackCounter == 0 && game->turn == BLACK) {
-        game->winner = WHITE;
+    if (game->firstMove == 1) {
+        game->winner = EMPTY;
+    } else {
+        if (blackCounter > 0 && whiteCounter == 0) {
+            game->winner = BLACK;
+        } else if (whiteCounter > 0 && blackCounter == 0) {
+            game->winner = WHITE;
+        } else if (blackCounter == 0 && whiteCounter == 0 && game->turn == BLACK) {
+            game->winner = WHITE;
+        } else if (blackCounter == 0 && whiteCounter == 0 && game->turn == WHITE) {
+            game->winner = BLACK;
+        } else if (whiteCounter == 0 && game->turn == WHITE) {
+            game->winner = BLACK;
+        } else if (blackCounter == 0 && game->turn == BLACK) {
+            game->winner = WHITE;
+        } else {
+            game->winner = EMPTY;
+        }
     }
 }
 
@@ -572,13 +580,13 @@ void addChild(Node* node, Move move) {
 
 void generateChildren(Node* node) {
     // Generate children for the current node
-    for (int y = 8; y > 0; y--) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x <= 7; x++) {
             // Check if there's a piece at the current position
-            if (node->game.board[y - 1][x] == BLACK || node->game.board[y - 1][x] == WHITE) {
+            if (node->game.board[y][x] == BLACK || node->game.board[y][x] == WHITE) {
                 
+                // Check if the piece can move left
                 for (int jumps = 1; jumps <= 3; jumps++) {
-                    // Check if the piece can move to the left
                     Move moveLeft = getLeftMove(jumps, x, y);
                     if (isValidMove(&node->game, node->game.turn, moveLeft) == 1) {
                         addChild(node, moveLeft);
@@ -587,8 +595,8 @@ void generateChildren(Node* node) {
                     }
                 }
 
+                // Check if the piece can move right
                 for (int jumps = 1; jumps <= 3; jumps++) {
-                    // Check if the piece can move to the right
                     Move moveRight = getRightMove(jumps, x, y);
                     if (isValidMove(&node->game, node->game.turn, moveRight) == 1) {
                         addChild(node, moveRight);
@@ -597,8 +605,8 @@ void generateChildren(Node* node) {
                     }
                 }
 
+                // Check if the piece can move up
                 for (int jumps = 1; jumps <= 3; jumps++) {
-                    // Check if the piece can move up
                     Move moveUp = getUpMove(jumps, x, y);
                     if (isValidMove(&node->game, node->game.turn, moveUp) == 1) {
                         addChild(node, moveUp);
@@ -607,8 +615,8 @@ void generateChildren(Node* node) {
                     }
                 }
 
+                // Check if the piece can move down
                 for (int jumps = 1; jumps <= 3; jumps++) {
-                    // Check if the piece can move to the left
                     Move moveDown = getDownMove(jumps, x, y);
                     if (isValidMove(&node->game, node->game.turn, moveDown) == 1) {
                         addChild(node, moveDown);

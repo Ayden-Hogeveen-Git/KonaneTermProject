@@ -25,19 +25,9 @@ return int: The difference between the number of pieces for each player.
 int evalCountBW(GameState* game);
 
 /*
-Calculates the mobility of a given player.
-param GameState* game: The representation of the current game state.
-param Player player: The player to calculate the mobility for.
-return int: The mobility of a given player.
+TODO
 */
-int calculateMobility(GameState* game, Player player);
-
-/*
-Calculates the utility value of a given game state.
-param GameState* game: The representation of the current game state.
-return int: The utility value of a given game state.
-*/
-int evaluateGameState(GameState* game);
+int countChildren(Node* node);
 
 /*
 Calculates the difference between the valid moves for the current player and the opponent.
@@ -55,51 +45,27 @@ return int: The respective utility value of a given game state.
 int evaluationFunction(Node* node, int type);
 
 /*
-Calculates the minimum utility value of a given game state.
-param Node* node: The representation of the current game state.
-param int depth: The depth limit of the minimax tree.
-return int: The minimum utility value of a given game state.
-*/
-int minValue(Node* node, int depth);
-
-/*
-Calculates the maximum utility value of a given game state.
-param Node* node: The representation of the current game state.
-param int depth: The depth limit of the minimax tree.
-return int: The maximum utility value of a given game state.
-*/
-int maxValue(Node* node, int depth);
-
-/*
-Calculates the minimum utility value of a given game state using alpha-beta pruning.
-param Node* node: The representation of the current game state.
-param int depth: The depth limit of the minimax tree.
-param int* alpha: The alpha value of the alpha-beta pruning algorithm.
-param int* beta: The beta value of the alpha-beta pruning algorithm.
-return int: The minimum utility value of a given game state.
-*/
-int minValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
-
-/*
-Calculates the maximum utility value of a given game state using alpha-beta pruning.
-param Node* node: The representation of the current game state.
-param int depth: The depth limit of the minimax tree.
-param int* alpha: The alpha value of the alpha-beta pruning algorithm.
-param int* beta: The beta value of the alpha-beta pruning algorithm.
-return int: The maximum utility value of a given game state.
-*/
-int maxValueAlphaBeta(Node* node, int depth, int* alpha, int* beta);
-
-/*
 Determines the best move for the current player using the minimax algorithm.
-param GameState* game: The representation of the current game state.
-return Move: The best move for the current player using the minimax algorithm.
+param Node* node: The representation of the current game state.
+param int depth: The depth limit of the minimax tree.
+param Move* bestMove: The best move for the current player using the minimax algorithm.
+return int: The utility value of the best move for the current player using the minimax algorithm.
 */
-Move minimax(GameState* game);
+int minimax(Node* node, int depth, Move* bestMove);
 
 /*
 Determines the best move for the current player using the minimax algorithm with alpha-beta pruning.
-param GameState* game: The representation of the current game state.
-return Move: The best move for the current player using the minimax algorithm with alpha-beta pruning.
+param Node* node: The representation of the current game state.
+param int depth: The depth limit of the minimax tree.
+param int alpha: The alpha value for alpha-beta pruning.
+param int beta: The beta value for alpha-beta pruning.
+param Move* bestMove: The best move for the current player using the minimax algorithm with alpha-beta pruning.
 */
-Move minimaxAlphaBeta(GameState* game);
+int minimaxAlphaBeta(Node* node, int depth, int alpha, int beta, Move* bestMove);
+
+/*
+Determines the first move for the current player at random.
+param GameState* game: The representation of the current game state.
+return Move: The first move for the current player at random.
+*/
+Move chooseFirstMove(GameState* game);

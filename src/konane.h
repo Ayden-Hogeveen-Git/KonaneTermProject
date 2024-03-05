@@ -58,9 +58,9 @@ int isValidMove(GameState* game, Move move);
 /*
 Checks if it's the first move for black or white.
 param GameState* game: The representation of the current game state.
-return int: 1 if it's the first move, 0 otherwise.
+param int* firstMoveFlag: The flag to check if it's the first move.
 */
-int isFirstMove(GameState* game);
+void isFirstMove(GameState* game, int* firstMoveFlag);
 
 /*
 Toggles the player's turn and the min/max states related to the player.
@@ -101,6 +101,13 @@ Move getUpMove(int jumps, int x, int y);
 TODO
 */
 Move getDownMove(int jumps, int x, int y);
+
+/*
+Determines if the current node is a terminal node or not.
+param Node* node: The representation of the current game state.
+return int: 1 if terminal, 0 otherwise.
+*/
+int isTerminal(Node* node);
 
 /*
 Checks if the game is over or not. If so it updates the winner in the game state.

@@ -18,7 +18,7 @@ typedef struct {
 
 typedef struct {
     Player board[8][8];
-    int firstMove;
+    // int firstMove;
     Move prevMove;
     Player turn;
     Player maxPlayer;

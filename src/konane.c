@@ -106,9 +106,6 @@ GameState* copyGameState(GameState* game) {
         }
     }
 
-    // Copy the first move flag
-    newGame->firstMove = game->firstMove;
-
     // Copy the previous move
     newGame->prevMove = game->prevMove;
 
@@ -192,30 +189,28 @@ int isValidMove(GameState* game, Player player, Move move) {
     return 1;
 }
 
-
-int isFirstMove(GameState* game) {
+void isFirstMove(GameState* game, int* firstMoveFlag) {
     // Initialize the empty counter
     int emptyCounter = 0;
 
     // Count the number of empty spaces, if there are less than 2, then it's the first move
     for (int y = 8; y > 0; y--) {
         for (int x = 0; x < 8; x++) {
-            // if (game->board[y - 1][x].piece == EMPTY) {
-            //     emptyCounter++;
-            // }
+            // Check if there's a piece at the current position
             if (game->board[y - 1][x] == EMPTY) {
                 emptyCounter++;
             }
             // Exit early if there are 2 or more empty spaces
             if (emptyCounter >= 2) {
                 // Set the first move flag to 0
-                game->firstMove = 0;
-                return 0;
+                *firstMoveFlag = 0;
+                return;
             }
         }
     }
-    // If there are less than 2 empty spaces, then it's the first move
-    return emptyCounter < 2;
+
+    // Set the first move flag to 1 otherwise
+    *firstMoveFlag = 1;
 }
 
 void togglePlayer(GameState* game) {
@@ -278,6 +273,20 @@ Move getDownMove(int jumps, int x, int y) {
 	//Move moveDown = {{'A' + x, y}, {'A' + x, y + 2}};
 	Move moveDown = {{'A' + x, y}, {'A' + x, y + jumps * 2}};
 	return moveDown;
+}
+
+int isTerminal(Node* node) {
+    // Check if the game is over
+    if (node->game.winner != EMPTY) {
+        return 1;
+    }
+
+    // Check if the game is at the max depth
+    if (node->size == 0) {
+        return 1;
+    }
+
+    return 0;
 }
 
 void checkForWinner(GameState* game) {
@@ -387,77 +396,65 @@ void addChild(Node* node, Move move) {
 }
 
 void generateChildren(Node* node, int depth) {
-    // Check if it's the first move
-    if (node->game.firstMove == 1) {
-        // Find valid first moves
-        for (int y = 8; y > 0; y--) {
-            for (int x = 0; x < 8; x++) {
-                Move move = {{'A' + x, y}, {'A' + x, y}};
-                if (isValidFirstMove(&node->game, move.start) == 1) {
-                    move.end.x = move.start.x;
-                    move.end.y = move.start.y;
-                    addChild(node, move);
-                }
-            }
-        }
+    // Base case to stop the recursion
+    if (depth == 0) {
         return;
-    } else {
-        // Base case to stop the recursion
-        if (depth == 0) {
-            return;
-        }
+    }
 
-        // Generate children for the current node
-        for (int y = 8; y > 0; y--) {
-            for (int x = 0; x < 8; x++) {
-                // Check if there's a piece at the current position
-                if (node->game.board[y - 1][x] == BLACK || node->game.board[y - 1][x] == WHITE) {
-					for (int jumps = 1; jumps < 4; jumps++) {
-						// Check if the piece can move to the left
-						Move moveLeft = getLeftMove(jumps, x, y);
-						if (isValidMove(&node->game, node->game.turn, moveLeft) == 1) {
-							addChild(node, moveLeft);
-						} else {
-							break;
-						}
-					}
+    // Generate children for the current node
+    for (int y = 8; y > 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            // Check if there's a piece at the current position
+            if (node->game.board[y - 1][x] == BLACK || node->game.board[y - 1][x] == WHITE) {
+                for (int jumps = 1; jumps < 4; jumps++) {
+                    // Check if the piece can move to the left
+                    Move moveLeft = getLeftMove(jumps, x, y - 1);
+                    if (isValidMove(&node->game, node->game.turn, moveLeft) == 1) {
+                        addChild(node, moveLeft);
+                    }
+                    // } else {
+                    //     break;
+                    // }
+                }
 
-					for (int jumps = 1; jumps < 4; jumps++) {
-						// Check if the piece can move to the right
-						Move moveRight = getRightMove(jumps, x, y);
-						if (isValidMove(&node->game, node->game.turn, moveRight) == 1) {
-							addChild(node, moveRight);
-						} else {
-							break;
-						}
-					}
+                for (int jumps = 1; jumps < 4; jumps++) {
+                    // Check if the piece can move to the right
+                    Move moveRight = getRightMove(jumps, x, y - 1);
+                    if (isValidMove(&node->game, node->game.turn, moveRight) == 1) {
+                        addChild(node, moveRight);
+                    }
+                    // } else {
+                    //     break;
+                    // }
+                }
 
-					for (int jumps = 1; jumps < 4; jumps++) {
-						// Check if the piece can move up
-						Move moveUp = getUpMove(jumps, x, y);
-						if (isValidMove(&node->game, node->game.turn, moveUp) == 1) {
-							addChild(node, moveUp);
-						} else {
-							break;
-						}
-					}
+                for (int jumps = 1; jumps < 4; jumps++) {
+                    // Check if the piece can move up
+                    Move moveUp = getUpMove(jumps, x, y - 1);
+                    if (isValidMove(&node->game, node->game.turn, moveUp) == 1) {
+                        addChild(node, moveUp);
+                    }
+                    // } else {
+                    //     break;
+                    // }
+                }
 
-					for (int jumps = 1; jumps < 4; jumps++) {
-						// Check if the piece can move to the left
-						Move moveDown = getDownMove(jumps, x, y);
-						if (isValidMove(&node->game, node->game.turn, moveDown) == 1) {
-							addChild(node, moveDown);
-						} else {
-							break;
-						}
-					}
+                for (int jumps = 1; jumps < 4; jumps++) {
+                    // Check if the piece can move to the left
+                    Move moveDown = getDownMove(jumps, x, y - 1);
+                    if (isValidMove(&node->game, node->game.turn, moveDown) == 1) {
+                        addChild(node, moveDown);
+                    }
+                    // } else {
+                    //     break;
+                    // }
                 }
             }
         }
+    }
 
-        // Generate children for each child
-        for (int i = 0; i < node->size; i++) {
-            generateChildren(node->children[i], depth - 1);
-        }
+    // Generate children for each child
+    for (int i = 0; i < node->size; i++) {
+        generateChildren(node->children[i], depth - 1);
     }
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 #include "structures.h"
 #include "konane.h"
 #include "minimaxAgent.h"
@@ -96,14 +97,6 @@ GameState* initalizeGameState(char* gameString, char player) {
         }
     }
 
-    // Check if it's a first move
-    if (isFirstMove(newGame)) {
-        newGame->firstMove = 1;
-    }
-    else {
-        newGame->firstMove = 0;
-    }
-
     // Set the player's turn
     setPlayersTurn(newGame, player);
 
@@ -137,6 +130,37 @@ void agentOutput(Move move) {
 	else {
 		printf("%c%d-%c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
 	}
+}
+
+Move getOpponentsMove(GameState* game, char* nextMoveString) {
+    // Read the next move from stdin
+    if (scanf("%s", nextMoveString) != 1) {
+        fprintf(stderr, "Error: Could not read next move from stdin.\n");
+        exit(1);
+    }
+
+    // Clear the input buffer
+    while ((getchar()) != '\n');
+
+    // Convert the coordinates to uppercase
+    coordToUpper(nextMoveString);
+
+    // Parse the next move in to a Move struct
+    Move nextMove;
+    if (nextMoveString[2] == '-') {
+        nextMove.start.x = nextMoveString[0];
+        nextMove.start.y = nextMoveString[1] - '0';
+        nextMove.end.x = nextMoveString[3];
+        nextMove.end.y = nextMoveString[4] - '0';
+    } else {
+        nextMove.start.x = nextMoveString[0];
+        nextMove.start.y = nextMoveString[1] - '0';
+        nextMove.end.x = nextMoveString[0];
+        nextMove.end.y = nextMoveString[1] - '0';
+    }
+
+    // Return the next move
+    return nextMove;
 }
 
 int main(int argc, char* argv[]) {
@@ -206,13 +230,81 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Enter the game loop
-    while (game->winner == EMPTY) {        
-        // Get the next move
+    // Initialize the first move flag
+    int firstMoveFlag = 1;
+
+    // Check if it's the first move
+    isFirstMove(game, &firstMoveFlag);
+
+    // If it's the first move then run a first move game loop
+    while (firstMoveFlag) {
+        // If it's the first move, get the first move
+        Move firstMove = chooseFirstMove(game);
+
+        // Make the first move
+        makeFirstMove(game, firstMove.start);
+
+        // Output the agent's move to stdout
+        agentOutput(firstMove);
+
+        // Check if it's the first move
+        isFirstMove(game, &firstMoveFlag);
+
+        // Get the opponent's move
+        Move nextMove = getOpponentsMove(game, nextMoveString);
+        
+        // Make the next move
+        makeMove(game, nextMove);
+    }
+
+    // Initialize the bestMove
+    Move bestMove = { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
+
+    // Enter the main game loop
+    while (game->winner == EMPTY) {
+        // Allocate memory for the root node
+        Node* node = malloc(sizeof(Node));
+
+        // Check if memory was allocated
+        if (node == NULL) {
+            fprintf(stderr, "Error: Memory not allocated for node\n");
+            exit(1);
+        }
+
+        // Initialize the node
+        node->game = *game;
+        node->capacity = 10;
+        node->size = 0;
+        // node->value = 0;
+
+        // Allocate memory for the children array
+        node->children = malloc(node->capacity * sizeof(Node*));
+
+        // Check if memory was allocated
+        if (node->children == NULL) {
+            fprintf(stderr, "Error: Memory not allocated for children\n");
+            exit(1);
+        }
+
+        // Generate the children
+        generateChildren(node, MAX_DEPTH);
+
+        // If there are no valid moves, determine the winner
+        if (node->size == 0) {
+            // If the current player is black, the winner is white
+            if (game->turn == BLACK) {
+                game->winner = WHITE;
+            } else if (game->turn == WHITE) {
+                // If the current player is white, the winner is black
+                game->winner = BLACK;
+            }
+        }
+
+        // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA
-            Move move = minimaxAlphaBeta(game);
+            minimaxAlphaBeta(node, MAX_DEPTH, INT_MIN, INT_MAX, &bestMove);
         #else
-            Move move = minimax(game);
+            minimax(node, MAX_DEPTH, &bestMove);
         #endif
 
         // // Initialize the clock
@@ -222,7 +314,7 @@ int main(int argc, char* argv[]) {
         // start_mm = clock();
 
         // // Get the next move
-        // Move move = minimax(game);
+        // minimax(game);
 
         // // Stop the clock
         // end_mm = clock();
@@ -250,58 +342,37 @@ int main(int argc, char* argv[]) {
         // fprintf(logFile, "Alpha-Beta Pruning is %f percent faster than Minimax\n", (delta / cpu_time_mm) * 100);
         // fprintf(logFile, "====================================================\n");
 
+
         // Make the move
-        makeMove(game, move);
+        makeMove(game, bestMove);
 
         // Check for a winner
-        // checkForWinner(game);
-        // if (move.start.y == -1 && move.end.y == -1) {
-        //     break;
-        // }
+        checkForWinner(game);
         if (game->winner != EMPTY) {
             break;
         }
 
         // Output the move to stdout
-        agentOutput(move);
+        agentOutput(bestMove);
 
-        // Read the next move from stdin
-        if (scanf("%s", nextMoveString) != 1) {
-            fprintf(stderr, "Error: Could not read next move from stdin.\n");
-            return 1;
-        }
-
-        // Clear the input buffer
-        while ((getchar()) != '\n');
-
-        // Convert the coordinates to uppercase
-        coordToUpper(nextMoveString);
-
-        // Parse the next move in to a Move struct
-        Move nextMove;
-        if (nextMoveString[2] == '-') {
-            nextMove.start.x = nextMoveString[0];
-            nextMove.start.y = nextMoveString[1] - '0';
-            nextMove.end.x = nextMoveString[3];
-            nextMove.end.y = nextMoveString[4] - '0';
-        } else {
-            nextMove.start.x = nextMoveString[0];
-            nextMove.start.y = nextMoveString[1] - '0';
-            nextMove.end.x = nextMoveString[0];
-            nextMove.end.y = nextMoveString[1] - '0';
-        }
+        // Get the opponent's move
+        Move nextMove = getOpponentsMove(game, nextMoveString);
 
         // Make the next move
         makeMove(game, nextMove);
 
         // Check for a winner
-        // checkForWinner(game);
-        // if (nextMove.start.y == -1 && nextMove.end.y == -1) {
-        //     break;
-        // }
+        checkForWinner(game);
         if (game->winner != EMPTY) {
             break;
         }
+
+        // Free the memory
+        for (int i = 0; i < node->size; i++) {
+            free(node->children[i]);
+        }
+        free(node->children);
+        free(node);
     }
 
     // Print the winner

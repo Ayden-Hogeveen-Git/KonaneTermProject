@@ -106,7 +106,7 @@ int main() {
             printf("BLACK's move:\n");
             // move = minimax(&game);
             // printf("minimax... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
-            move = minimaxAlphaBeta(game);
+            // move = minimaxAlphaBeta(game);
             printf("minimaxAlphaBeta... BLACK moves from %c%d to %c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
         } else if (game->turn == WHITE) {
             // Get a valid start move for white

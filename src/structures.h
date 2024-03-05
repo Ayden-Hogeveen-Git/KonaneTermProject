@@ -2,7 +2,7 @@
 #define STRUCTURES_H
 
 typedef enum { BLACK, WHITE, EMPTY } Player;
-typedef enum { LEFT = -1, RIGHT = 1, UP = 1, DOWN = -1, FIRST = 0 } Direction;
+typedef enum { LEFT, RIGHT, UP, DOWN, FIRST } Direction;
 
 #define MAX_DEPTH 1
 #define THINKINGTIME 20

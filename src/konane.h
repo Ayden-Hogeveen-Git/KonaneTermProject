@@ -2,6 +2,20 @@
 
 
 /*
+Converts a direction to a string.
+param Direction direction: The direction to convert to a string.
+return char*: The string representation of the direction.
+*/
+char* directionToString(Direction direction);
+
+/*
+Converts a direction to an integer.
+param Direction direction: The direction to convert to an integer.
+return int: The integer representation of the direction.
+*/
+int directionToInt(Direction direction);
+
+/*
 Converts a string to uppercase.
 param char* str: String to convert to uppercase.
 */
@@ -61,13 +75,6 @@ Toggles the player's turn and the min/max states related to the player.
 param GameState* game: The representation of the current game state.
 */
 void togglePlayer(GameState* game);
-
-/*
-Takes the game state and a point and removes the piece at that position.
-param GameState* game: The representation of the current game state.
-param Point point: The coordinates of the piece to remove.
-*/
-void makeFirstMove(GameState* game, Point point);
 
 /*
 Takes the game state and a move and moves the piece to the new position.

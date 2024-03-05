@@ -3,6 +3,30 @@
 #include "structures.h"
 
 
+const char* directionToString(Direction direction) {
+    switch (direction) {
+        case LEFT: return "LEFT";
+        case RIGHT: return "RIGHT";
+        case UP: return "UP";
+        case DOWN: return "DOWN";
+        case FIRST: return "FIRST";
+        default:
+            return "INVALID";
+    }
+}
+
+const int directionToInt(Direction direction) {
+    switch (direction) {
+        case LEFT: return -1;
+        case RIGHT: return 1;
+        case UP: return 1;
+        case DOWN: return -1;
+        case FIRST: return 0;
+        default:
+            return 0;
+    }
+}
+
 void coordToUpper(char* str) {
     for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] >= 'a' && str[i] <= 'z') {
@@ -264,20 +288,6 @@ void togglePlayer(GameState* game) {
     game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
 }
 
-void makeFirstMove(GameState* game, Point point) {
-    // Convert the x coordinates from A-H to 0-7
-    int x = point.x - 'A';
-
-    // Convert the y coordinates from 1-8 to 0-7
-    int y = point.y - 1;
-
-    // Make the move
-    game->board[y][x] = EMPTY;
-
-    // Toggle the player related info
-    togglePlayer(game);
-}
-
 void makeMove(GameState* game, Move move) {
     // Convert the x coordinates from A-H to 0-7
     int oldX = move.start.x - 'A';
@@ -303,73 +313,64 @@ void makeMove(GameState* game, Move move) {
         if (game->board[yIndex][xIndex] != EMPTY) {
             game->board[yIndex][xIndex] = EMPTY;
         }
-    }
+    } else {
+        // Handle single jumps
+        if (move.jumps >= 1) {
+            if (move.direction == LEFT || move.direction == RIGHT) {
+                xIndex = oldX + (1 * directionToInt(move.direction));
+                yIndex = oldY;
+            } else if (move.direction == UP || move.direction == DOWN) {
+                xIndex = oldX;
+                yIndex = oldY + (1 * directionToInt(move.direction));
+            } else {
+                fprintf(stderr, "Error: Invalid move direction\n");
+                exit(1);
+            }
 
-    // Handle single jumps
-    if (move.jumps >= 1) {
-        if (move.direction == LEFT || move.direction == RIGHT) {
-            xIndex = oldX + (1 * move.direction);
-            yIndex = oldY;
-        } else if (move.direction == UP || move.direction == DOWN) {
-            xIndex = oldX;
-            yIndex = oldY + (1 * move.direction);
-        } else if (move.direction == FIRST) {
-            yIndex = oldY;
-            xIndex = oldX;
-        } else {
-            fprintf(stderr, "Error: Invalid move direction\n");
-            exit(1);
+            // Remove the piece at the current position
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
         }
 
-        // Remove the piece at the current position
-        if (game->board[yIndex][xIndex] != EMPTY) {
-            game->board[yIndex][xIndex] = EMPTY;
-        }
-    }
+        // Handle double jumps
+        if (move.jumps >= 2) {
+            int xIndex, yIndex;
+            if (move.direction == LEFT || move.direction == RIGHT) {
+                xIndex = oldX + (3 * directionToInt(move.direction));
+                yIndex = oldY;
+            } else if (move.direction == UP || move.direction == DOWN) {
+                xIndex = oldX;
+                yIndex = oldY + (3 * directionToInt(move.direction));
+            } else {
+                fprintf(stderr, "Error: Invalid move direction\n");
+                exit(1);
+            }
 
-    // Handle double jumps
-    if (move.jumps >= 2) {
-        int xIndex, yIndex;
-        if (move.direction == LEFT || move.direction == RIGHT) {
-            xIndex = oldX + (3 * move.direction);
-            yIndex = oldY;
-        } else if (move.direction == UP || move.direction == DOWN) {
-            xIndex = oldX;
-            yIndex = oldY + (3 * move.direction);
-        } else if (move.direction == FIRST) {
-            yIndex = oldY;
-            xIndex = oldX;
-        } else {
-            fprintf(stderr, "Error: Invalid move direction\n");
-            exit(1);
+            // Remove the piece at the current position
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
         }
 
-        // Remove the piece at the current position
-        if (game->board[yIndex][xIndex] != EMPTY) {
-            game->board[yIndex][xIndex] = EMPTY;
-        }
-    }
+        // Handle triple jumps
+        if (move.jumps >= 3) {
+            int xIndex, yIndex;
+            if (move.direction == LEFT || move.direction == RIGHT) {
+                xIndex = oldX + (5 * directionToInt(move.direction));
+                yIndex = oldY;
+            } else if (move.direction == UP || move.direction == DOWN) {
+                xIndex = oldX;
+                yIndex = oldY + (5 * directionToInt(move.direction));
+            } else {
+                fprintf(stderr, "Error: Invalid move direction\n");
+                exit(1);
+            }
 
-    // Handle triple jumps
-    if (move.jumps >= 3) {
-        int xIndex, yIndex;
-        if (move.direction == LEFT || move.direction == RIGHT) {
-            xIndex = oldX + (5 * move.direction);
-            yIndex = oldY;
-        } else if (move.direction == UP || move.direction == DOWN) {
-            xIndex = oldX;
-            yIndex = oldY + (5 * move.direction);
-        } else if (move.direction == FIRST) {
-            yIndex = oldY;
-            xIndex = oldX;
-        } else {
-            fprintf(stderr, "Error: Invalid move direction\n");
-            exit(1);
-        }
-
-        // Remove the piece at the current position
-        if (game->board[yIndex][xIndex] != EMPTY) {
-            game->board[yIndex][xIndex] = EMPTY;
+            // Remove the piece at the current position
+            if (game->board[yIndex][xIndex] != EMPTY) {
+                game->board[yIndex][xIndex] = EMPTY;
+            }
         }
     }
 
@@ -386,7 +387,7 @@ Move getLeftMove(int jumps, int x, int y) {
 
     // Set the start and end coordinates for the move
     moveLeft.start.x = 'A' + x;
-    moveLeft.end.x = 'A' + x + (2 * moveLeft.direction * jumps);
+    moveLeft.end.x = 'A' + x + (2 * jumps * directionToInt(moveLeft.direction));
     moveLeft.start.y = y + 1;
     moveLeft.end.y = y + 1;
 
@@ -402,7 +403,7 @@ Move getRightMove(int jumps, int x, int y) {
 
     // Set the start and end coordinates for the move
     moveRight.start.x = 'A' + x;
-    moveRight.end.x = 'A' + x + (2 * moveRight.direction * jumps);
+    moveRight.end.x = 'A' + x + (2 * jumps * directionToInt(moveRight.direction));
     moveRight.start.y = y + 1;
     moveRight.end.y = y + 1;
     
@@ -420,7 +421,7 @@ Move getUpMove(int jumps, int x, int y) {
     moveUp.start.x = 'A' + x;
     moveUp.end.x = 'A' + x;
     moveUp.start.y = y + 1;
-    moveUp.end.y = y + 1 + (2 * moveUp.direction * jumps);
+    moveUp.end.y = y + 1 + (2 * jumps * directionToInt(moveUp.direction));
 
     return moveUp;
 }
@@ -436,7 +437,7 @@ Move getDownMove(int jumps, int x, int y) {
     moveDown.start.x = 'A' + x;
     moveDown.end.x = 'A' + x;
     moveDown.start.y = y + 1;
-    moveDown.end.y = y + 1 + (2 * moveDown.direction * jumps);
+    moveDown.end.y = y + 1 + (2 * jumps * directionToInt(moveDown.direction));
 
     return moveDown;
 }
@@ -512,14 +513,15 @@ int countValidMoves(GameState* game, Player player) {
 }
 
 void checkForWinner(GameState* game) {
-    // Count the number of possible moves for each player
-    int blackCounter = countValidMoves(game, BLACK);
-    int whiteCounter = countValidMoves(game, WHITE);
-
-    // Check if there's a winner
+    // No possible winner on first moves
     if (game->firstMove == 1) {
         game->winner = EMPTY;
     } else {
+        // Count the number of possible moves for each player
+        int blackCounter = countValidMoves(game, BLACK);
+        int whiteCounter = countValidMoves(game, WHITE);
+
+        // Check if there's a winner
         if (blackCounter > 0 && whiteCounter == 0) {
             game->winner = BLACK;
         } else if (whiteCounter > 0 && blackCounter == 0) {

@@ -60,18 +60,19 @@ void logGameState(GameState* game, Move move) {
         fprintf(logFile, "Player %s's first move: %c%d\n", player, move.start.x, move.start.y);
     } else { // Otherwise, it's a regular move
         fprintf(logFile, "Player %s's move: %c%d-%c%d\n", player, move.start.x, move.start.y, move.end.x, move.end.y);
-        fprintf(logFile, "Direction: %d\n", move.direction);
+        fprintf(logFile, "Direction: %s\n", directionToString(move.direction));
+        fprintf(logFile, "Direction value: %d\n", directionToInt(move.direction));
         fprintf(logFile, "Jumps: %d\n", move.jumps);
     }
 
     // Print the game board to the log file
     fprintf(logFile, "  A B C D E F G H\n");
     for (int y = 7; y >= 0; y--) {
-        fprintf(logFile, "%d ", y);
+        fprintf(logFile, "%d ", y + 1); // Adjust the y coordinate by + 1
         for (int x = 0; x <= 7; x++) {
             fprintf(logFile, "%c ", pieceToChar(game->board[y][x]));
         }
-        fprintf(logFile, "%d\n", y);
+        fprintf(logFile, "%d\n", y + 1); // Adjust the y coordinate by + 1
     }
     fprintf(logFile, "  A B C D E F G H\n\n");
 

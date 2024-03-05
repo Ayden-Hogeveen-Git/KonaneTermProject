@@ -8,29 +8,59 @@
 #include "minimaxAgent.h"
 
 
-void logMove(FILE* file, Move move) {
+void logPlayersMove(GameState* game, Move move) {
+    // Open the log file
+    FILE *logFile = fopen("../test/.log.txt", "a");
+
+    // Check if the file was opened successfully
+    if (logFile == NULL) {
+        fprintf(stderr, "Error: Could not open log file.\n");
+        exit(1);
+    }
+
+    // Determine which player made the move
+    char player = game->turn == BLACK ? 'W' : 'B';
+
     // If the start and end coordinates are the same, then it's a first move
     if (move.start.x == move.end.x && move.start.y == move.end.y) {
-        fprintf(file, "First move: %c%d\n", move.start.x, move.start.y);
+        fprintf(logFile, "Player %c's first move: %c%d\n", player, move.start.x, move.start.y);
     }
 
     // Otherwise, it's a regular move
     else {
-        fprintf(file, "Move: %c%d-%c%d\n", move.start.x, move.start.y, move.end.x, move.end.y);
+        fprintf(logFile, "Player %c's move: %c%d-%c%d\n", player, move.start.x, move.start.y, move.end.x, move.end.y);
     }
+
+    // Close the log file
+    fclose(logFile);
 }
 
-void logGameState(FILE* file, GameState* game) {
-    // Print the game board to the log file
-    fprintf(file, "  A B C D E F G H\n");
-    for (int y = 8; y > 0; y--) {
-        fprintf(file, "%d ", y);
-        for (int x = 0; x < 8; x++) {
-            fprintf(file, "%c ", pieceToChar(game->board[y - 1][x]));
-        }
-        fprintf(file, "%d\n", y);
+void logGameState(GameState* game) {
+    // Open the log file
+    FILE *logFile = fopen("../test/.log.txt", "a");
+
+    // Check if the file was opened successfully
+    if (logFile == NULL) {
+        fprintf(stderr, "Error: Could not open log file.\n");
+        exit(1);
     }
-    fprintf(file, "  A B C D E F G H\n\n");
+
+    // Print the current player's turn
+    fprintf(logFile, "Player's turn: %s\n", game->turn == BLACK ? "BLACK" : "WHITE");
+
+    // Print the game board to the log file
+    fprintf(logFile, "  A B C D E F G H\n");
+    for (int y = 8; y > 0; y--) {
+        fprintf(logFile, "%d ", y);
+        for (int x = 0; x < 8; x++) {
+            fprintf(logFile, "%c ", pieceToChar(game->board[y - 1][x]));
+        }
+        fprintf(logFile, "%d\n", y);
+    }
+    fprintf(logFile, "  A B C D E F G H\n\n");
+
+    // Close the log file
+    fclose(logFile);
 }
 
 void setPlayersTurn(GameState* game, char player) {
@@ -192,6 +222,35 @@ Move getOpponentsMove(GameState* game, char* nextMoveString) {
         nextMove.end.y = nextMoveString[1] - '0';
     }
 
+    // Determine the move's direction
+    if (nextMove.start.x == nextMove.end.x) {
+        if (nextMove.start.y < nextMove.end.y) {
+            nextMove.direction = 'D';
+        } else {
+            nextMove.direction = 'U';
+        }
+    } else if (nextMove.start.y == nextMove.end.y) {
+        if (nextMove.start.x < nextMove.end.x) {
+            nextMove.direction = 'R';
+        } else {
+            nextMove.direction = 'L';
+        }
+    } else if (nextMove.start.x == nextMove.end.x && nextMove.start.y == nextMove.end.y) {
+        nextMove.direction = 'F';
+    } else {
+        fprintf(stderr, "Error: Invalid move direction\n");
+        exit(1);
+    }
+
+    // Determine the number of jumps
+    if (nextMove.direction == 'F') {
+        nextMove.jumps = 0;
+    } else {
+        int jumpsX = abs(nextMove.start.x - nextMove.end.x);
+        int jumpsY = abs(nextMove.start.y - nextMove.end.y);
+        nextMove.jumps = jumpsX > 0 ? jumpsX : jumpsY;
+    }
+
     // Return the next move
     return nextMove;
 }
@@ -244,32 +303,18 @@ int main(int argc, char* argv[]) {
     // Initialize the game state 
     GameState* game = initalizeGameState(gameStateString, *argv[2]);
 
-
-
     // Allocate memory for the next move string
     char* nextMoveString = malloc(6); // 5 characters + 1 null terminator
     if (nextMoveString == NULL) {
         fprintf(stderr, "Error: Memory allocation allocation failed\n");
         return 1;
     }
-
-    // Open the log file
-    FILE *logFile = fopen("../test/.log.txt", "a");
-
-    // Check if the file was opened successfully
-    if (logFile == NULL) {
-        fprintf(stderr, "Error: Could not open log file.\n");
-        return 1;
-    }
+    
+    // Log the game state
+    logGameState(game);
 
     // Initialize the bestMove
     Move bestMove = { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
-
-    // Log the new game
-    fprintf(logFile, "NEW GAME:\n");
-    
-    // Log the game state
-    logGameState(logFile, game);
 
     // Enter the main game loop
     while (game->winner == EMPTY) {
@@ -351,9 +396,9 @@ int main(int argc, char* argv[]) {
         makeMove(game, bestMove);
 
         // Log the move
-        fprintf(logFile, "Agent's move: %c%d-%c%d\n", bestMove.start.x, bestMove.start.y, bestMove.end.x, bestMove.end.y);
+        logPlayersMove(game, bestMove);
         // Log the game state
-        logGameState(logFile, game);
+        logGameState(game);
 
 
         // Check for a winner
@@ -372,9 +417,9 @@ int main(int argc, char* argv[]) {
         makeMove(game, nextMove);
 
         // Log the opponent's move
-        fprintf(logFile, "Opponent's move: %c%d-%c%d\n", nextMove.start.x, nextMove.start.y, nextMove.end.x, nextMove.end.y);
+        logPlayersMove(game, nextMove);
         // Log the game state
-        logGameState(logFile, game);
+        logGameState(game);
 
         // Check for a winner
         // checkForWinner(game);
@@ -397,11 +442,6 @@ int main(int argc, char* argv[]) {
         printf("WHITE wins!\n");
     } else {
         printf("It's a draw!\n");
-    }
-
-    // Close the log file
-    if (logFile != NULL) {
-        fclose(logFile);
     }
 
     // Free the memory

@@ -3,18 +3,17 @@
 
 
 /*
-Logs the move to the logging file.
-param FILE* file: The file to log to.
-param Move* move: The move to be logged.
+Logs the player's move to the logging file.
+param GameState* game: The representation of the current game state.
+param Move move: The move made by the player.
 */
-void logMove(FILE* file, Move* move);
+void logPlayerMove(GameState* game, Move move);
 
 /*
 Logs the game state to the logging file.
-param FILE* file: The file to log to.
 param GameState* game: The representation of the current game state.
 */
-void logGameState(FILE* file, GameState* game);
+void logGameState(GameState* game);
 
 /*
 Determines and sets player's turn based on the current state of the game.

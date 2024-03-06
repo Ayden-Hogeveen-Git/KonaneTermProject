@@ -166,6 +166,12 @@ param Node* node: The parent node.
 void generateChildren(Node* node);
 
 /*
+Counts the number of siblings of a given node.
+param Node* node: The representation of the current game state.
+*/
+int countSiblings(Node* node);
+
+/*
 Counts the number of children of a given node.
 param Node* node: The representation of the current game state.
 return int: The number of children of a given node.

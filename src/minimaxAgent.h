@@ -32,11 +32,18 @@ return int: The difference between the number of pieces for each player.
 int evalCountBW(Node* node);
 
 /*
-Calculates the difference between the valid moves for the current player and the opponent.
+Calculates how many siblings the current node has.
 param Node* node: The representation of the current game state.
-return int: The difference between the valid moves for the current player and the opponent.
+return int: The number of siblings the current node has.
 */
-int evalCalcMobility(Node* node);
+int evalCountSiblings(Node* node);
+
+/*
+Calculates how many children the current node has, including all decendents.
+param Node* node: The representation of the current game state.
+return int: The number of children the current node has, including all decendents.
+*/
+int evalCountChildren(Node* node);
 
 /*
 Calculates the respective utility value of a given game state.

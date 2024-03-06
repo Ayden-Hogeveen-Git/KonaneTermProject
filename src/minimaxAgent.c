@@ -83,7 +83,42 @@ int evalCountBW(Node* node) {
 	}
 }
 
-int evalCalcMobility(Node* node) {
+int evalCountSiblings(Node* node) {
+	// Generate the children up to the max depth
+	generateChildren(node);
+
+	// Count the total number of children
+	int totalSiblingsAgent = countSiblings(node);
+
+	// Generate a temporary node for the other player
+	Node* tempNode = initializeNode();
+	
+	// Copy the game state
+	tempNode->game = node->game;
+
+	// Switch the turn
+	togglePlayer(&tempNode->game);
+
+	// Generate the children
+	generateChildren(tempNode);
+
+	// Get the number of valid moves for the other player
+	int totalSiblingsOpponent = countSiblings(tempNode);
+
+	// Free the memory
+	for (int i = 0; i < tempNode->size; i++) {
+		free(tempNode->children[i]);
+	}
+	free(tempNode->children);
+	free(tempNode);
+
+	// Return the difference between the two valid move counts
+	return (node->game.turn == node->game.maxPlayer) ?
+		(totalSiblingsAgent - totalSiblingsOpponent) * node->depth :
+		(totalSiblingsOpponent - totalSiblingsAgent) * node->depth;
+}
+
+int evalCountChildren(Node* node) {
 	// Generate the children up to the max depth
 	generateChildren(node);
 
@@ -91,7 +126,7 @@ int evalCalcMobility(Node* node) {
 	generateTree(node, MAX_TREE_DEPTH);
 
 	// Count the total number of children
-	int currentValidMoves = countChildren(node);
+	int totalChildrenAgent = countChildren(node);
 
 	// Generate a temporary node for the other player
 	Node* tempNode = initializeNode();
@@ -109,7 +144,7 @@ int evalCalcMobility(Node* node) {
 	generateTree(tempNode, MAX_TREE_DEPTH);
 
 	// Get the number of valid moves for the other player
-	int opponentValidMoves = countChildren(tempNode);
+	int totalChildrenOpponent = countChildren(tempNode);
 
 	// Free the memory
 	for (int i = 0; i < tempNode->size; i++) {
@@ -120,8 +155,8 @@ int evalCalcMobility(Node* node) {
 
 	// Return the difference between the two valid move counts
 	return (node->game.turn == node->game.maxPlayer) ?
-		(currentValidMoves - opponentValidMoves) * node->depth :
-		(opponentValidMoves - currentValidMoves) * node->depth;
+		(totalChildrenAgent - totalChildrenOpponent) * node->depth :
+		(totalChildrenOpponent - totalChildrenAgent) * node->depth;
 }
 
 int evalCountJumps(Node* node) {
@@ -155,22 +190,15 @@ int evaluationFunction(Node* node, int type) {
 	if (type == 1) {
 		return evalCountBW(node);
 	} else if (type == 2) {
-		return evalCalcMobility(node);
+		return evalCountSiblings(node);
 	} else if (type == 3) {
-		return evalCountJumps(node);
+		return evalCountSiblings(node);
 	} else if (type == 4) {
-		return evalAgentWins(&node->game);
+		return evalCountJumps(node);
 	} else if (type == 5) {
-		return evalCountBW(node) + evalCalcMobility(node);
+		return evalAgentWins(&node->game);
 	} else if (type == 6) {
-		return evalCountBW(node) + evalCountJumps(node);
-	} else if (type == 7) {
-		return evalCalcMobility(node) + evalCountJumps(node);
-	} else if (type == 8) {
-		return evalCountBW(node) + evalCalcMobility(node) +
-				evalCountJumps(node);
-	} else if (type == 9) {
-		return evalCountBW(node) + evalCalcMobility(node) +
+		return evalCountBW(node) + evalCountChildren(node) + evalCountSiblings(node) +
 				evalCountJumps(node) + evalAgentWins(&node->game);
 	} else {
 		fprintf(stderr, "Error: Invalid evaluation function type!\n");
@@ -190,7 +218,7 @@ int minimax(Node* node, int depth, Move* bestMove) {
 	// if (node->size == 0 || depth == 0 || isTerminal(node)) {
 	if (node->size == 0 || depth == 0) {
 	// if (depth == 0 || isTerminal(node)) {
-		return evaluationFunction(node, 9);
+		return evaluationFunction(node, 6);
 	}
 
 	// Recursive Case:

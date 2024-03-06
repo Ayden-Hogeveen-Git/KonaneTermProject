@@ -693,6 +693,20 @@ void generateChildren(Node* node) {
     }
 }
 
+int     countSiblings(Node* node) {
+    // Initialize the counter
+    int count = 0;
+
+    // Loop through the node's siblings
+    for (int i = 0; i < node->size; i++) {
+        // Increment the counter
+        count++;
+    }
+
+    // Return the counter
+    return count;
+}
+
 int countChildren(Node* node) {
 	// Initialize the counter
 	int count = 0;

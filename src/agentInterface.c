@@ -368,7 +368,8 @@ int main(int argc, char* argv[]) {
         int maxDepth = countTreeDepth(node);
         // Log the depth and number of children
         logStringWithInt("Max Tree Depth: ", maxDepth);
-        logStringWithInt("Number of Children: ", countChildren(node));
+        logStringWithInt("Siblings: ", countSiblings(node));
+        logStringWithInt("Total Children: ", countChildren(node));
 
         // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA

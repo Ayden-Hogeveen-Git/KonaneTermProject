@@ -42,6 +42,23 @@ void logStringWithInt(char* string, int value) {
     fclose(logFile);
 }
 
+void logStringWithFloat(char* string, float value) {
+    // Open the log file
+    FILE *logFile = fopen("../test/.log.txt", "a");
+
+    // Check if the file was opened successfully
+    if (logFile == NULL) {
+        fprintf(stderr, "Error: Could not open log file.\n");
+        exit(1);
+    }
+
+    // Print the string to the log file
+    fprintf(logFile, string, value);
+
+    // Close the log file
+    fclose(logFile);
+}
+
 void logGameState(GameState* game, Move move) {
     // Open the log file
     FILE *logFile = fopen("../test/.log.txt", "a");
@@ -341,8 +358,10 @@ int main(int argc, char* argv[]) {
     // Initialize the bestMove
     Move bestMove = { .start = { .x = 'A', .y = -1 }, .end = { .x = 'A', .y = -1 } };
     
-    // Log the game state
-    logGameState(game, bestMove);
+    #ifdef LOGGING
+        // Log the game state
+        logGameState(game, bestMove);
+    #endif
 
     // Enter the main game loop
     while (game->winner == EMPTY) {
@@ -364,12 +383,15 @@ int main(int argc, char* argv[]) {
         // Generate the tree of children
         generateTree(node, MAX_TREE_DEPTH);
 
-        // Count the max depth of the minimax tree
-        int maxDepth = countTreeDepth(node);
-        // Log the depth and number of children
-        logStringWithInt("Max Tree Depth: ", maxDepth);
-        logStringWithInt("Siblings: ", countSiblings(node));
-        logStringWithInt("Total Children: ", countChildren(node));
+        #ifdef LOGGING
+            // Count the max depth of the minimax tree
+            int maxDepth = countTreeDepth(node);
+
+            // Log the depth and number of children
+            logStringWithInt("Max Tree Depth: ", maxDepth);
+            logStringWithInt("Siblings: ", countSiblings(node));
+            logStringWithInt("Total Children: \n", countChildren(node));
+        #endif
 
         // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA
@@ -378,47 +400,50 @@ int main(int argc, char* argv[]) {
             minimax(node, MAX_TREE_DEPTH, &bestMove);
         #endif
 
-        // // Initialize the clock
-        // clock_t start_mm, end_mm, start_mmab, end_mmab;
-        // double cpu_time_mm, cpu_time_mmab;
+        #ifdef LOGGING
+            // Initialize the clock
+            clock_t start_mm, end_mm, start_mmab, end_mmab;
+            double cpu_time_mm, cpu_time_mmab;
 
-        // start_mm = clock();
+            start_mm = clock();
 
-        // // Get the next move
-        // minimax(game);
+            // Get the next move
+            minimax(node, MAX_TREE_DEPTH, &bestMove);
 
-        // // Stop the clock
-        // end_mm = clock();
+            // Stop the clock
+            end_mm = clock();
 
-        // // Log the time taken to compute the move
-        // cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
-        // fprintf(logFile, "minimax() computation time: %f\n", cpu_time_mm);
+            // Log the time taken to compute the move
+            cpu_time_mm = ((double) (end_mm - start_mm)) / CLOCKS_PER_SEC;
+            logStringWithFloat("minimax() computation time: %f\n", cpu_time_mm);
 
-        // // Start the clock
-        // start_mmab = clock();
+            // Start the clock
+            start_mmab = clock();
 
-        // // Get the next move
-        // Move move1 = minimaxAlphaBeta(game);
+            // Get the next move
+            minimaxAlphaBeta(node, MAX_TREE_DEPTH, INT_MIN, INT_MAX, &bestMove);
 
-        // // Stop the clock
-        // end_mmab = clock();
+            // Stop the clock
+            end_mmab = clock();
 
-        // // Log the time taken to compute the move
-        // cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
-        // fprintf(logFile, "minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmab);
+            // Log the time taken to compute the move
+            cpu_time_mmab = ((double) (end_mmab - start_mmab)) / CLOCKS_PER_SEC;
+            logStringWithFloat("minimaxAlphaBetaNew() computation time: %f\n", cpu_time_mmab);
 
-        // // Log the delta between the two algorithms
-        // double delta = cpu_time_mm - cpu_time_mmab;
-        // fprintf(logFile, "Delta (minimax - minimaxAlphaBeta): %f\n", delta);
-        // fprintf(logFile, "Alpha-Beta Pruning is %f percent faster than Minimax\n", (delta / cpu_time_mm) * 100);
-        // fprintf(logFile, "====================================================\n");
-
+            // Log the delta between the two algorithms
+            double delta = cpu_time_mm - cpu_time_mmab;
+            logStringWithFloat("Delta (minimax - minimaxAlphaBeta): %f\n", delta);
+            logStringWithFloat("Alpha-Beta Pruning is %f percent faster than Minimax\n", (delta / cpu_time_mm) * 100);
+            logString("====================================================\n");
+        #endif
 
         // Make the move
         makeMove(game, bestMove);
 
-        // Log the game state and chose move
-        logGameState(game, bestMove);
+        #ifdef LOGGING
+            // Log the game state and chose move
+            logGameState(game, bestMove);
+        #endif
 
         // Free the memory
         freeTree(node);
@@ -432,26 +457,31 @@ int main(int argc, char* argv[]) {
         // Make the next move
         makeMove(game, nextMove);
 
-        // Log the game state and opponent's move
-        logGameState(game, nextMove);
+        #ifdef LOGGING
+            // Log the game state and opponent's move
+            logGameState(game, nextMove);
+        #endif
 
         // Check for a winner
         checkForWinner(game);
         if (game->winner != EMPTY) {
             break;
         }
-    }
-    // Print the winner
-    if (game->winner == BLACK) {
-        logString("BLACK wins!\n");
-        printf("BLACK wins!\n");
-    } else if (game->winner == WHITE) {
-        logString("WHITE wins!\n");
-        printf("WHITE wins!\n");
-    } else {
-        logString("It's a tie!\n");
-        printf("It's a tie!\n");
-    }
+    } 
+
+    #ifdef LOGGING
+        // Print the winner
+        if (game->winner == BLACK) {
+            logString("BLACK wins!\n");
+            printf("BLACK wins!\n");
+        } else if (game->winner == WHITE) {
+            logString("WHITE wins!\n");
+            printf("WHITE wins!\n");
+        } else {
+            logString("It's a tie!\n");
+            printf("It's a tie!\n");
+        }
+    #endif
 
     // Free the memory
     free(gameStateString);

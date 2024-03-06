@@ -39,25 +39,24 @@ debug: $(DEBUG)
 
 # Pattern rule for building debug executables
 $(filter-out %_alpha_beta_debug, $(DEBUG)): %_debug: %_debug.o konane_debug.o minimaxAgent_debug.o
-	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG
+	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D LOGGING
 
 $(filter %_alpha_beta_debug, $(DEBUG)): %_alpha_beta_debug: %_debug.o konane_debug.o minimaxAgent_alpha_beta_debug.o
-	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D ALPHA_BETA
+	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D LOGGING -D ALPHA_BETA
 
 # Pattern rule for building debug object files
 $(filter-out %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
-	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG
+	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D LOGGING
 
 $(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
-	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D ALPHA_BETA
-
-# Pattern rule for building dependency files
-# %.d: %.c
-# $(CC) -MM $< -o $@
+	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D LOGGING -D ALPHA_BETA
 
 # Include dependency files
 -include $(DEP)
 -include $(DEBUG_DEP)
+
+T3: agentInterface.o konane.o minimaxAgent.o
+	$(CC) $(RELEASEFLAGS) $^ -o $@
 
 # Phony targets
 .PHONY: valgrind-gameDemo valgrind-agentInterface \
@@ -96,7 +95,7 @@ gdb-agentInterface:
 	gdb --args agentInterface_debug ../test/board_states/newGameB.txt B
 
 # Test targets
-test: test-driver-random-agent
+test: test-driver-t3-t3
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -139,6 +138,9 @@ test-driver-agent-agent:
 
 test-driver-agent-agent_ab:
 	cd ../test && perl drivercheck.pl ../src/agentInterface ../src/agentInterface_alpha_beta
+
+test-driver-t3-t3:
+	cd ../test && perl drivercheck.pl ../src/T3 ../src/T3
 
 # Clean target
 clean:

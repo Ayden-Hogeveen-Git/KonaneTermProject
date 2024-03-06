@@ -693,7 +693,7 @@ void generateChildren(Node* node) {
     }
 }
 
-int     countSiblings(Node* node) {
+int countSiblings(Node* node) {
     // Initialize the counter
     int count = 0;
 

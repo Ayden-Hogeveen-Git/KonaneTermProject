@@ -19,7 +19,7 @@ void logString(char* string) {
     }
 
     // Print the string to the log file
-    fprintf(logFile, "%s\n\n", string);
+    fprintf(logFile, "%s\n", string);
 
     // Close the log file
     fclose(logFile);
@@ -36,22 +36,7 @@ void logStringWithInt(char* string, int value) {
     }
 
     // Print the string to the log file
-    fprintf(logFile, "%s%d\n\n", string, value);
-
-    // Close the log file
-    fclose(logFile);
-}
-
-void logPlayersMove(GameState* game, Move move) {
-    // Open the log file
-    FILE *logFile = fopen("../test/.log.txt", "a");
-
-    // Check if the file was opened successfully
-    if (logFile == NULL) {
-        fprintf(stderr, "Error: Could not open log file.\n");
-        exit(1);
-    }
-
+    fprintf(logFile, "%s%d\n", string, value);
 
     // Close the log file
     fclose(logFile);
@@ -368,46 +353,28 @@ int main(int argc, char* argv[]) {
         }
 
         // Allocate memory for the root node
-        Node* node = malloc(sizeof(Node));
-
-        // Check if memory was allocated
-        if (node == NULL) {
-            fprintf(stderr, "Error: Memory not allocated for node\n");
-            exit(1);
-        }
-
-        // Initialize the node
+        Node* node = initializeNode();
+        
+        // Set the game state
         node->game = *game;
-        node->capacity = 10;
-        node->size = 0;
-        node->depth = 0;
-
-        // Allocate memory for the children array
-        node->children = malloc(node->capacity * sizeof(Node*));
-
-        // Check if memory was allocated
-        if (node->children == NULL) {
-            fprintf(stderr, "Error: Memory not allocated for children\n");
-            exit(1);
-        }
 
         // Generate the children
         generateChildren(node);
 
         // Generate the tree of children
-        generateTree(node, MAX_DEPTH);
+        generateTree(node, MAX_TREE_DEPTH);
 
         // Count the max depth of the minimax tree
         int maxDepth = countTreeDepth(node);
         // Log the depth and number of children
-        logStringWithInt("Depth: ", maxDepth);
-        logStringWithInt("Number of children: ", countChildren(node));
+        logStringWithInt("Max Tree Depth: ", maxDepth);
+        logStringWithInt("Number of Children: ", countChildren(node));
 
         // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA
-            minimaxAlphaBeta(node, MAX_DEPTH, INT_MIN, INT_MAX, &bestMove);
+            minimaxAlphaBeta(node, MAX_SEARCH_DEPTH, INT_MIN, INT_MAX, &bestMove);
         #else
-            minimax(node, MAX_DEPTH, &bestMove);
+            minimax(node, MAX_TREE_DEPTH, &bestMove);
         #endif
 
         // // Initialize the clock

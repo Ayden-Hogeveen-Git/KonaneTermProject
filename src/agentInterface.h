@@ -16,13 +16,6 @@ param int value: The integer to be logged.
 void logStringWithInt(char* string, int value);
 
 /*
-Logs the player's move to the logging file.
-param GameState* game: The representation of the current game state.
-param Move move: The move made by the player.
-*/
-void logPlayerMove(GameState* game, Move move);
-
-/*
 Logs the game state to the logging file.
 param GameState* game: The representation of the current game state.
 param Move move: The move made by the player.

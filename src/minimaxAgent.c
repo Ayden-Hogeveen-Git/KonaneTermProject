@@ -83,52 +83,21 @@ int evalCountBW(Node* node) {
 	}
 }
 
-int countChildren(Node* node) {
-	// Initialize the counter
-	int count = 0;
-
-	// Loop through the node's children
-	for (int i = 0; i < node->size; i++) {
-		// Increment the counter
-		count += countChildren(node->children[i]);
-	}
-
-	// Return the counter
-	return count + node->size;
-}
-
 int evalCalcMobility(Node* node) {
 	// Generate the children up to the max depth
 	generateChildren(node);
 
 	// Generate the tree up to the max depth
-	generateTree(node, MAX_DEPTH);
+	generateTree(node, MAX_TREE_DEPTH);
 
 	// Count the total number of children
 	int currentValidMoves = countChildren(node);
 
 	// Generate a temporary node for the other player
-	Node* tempNode = malloc(sizeof(Node));
-
-	//	Check if memory was allocated
-	if (tempNode == NULL) {
-		fprintf(stderr, "Error: Memory not allocated for tempNode\n");
-		exit(1);
-	}
-
-	// Initialize the temporary node
+	Node* tempNode = initializeNode();
+	
+	// Copy the game state
 	tempNode->game = node->game;
-	tempNode->capacity = 10;
-	tempNode->size = 0;
-
-	// Allocate memory for the children array
-	tempNode->children = malloc(tempNode->capacity * sizeof(Node*));
-
-	// Check if memory was allocated
-	if (tempNode->children == NULL) {
-		fprintf(stderr, "Error: Memory not allocated for children\n");
-		exit(1);
-	}
 
 	// Switch the turn
 	togglePlayer(&tempNode->game);
@@ -137,7 +106,7 @@ int evalCalcMobility(Node* node) {
 	generateChildren(tempNode);
 
 	// Generate the tree up to the max depth
-	generateTree(tempNode, MAX_DEPTH);
+	generateTree(tempNode, MAX_TREE_DEPTH);
 
 	// Get the number of valid moves for the other player
 	int opponentValidMoves = countChildren(tempNode);
@@ -218,7 +187,9 @@ int minimax(Node* node, int depth, Move* bestMove) {
 	}
 
 	// Base Case: if depth is 0, or terminal node, compute the utility value of the node
-	if (depth == 0 || isTerminal(node)) {
+	// if (node->size == 0 || depth == 0 || isTerminal(node)) {
+	if (node->size == 0 || depth == 0) {
+	// if (depth == 0 || isTerminal(node)) {
 		return evaluationFunction(node, 9);
 	}
 

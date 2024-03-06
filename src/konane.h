@@ -166,6 +166,13 @@ param Node* node: The parent node.
 void generateChildren(Node* node);
 
 /*
+Counts the number of children of a given node.
+param Node* node: The representation of the current game state.
+return int: The number of children of a given node.
+*/
+int countChildren(Node* node);
+
+/*
 Generates the minimax tree for a given node.
 param Node* node: The parent node.
 param int depth: The depth limit of the minimax tree.

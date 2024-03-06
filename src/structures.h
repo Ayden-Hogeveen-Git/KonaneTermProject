@@ -4,7 +4,8 @@
 typedef enum { BLACK, WHITE, EMPTY } Player;
 typedef enum { LEFT, RIGHT, UP, DOWN, FIRST } Direction;
 
-#define MAX_DEPTH 1000
+#define MAX_SEARCH_DEPTH 25
+#define MAX_TREE_DEPTH 50
 #define THINKINGTIME 20
 
 typedef struct {

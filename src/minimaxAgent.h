@@ -32,13 +32,6 @@ return int: The difference between the number of pieces for each player.
 int evalCountBW(Node* node);
 
 /*
-Counts the number of children of a given node.
-param Node* node: The representation of the current game state.
-return int: The number of children of a given node.
-*/
-int countChildren(Node* node);
-
-/*
 Calculates the difference between the valid moves for the current player and the opponent.
 param Node* node: The representation of the current game state.
 return int: The difference between the valid moves for the current player and the opponent.

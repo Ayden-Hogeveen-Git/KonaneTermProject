@@ -482,20 +482,6 @@ Move getDownMove(int jumps, int x, int y) {
     return moveDown;
 }
 
-int isTerminal(Node* node) {
-    // Check if the game is over
-    if (node->game.winner != EMPTY) {
-        return 1;
-    }
-
-    // Check if the game is at the max depth
-    if (node->size == 0) {
-        return 1;
-    }
-
-    return 0;
-}
-
 int countValidMoves(GameState* game, Player player) {
     // Count the number of possible moves for the current player
     int counter = 0;
@@ -578,6 +564,23 @@ void checkForWinner(GameState* game) {
             game->winner = EMPTY;
         }
     }
+}
+
+int isTerminal(Node* node) {
+    // Check if the game is at the max depth
+    if (node->depth == MAX_TREE_DEPTH) {
+        return 1;
+    }
+
+    // // Check if there's a winner
+    // checkForWinner(&node->game);
+
+    // // Check if the game is over
+    // if (node->game.winner != EMPTY) {
+    //     return 1;
+    // }
+
+    return 0;
 }
 
 Node* initializeNode() {
@@ -690,6 +693,20 @@ void generateChildren(Node* node) {
     }
 }
 
+int countChildren(Node* node) {
+	// Initialize the counter
+	int count = 0;
+
+	// Loop through the node's children
+	for (int i = 0; i < node->size; i++) {
+		// Increment the counter
+		count += countChildren(node->children[i]);
+	}
+
+	// Return the counter
+	return count + node->size;
+}
+
 void generateTree(Node* node, int maxDepth) {
     // Base case to stop the recursion
     if (maxDepth == 0) {
@@ -711,17 +728,22 @@ int countTreeDepth(Node* node) {
         return 0;
     }
 
-    // Initialize the counter
-    int counter = 0;
+    // Initialize the max depth counter
+    int maxDepth = 0;
 
     // Loop through the node's children
     for (int i = 0; i < node->size; i++) {
-        // Increment the counter
-        counter += countTreeDepth(node->children[i]);
+        // calculate the depth of the subtree rooted at the current child
+        int childDepth = countTreeDepth(node->children[i]);
+
+        // Update the max depth counter
+        if (childDepth > maxDepth) {
+            maxDepth = childDepth;
+        }
     }
 
-    // Return the counter
-    return counter + node->depth;
+    // Return the max depth counter + 1 (for the current node)
+    return maxDepth + 1;
 }
 
 void freeTree(Node* node) {

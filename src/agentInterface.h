@@ -3,26 +3,6 @@
 
 
 /*
-Logs the string to the logging file.
-param char* string: The string to be logged.
-*/
-void logString(char* string);
-
-/*
-Logs the string and integer to the logging file.
-param char* string: The string to be logged.
-param int value: The integer to be logged.
-*/
-void logStringWithInt(char* string, int value);
-
-/*
-Logs the game state to the logging file.
-param GameState* game: The representation of the current game state.
-param Move move: The move made by the player.
-*/
-void logGameState(GameState* game, Move move);
-
-/*
 Determines and sets player's turn based on the current state of the game.
 param GameState* game: The game state as a struct.
 param char player: The player represented as a character.

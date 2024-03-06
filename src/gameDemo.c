@@ -2,7 +2,12 @@
 #include <stdio.h>
 #include "structures.h"
 #include "konane.h"
-#include "minimaxAgent.h"
+
+#ifdef ALPHA_BETA
+    #include "minimaxAlphaBeta.h"
+#else
+    #include "minimax.h"
+#endif
 
 
 int main() {

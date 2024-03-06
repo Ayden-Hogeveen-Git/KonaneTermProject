@@ -1,62 +1,87 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -std=c99
-DEBUGFLAGS = $(CFLAGS) -g -MMD
-RELEASEFLAGS = $(CFLAGS) -O2 -MMD
+DEBUG_FLAGS = $(CFLAGS) -g -MMD -MP -D DEBUG
+RELEASE_FLAGS = $(CFLAGS) -O2 -MMD -MP
 
 # Source files
-SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
+SRC = gameDemo.c agentInterface.c konane.c evaluation.c \
+	  minimax.c minimaxAlphaBeta.c logging.c
 
-# Executables, object files, and dependency files
-EXE = gameDemo agentInterface gameDemo_alpha_beta agentInterface_alpha_beta
-OBJ = $(SRC:.c=.o) minimaxAgent_alpha_beta.o
-DEP = $(OBJ:.o=.d)
+# Executables
+EXE = agentInterface agentInterfaceAlphaBeta T3
 
-# Debug executables, debug object files, and debug dependency files
-DEBUG = $(EXE:=_debug)
-DEBUG_OBJ = $(OBJ:%.o=%_debug.o)
-DEBUG_DEP = $(DEBUG_OBJ:.o=.d)
+# Object files
+OBJ = $(SRC:.c=.o)
 
-# Release Targets
-all: $(EXE)
 
-# Pattern rule for building executables
-%: %.o konane.o minimaxAgent.o
-	$(CC) $(RELEASEFLAGS) $^ -o $@
 
-%_alpha_beta: %.o konane.o minimaxAgent_alpha_beta.o
-	$(CC) $(RELEASEFLAGS) $^ -o $@
+# Release Executables
+all: agentInterface agentInterfaceAlphaBeta
 
-# Pattern rule for building object files
-$(filter-out %_alpha_beta.o, $(OBJ)): %.o: %.c
-	$(CC) $(RELEASEFLAGS) -c $< -o $@
+agentInterface: agentInterface.o konane.o minimax.o evaluation.o
+	$(CC) $(RELEASE_FLAGS) $^ -o $@
 
-$(filter %_alpha_beta.o, $(OBJ)): %_alpha_beta.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -D ALPHA_BETA
+agentInterfaceAlphaBeta: agentInterfaceAlphaBeta.o konane.o minimaxAlphaBeta.o evaluation.o
+	$(CC) $(RELEASE_FLAGS) $^ -o $@ -D ALPHA_BETA
 
-# Debug Targets
-debug: $(DEBUG)
 
-# Pattern rule for building debug executables
-$(filter-out %_alpha_beta_debug, $(DEBUG)): %_debug: %_debug.o konane_debug.o minimaxAgent_debug.o
-	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D LOGGING
 
-$(filter %_alpha_beta_debug, $(DEBUG)): %_alpha_beta_debug: %_debug.o konane_debug.o minimaxAgent_alpha_beta_debug.o
-	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D LOGGING -D ALPHA_BETA
+# Release Object files
+agentInterface.o: agentInterface.c agentInterface.h structures.h konane.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@
 
-# Pattern rule for building debug object files
-$(filter-out %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
-	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D LOGGING
+agentInterfaceAlphaBeta.o: agentInterface.c agentInterface.h structures.h konane.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@ -D ALPHA_BETA
 
-$(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
-	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D LOGGING -D ALPHA_BETA
+konane.o: konane.c konane.h structures.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@
 
-# Include dependency files
--include $(DEP)
--include $(DEBUG_DEP)
+minimax.o: minimax.c minimax.h structures.h konane.h evaluation.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@
 
-T3: agentInterface.o konane.o minimaxAgent.o
-	$(CC) $(RELEASEFLAGS) $^ -o $@
+minimaxAlphaBeta.o: minimaxAlphaBeta.c minimaxAlphaBeta.h structures.h konane.h evaluation.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@ -D ALPHA_BETA
+
+evaluation.o: evaluation.c evaluation.h structures.h konane.h
+	$(CC) $(RELEASE_FLAGS) -c $< -o $@
+
+
+
+# Debug Executables
+debug: agentInterface_debug agentInterfaceAlphaBeta_debug
+
+agentInterface_debug: agentInterface_debug.o konane_debug.o minimax_debug.o evaluation_debug.o logging.o
+	$(CC) $(DEBUG_FLAGS) $^ -o $@
+
+agentInterfaceAlphaBeta_debug: agentInterfaceAlphaBeta_debug.o konane_debug.o minimaxAlphaBeta_debug.o evaluation_debug.o logging.o
+	$(CC) $(DEBUG_FLAGS) $^ -o $@ -D ALPHA_BETA
+
+
+
+# Debug Object files
+agentInterface_debug.o: agentInterface.c agentInterface.h structures.h konane.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+
+agentInterfaceAlphaBeta_debug.o: agentInterface.c agentInterface.h structures.h konane.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@ -D ALPHA_BETA
+
+konane_debug.o: konane.c konane.h structures.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+
+minimax_debug.o: minimax.c minimax.h structures.h konane.h evaluation.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+
+minimaxAlphaBeta_debug.o: minimaxAlphaBeta.c minimaxAlphaBeta.h structures.h konane.h evaluation.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@ -D ALPHA_BETA
+
+evaluation_debug.o: evaluation.c evaluation.h structures.h konane.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+
+logging.o: logging.c logging.h
+	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+
+
 
 # Phony targets
 .PHONY: valgrind-gameDemo valgrind-agentInterface \
@@ -75,27 +100,23 @@ T3: agentInterface.o konane.o minimaxAgent.o
 		test-driver-agent-agent_ab \
 		clean tar
 
+
+
 # Debugging targets
-valgrind-gameDemo:
-	valgrind --leak-check=full ./gameDemo
 
 valgrind-agentInterface:
 	valgrind --leak-check=full ./agentInterface ../test/board_states/newGameB.txt B
 
-valgrind-mem-gameDemo:
-	valgrind --tool=massif ./gameDemo
-
 valgrind-mem-agentInterface:
 	valgrind --tool=massif ./agentInterface ../test/board_states/newGameB.txt B
-
-gdb-gameDemo:
-	gdb --args gameDemo_debug
 
 gdb-agentInterface:
 	gdb --args agentInterface_debug ../test/board_states/newGameB.txt B
 
+
+
 # Test targets
-test: test-driver-t3-t3
+test: test-driver-random-agent
 
 test-agentInterface-newGameB:
 	./agentInterface ../test/board_states/newGameB.txt B
@@ -142,14 +163,18 @@ test-driver-agent-agent_ab:
 test-driver-t3-t3:
 	cd ../test && perl drivercheck.pl ../src/T3 ../src/T3
 
+
+
 # Clean target
 clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
-	rm -f $(DEBUG) $(DEBUG_OBJ) $(DEBUG_DEP)
+	rm -f $(DEBUG) $(OBJ_DEBUG) $(DEP_DEBUG)
 	rm -f *.exe *.o *.out
 	rm -f *_debug
 	rm -f *.d
 	rm -f *.~ .*.swo .*.swp .nfo*
+
+
 
 # Tar target
 tar:

@@ -116,6 +116,9 @@ test-agentInterface-blackWinsW:
 test-agentInterface-whiteWinsB:
 	./agentInterface ../test/board_states/whiteWinsB.txt B
 
+test-agentInterface-blackDblJumpUpB:
+	./agentInterface ../test/board_states/blackDblJumpUpB.txt B
+
 test-driver-random-random:
 	cd ../test && perl drivercheck.pl konanerandomplayer konanerandomplayer
 

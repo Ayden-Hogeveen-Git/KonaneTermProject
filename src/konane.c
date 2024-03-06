@@ -211,81 +211,121 @@ int isValidMove(GameState* game, Player player, Move move) {
 
         // Handle double jump validation
         if (move.jumps == 2) {
-            return 0;
+            // return 0;
+            // Verify that the player is jumping over an opponent's piece
+            for (int i = 1; i <= move.jumps; i++) {
+                if (move.direction == LEFT) {
+                    int yIndex = (y + newY) / 2;
+                    int xIndex = (x + newX) / 2 - (move.jumps - 1);
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                    
+                } else if (move.direction == RIGHT) {
+                    int yIndex = (y + newY) / 2;
+                    int xIndex = (x + newX) / 2 + (move.jumps - 1);
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                } else if (move.direction == UP) {
+                    int yIndex = (y + newY) / 2 + (move.jumps - 1);
+                    int xIndex = (x + newX) / 2;
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                } else if (move.direction == DOWN) {
+                    int yIndex = (y + newY) / 2 - (move.jumps - 1);
+                    int xIndex = (x + newX) / 2;
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                }
+            }
         }
 
         // Handle triple jump validation
         if (move.jumps == 3) {
-            return 0;
+            // return 0;
+            // Verify that the player is jumping over an opponent's piece
+            for (int i = 1; i <= move.jumps; i++) {
+                if (move.direction == LEFT) {
+                    int yIndex = (y + newY) / 2;
+                    int xIndex = (x + newX) / 2 - (move.jumps - 1);
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                    
+                } else if (move.direction == RIGHT) {
+                    int yIndex = (y + newY) / 2;
+                    int xIndex = (x + newX) / 2 + (move.jumps - 1);
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                } else if (move.direction == UP) {
+                    int yIndex = (y + newY) / 2 + (move.jumps - 1);
+                    int xIndex = (x + newX) / 2;
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                } else if (move.direction == DOWN) {
+                    int yIndex = (y + newY) / 2 - (move.jumps - 1);
+                    int xIndex = (x + newX) / 2;
+                    if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
+                        return 0;
+                    } else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
+                        return 0;
+                    }
+                }
+            }
         }
 
-        // Verify that the player is jumping over an opponent's piece
-        // for (int i = 1; i <= move.jumps; i++) {
-        // 	if (move.direction == LEFT) {
-        // 		int yIndex = (y + newY) / 2;
-        // 		int xIndex = (x + newX) / 2 - (move.jumps - 1);
-        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-        // 			return 0;
-        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-        // 			return 0;
-        // 		}
-                
-        // 	} else if (move.direction == RIGHT) {
-        // 		int yIndex = (y + newY) / 2;
-        // 		int xIndex = (x + newX) / 2 + (move.jumps - 1);
-        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-        // 			return 0;
-        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-        // 			return 0;
-        // 		}
-        // 	} else if (move.direction == UP) {
-        // 		int yIndex = (y + newY) / 2 + (move.jumps - 1);
-        // 		int xIndex = (x + newX) / 2;
-        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-        // 			return 0;
-        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-        // 			return 0;
-        // 		}
-        // 	} else if (move.direction == DOWN) {
-        // 		int yIndex = (y + newY) / 2 - (move.jumps - 1);
-        // 		int xIndex = (x + newX) / 2;
-        // 		if (player == BLACK && game->board[yIndex][xIndex] != WHITE) {
-        // 			return 0;
-        // 		} else if (player == WHITE && game->board[yIndex][xIndex] != BLACK) {
-        // 			return 0;
-        // 		}
-        // 	}
-        // }
         return 1;
     }
 }
 
-int isFirstMove(GameState* game) {
+int countEmptySpaces(GameState* game) {
     // Initialize the empty counter
-    int emptyCounter = 0;
+    int emptySpaces = 0;
 
-    // Count the number of empty spaces, if there are less than 2, then it's the first move
+    // Count the number of empty spaces
     for (int y = 7; y >= 0; y--) {
         for (int x = 0; x <= 7; x++) {
             if (game->board[y][x] == EMPTY) {
-                emptyCounter++;
-            }
-            // Exit early if there are 2 or more empty spaces
-            if (emptyCounter >= 2) {
-                // Set the first move flag to 0
-                game->firstMove = 0;
-                return 0;
+                emptySpaces++;
             }
         }
     }
+
+    // Return the empty counter
+    return emptySpaces;
+}
+
+int isFirstMove(GameState* game) {
+    // Count the number of empty spaces, if there are less than 2, then it's the first move
+    int emptySpaces = countEmptySpaces(game);
+
     // If there are less than 2 empty spaces, then it's the first move
-    return emptyCounter < 2;
+    return emptySpaces < 2;
 }
 
 void togglePlayer(GameState* game) {
     game->turn = (game->turn == BLACK) ? WHITE : BLACK;
-    game->maxPlayer = (game->maxPlayer == BLACK) ? WHITE : BLACK;
-    game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
+    // game->maxPlayer = (game->maxPlayer == BLACK) ? WHITE : BLACK;
+    // game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
 }
 
 void makeMove(GameState* game, Move move) {
@@ -540,6 +580,32 @@ void checkForWinner(GameState* game) {
     }
 }
 
+Node* initializeNode() {
+    // Allocate memory for the node
+    Node* node = malloc(sizeof(Node));
+
+    // Check if memory allocation failed or not
+    if (node == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        exit(1);
+    }
+
+    // Initialize all fields of the node to 0
+    *node = (Node) {0};
+
+    // Allocate memory for the children array with a capacity of 10
+    node->capacity = 10;
+    node->children = malloc(node->capacity * sizeof(Node*));
+
+    // Check if memory allocation failed or not
+    if (node->children == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        exit(1);
+    }
+
+    return node;
+}
+
 void addChild(Node* node, Move move) {
     // If the children array is full, double the capacity
     if (node->size == node->capacity) {
@@ -553,27 +619,8 @@ void addChild(Node* node, Move move) {
         }
     }
 
-    // Allocate memory for the child
-    Node* child = malloc(sizeof(Node));
-
-    // Check if memory allocation failed or not
-    if (child == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
-        exit(1);
-    }
-
-    // Initialize all fields of the child to 0
-    *child = (Node) {0};
-
-    // Allocate memory for the children array with a capacity of 10
-    child->capacity = 10;
-    child->children = malloc(child->capacity * sizeof(Node*));
-
-    // Check if memory allocation failed or not
-    if (child->children == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
-        exit(1);
-    }
+    // Allocate memory for the child and initialize it
+    Node* child = initializeNode();
 
     // Copy the parent's game state
     child->game = *copyGameState(&node->game);
@@ -583,6 +630,9 @@ void addChild(Node* node, Move move) {
 
     // Add the current move to the previous move of the child
     child->game.prevMove = move;
+
+    // Set the depth of the child to be one more than the parent
+    child->depth = node->depth + 1;
 
     // Add the child to the children array
     node->children[node->size] = child;
@@ -640,9 +690,9 @@ void generateChildren(Node* node) {
     }
 }
 
-void generateTree(Node* node, int depth) {
+void generateTree(Node* node, int maxDepth) {
     // Base case to stop the recursion
-    if (depth == 0) {
+    if (maxDepth == 0) {
         return;
     }
 
@@ -651,8 +701,27 @@ void generateTree(Node* node, int depth) {
 
     // Generate children for each child
     for (int i = 0; i < node->size; i++) {
-        generateTree(node->children[i], depth - 1);
+        generateTree(node->children[i], maxDepth - 1);
     }
+}
+
+int countTreeDepth(Node* node) {
+    // Base case: if the node is NULL, there's nothing to count
+    if (node == NULL) {
+        return 0;
+    }
+
+    // Initialize the counter
+    int counter = 0;
+
+    // Loop through the node's children
+    for (int i = 0; i < node->size; i++) {
+        // Increment the counter
+        counter += countTreeDepth(node->children[i]);
+    }
+
+    // Return the counter
+    return counter + node->depth;
 }
 
 void freeTree(Node* node) {

@@ -5,9 +5,15 @@
 /*
 Logs the string to the logging file.
 param char* string: The string to be logged.
-
 */
 void logString(char* string);
+
+/*
+Logs the string and integer to the logging file.
+param char* string: The string to be logged.
+param int value: The integer to be logged.
+*/
+void logStringWithInt(char* string, int value);
 
 /*
 Logs the player's move to the logging file.
@@ -29,6 +35,13 @@ param GameState* game: The game state as a struct.
 param char player: The player represented as a character.
 */
 void setPlayersTurn(GameState* game, char player);
+
+/*
+Determines and sets the max and min players based on the agent's player.
+param GameState* game: The game state as a struct.
+param char agentPlayer: The agent's player represented as BLACK or WHITE.
+*/
+void setMaxAndMinPlayers(GameState* game, char agentPlayer);
 
 /*
 Formats the incoming game string by removing all non-alphabetical characters.

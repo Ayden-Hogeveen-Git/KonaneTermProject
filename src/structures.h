@@ -4,7 +4,7 @@
 typedef enum { BLACK, WHITE, EMPTY } Player;
 typedef enum { LEFT, RIGHT, UP, DOWN, FIRST } Direction;
 
-#define MAX_DEPTH 1
+#define MAX_DEPTH 1000
 #define THINKINGTIME 20
 
 typedef struct {
@@ -34,6 +34,7 @@ typedef struct Node {
     struct Node** children;
     int capacity;
     int size;
+    int depth;
 } Node;
 
 #endif

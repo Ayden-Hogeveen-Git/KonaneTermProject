@@ -25,6 +25,23 @@ void logString(char* string) {
     fclose(logFile);
 }
 
+void logStringWithInt(char* string, int value) {
+    // Open the log file
+    FILE *logFile = fopen("../test/.log.txt", "a");
+
+    // Check if the file was opened successfully
+    if (logFile == NULL) {
+        fprintf(stderr, "Error: Could not open log file.\n");
+        exit(1);
+    }
+
+    // Print the string to the log file
+    fprintf(logFile, "%s%d\n\n", string, value);
+
+    // Close the log file
+    fclose(logFile);
+}
+
 void logPlayersMove(GameState* game, Move move) {
     // Open the log file
     FILE *logFile = fopen("../test/.log.txt", "a");
@@ -81,18 +98,37 @@ void logGameState(GameState* game, Move move) {
 }
 
 void setPlayersTurn(GameState* game, char player) {
-    if (player == 'B') {
+    // Count the number of empty spaces
+    int emptySpaces = countEmptySpaces(game);
+
+    // Set the player's turn
+    if (emptySpaces == 0) {
         game->turn = BLACK;
+    } else if (emptySpaces == 1) {
+        game->turn = WHITE;
+    } else {
+        if (player == 'B') {
+            game->turn = BLACK;
+        } else if (player == 'W') {
+            game->turn = WHITE;
+        } else {
+            fprintf(stderr, "Error: Cannot set player's turn. Invalid player\n");
+            exit(1);
+        }
+    }
+}
+
+void setMaxAndMinPlayers(GameState* game, Player agentPlayer) {
+    if (agentPlayer == BLACK) {
         game->maxPlayer = BLACK;
         game->minPlayer = WHITE;
     }
-    else if (player == 'W') {
-        game->turn = WHITE;
+    else if (agentPlayer == WHITE) {
         game->maxPlayer = WHITE;
         game->minPlayer = BLACK;
     }
     else {
-        fprintf(stderr, "Error: Invalid player\n");
+        fprintf(stderr, "Error: Cannot set max and min players. Invalid player\n");
         exit(1);
     }
 }
@@ -178,14 +214,7 @@ GameState* initalizeGameState(char* gameString, char player) {
     setPlayersTurn(newGame, player);
 
     // Set the max and min players
-    if (newGame->turn == BLACK) {
-        newGame->maxPlayer = BLACK;
-        newGame->minPlayer = WHITE;
-    }
-    else if (newGame->turn == WHITE) {
-        newGame->maxPlayer = WHITE;
-        newGame->minPlayer = BLACK;
-    }
+    setMaxAndMinPlayers(newGame, newGame->turn);
 
     // Set the winner to empty
     newGame->winner = EMPTY;
@@ -332,6 +361,11 @@ int main(int argc, char* argv[]) {
 
     // Enter the main game loop
     while (game->winner == EMPTY) {
+        // Check if there's a winner
+        checkForWinner(game);
+        if (game->winner != EMPTY) {
+            break;
+        }
 
         // Allocate memory for the root node
         Node* node = malloc(sizeof(Node));
@@ -346,6 +380,7 @@ int main(int argc, char* argv[]) {
         node->game = *game;
         node->capacity = 10;
         node->size = 0;
+        node->depth = 0;
 
         // Allocate memory for the children array
         node->children = malloc(node->capacity * sizeof(Node*));
@@ -361,6 +396,12 @@ int main(int argc, char* argv[]) {
 
         // Generate the tree of children
         generateTree(node, MAX_DEPTH);
+
+        // Count the max depth of the minimax tree
+        int maxDepth = countTreeDepth(node);
+        // Log the depth and number of children
+        logStringWithInt("Depth: ", maxDepth);
+        logStringWithInt("Number of children: ", countChildren(node));
 
         // Get the next move using minimax or minimaxAlphaBeta
         #ifdef ALPHA_BETA
@@ -432,7 +473,6 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-
     // Print the winner
     if (game->winner == BLACK) {
         logString("BLACK wins!\n");

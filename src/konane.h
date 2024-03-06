@@ -64,6 +64,13 @@ return int: 1 if valid, 0 otherwise.
 int isValidMove(GameState* game, Player player, Move move);
 
 /*
+Counts the total number of empty spaces on the board.
+param GameState* game: The representation of the current game state.
+return int: The total number of empty spaces on the board.
+*/
+int countEmptySpaces(GameState* game);
+
+/*
 Checks if it's the first move for black or white.
 param GameState* game: The representation of the current game state.
 return int: 1 if it's the first move, 0 otherwise.
@@ -141,6 +148,11 @@ param GameState* game: The representation of the current game state.
 void checkForWinner(GameState* game);
 
 /*
+Allocates memory for a new node and initializes the values to default.
+*/
+Node* initializeNode();
+
+/*
 Adds a child node to the parent node by making a move.
 param Node* node: The parent node.
 param Move move: The move to make.
@@ -159,6 +171,11 @@ param Node* node: The parent node.
 param int depth: The depth limit of the minimax tree.
 */
 void generateTree(Node* node, int depth);
+
+/*
+Counts the maximum depth of the minimax tree.
+*/
+int countTreeDepth(Node* node);
 
 /*
 Frees the minimax tree.

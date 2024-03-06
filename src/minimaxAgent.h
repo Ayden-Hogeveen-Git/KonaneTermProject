@@ -26,10 +26,10 @@ int max(int a, int b);
 
 /*
 Calculates how many pieces are on the board for each player.
-param GameState* game: The representation of the current game state.
+param Node* node: The representation of the current game state.
 return int: The difference between the number of pieces for each player.
 */
-int evalCountBW(GameState* game);
+int evalCountBW(Node* node);
 
 /*
 Counts the number of children of a given node.

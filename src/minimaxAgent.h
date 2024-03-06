@@ -2,6 +2,13 @@
 
 
 /*
+Determines the first move for the current player at random.
+param GameState* game: The representation of the current game state.
+return Move: The first move for the current player at random.
+*/
+Move chooseFirstMove(GameState* game);
+
+/*
 Returns the minimum value of two integers.
 param int a: First integer.
 param int b: Second integer.
@@ -25,7 +32,9 @@ return int: The difference between the number of pieces for each player.
 int evalCountBW(GameState* game);
 
 /*
-TODO
+Counts the number of children of a given node.
+param Node* node: The representation of the current game state.
+return int: The number of children of a given node.
 */
 int countChildren(Node* node);
 
@@ -62,10 +71,3 @@ param int beta: The beta value for alpha-beta pruning.
 param Move* bestMove: The best move for the current player using the minimax algorithm with alpha-beta pruning.
 */
 int minimaxAlphaBeta(Node* node, int depth, int alpha, int beta, Move* bestMove);
-
-/*
-Determines the first move for the current player at random.
-param GameState* game: The representation of the current game state.
-return Move: The first move for the current player at random.
-*/
-Move chooseFirstMove(GameState* game);

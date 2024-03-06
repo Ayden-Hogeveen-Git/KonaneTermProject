@@ -84,22 +84,38 @@ param Move move: The coordinates of the piece to move.
 void makeMove(GameState* game, Move move);
 
 /*
-TODO
+Formulates a left move based on the number of jumps and the current position.
+param int jumps: The number of jumps.
+param int x: The x-coordinate of the current position.
+param int y: The y-coordinate of the current position.
+return Move: The left move.
 */
 Move getLeftMove(int jumps, int x, int y);
 
 /*
-TODO
+Formulates a right move based on the number of jumps and the current position.
+param int jumps: The number of jumps.
+param int x: The x-coordinate of the current position.
+param int y: The y-coordinate of the current position.
+return Move: The right move.
 */
 Move getRightMove(int jumps, int x, int y);
 
 /*
-TODO
+Formulates an up move based on the number of jumps and the current position.
+param int jumps: The number of jumps.
+param int x: The x-coordinate of the current position.
+param int y: The y-coordinate of the current position.
+return Move: The up move.
 */
 Move getUpMove(int jumps, int x, int y);
 
 /*
-TODO
+Formulates a down move based on the number of jumps and the current position.
+param int jumps: The number of jumps.
+param int x: The x-coordinate of the current position.
+param int y: The y-coordinate of the current position.
+return Move: The down move.
 */
 Move getDownMove(int jumps, int x, int y);
 

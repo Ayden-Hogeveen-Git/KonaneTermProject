@@ -435,11 +435,14 @@ int main(int argc, char* argv[]) {
 
     // Print the winner
     if (game->winner == BLACK) {
+        logString("BLACK wins!\n");
         printf("BLACK wins!\n");
     } else if (game->winner == WHITE) {
+        logString("WHITE wins!\n");
         printf("WHITE wins!\n");
     } else {
-        printf("It's a draw!\n");
+        logString("It's a tie!\n");
+        printf("It's a tie!\n");
     }
 
     // Free the memory

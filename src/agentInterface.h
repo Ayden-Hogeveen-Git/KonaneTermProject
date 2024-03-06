@@ -50,3 +50,11 @@ Prints the agent's chosen move to standard output.
 param Move* move: The move to be outputted.
 */
 void agentOutput(Move* move);
+
+/*
+Gets the opponent's move from standard input.
+param GameState* game: The representation of the current game state.
+param char* nextMoveString: The string representation of the next move.
+return Move: The opponent's move.
+*/
+Move getOpponentMove(GameState* game, char* nextMoveString);

@@ -1,62 +1,63 @@
 # Variables
 CC = gcc
-CFLAGS = -Wall -std=c99 -MMD
-DEBUGFLAGS = -g
-RELEASEFLAGS = -O2
+CFLAGS = -Wall -std=c99
+DEBUGFLAGS = $(CFLAGS) -g -MMD
+RELEASEFLAGS = $(CFLAGS) -O2 -MMD
 
-# Files and dependencies
-EXE = gameDemo agentInterface gameDemo_alpha_beta agentInterface_alpha_beta
-DBG = $(EXE:=_debug)
+# Source files
 SRC = gameDemo.c agentInterface.c konane.c minimaxAgent.c
+
+# Executables, object files, and dependency files
+EXE = gameDemo agentInterface gameDemo_alpha_beta agentInterface_alpha_beta
 OBJ = $(SRC:.c=.o) minimaxAgent_alpha_beta.o
-DEBUG_OBJ = $(OBJ:%.o=%_debug.o)
 DEP = $(OBJ:.o=.d)
 
+# Debug executables, debug object files, and debug dependency files
+DEBUG = $(EXE:=_debug)
+DEBUG_OBJ = $(OBJ:%.o=%_debug.o)
+DEBUG_DEP = $(DEBUG_OBJ:.o=.d)
+
 # Release Targets
-all: CFLAGS += $(RELEASEFLAGS)
 all: $(EXE)
 
 # Pattern rule for building executables
 %: %.o konane.o minimaxAgent.o
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(RELEASEFLAGS) $^ -o $@
 
-# Pattern rule for building executables with the alpha_beta algorithm
 %_alpha_beta: %.o konane.o minimaxAgent_alpha_beta.o
-	$(CC) $(CFLAGS) $^ -o $@
-
-# Debug Targets
-debug: CFLAGS += $(DEBUGFLAGS)
-debug: $(DBG)
-
-# Pattern rule for building debug executables
-$(filter-out %_alpha_beta_debug, $(DBG)): %_debug: %_debug.o konane_debug.o minimaxAgent_debug.o
-	$(CC) $(CFLAGS) $^ -o $@
-
-$(filter %_alpha_beta_debug, $(DBG)): %_alpha_beta_debug: %_debug.o konane_debug.o minimaxAgent_alpha_beta_debug.o
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(RELEASEFLAGS) $^ -o $@
 
 # Pattern rule for building object files
 $(filter-out %_alpha_beta.o, $(OBJ)): %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(RELEASEFLAGS) -c $< -o $@
 
-# Pattern rule for building object files with the alpha_beta algorithm
 $(filter %_alpha_beta.o, $(OBJ)): %_alpha_beta.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@ -D ALPHA_BETA
 
+# Debug Targets
+debug: $(DEBUG)
+
+# Pattern rule for building debug executables
+$(filter-out %_alpha_beta_debug, $(DEBUG)): %_debug: %_debug.o konane_debug.o minimaxAgent_debug.o
+	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG
+
+$(filter %_alpha_beta_debug, $(DEBUG)): %_alpha_beta_debug: %_debug.o konane_debug.o minimaxAgent_alpha_beta_debug.o
+	$(CC) $(DEBUGFLAGS) $^ -o $@ -D DEBUG -D ALPHA_BETA
+
 # Pattern rule for building debug object files
 $(filter-out %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_debug.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG
+	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG
 
-# Pattern rule for building debug object files with the alpha_beta algorithm
 $(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -D DEBUG -D ALPHA_BETA
+	$(CC) $(DEBUGFLAGS) -c $< -o $@ -D DEBUG -D ALPHA_BETA
 
 # Pattern rule for building dependency files
-%.d: %.c
-	$(CC) -MM $< -o $@
+# %.d: %.c
+# $(CC) -MM $< -o $@
 
 # Include dependency files
 -include $(DEP)
+-include $(DEBUG_DEP)
 
 # Phony targets
 .PHONY: valgrind-gameDemo valgrind-agentInterface \
@@ -70,8 +71,8 @@ $(filter %_alpha_beta_debug.o, $(DEBUG_OBJ)): %_alpha_beta_debug.o: %.c
 		test-driver-random-agent \
 		test-driver-agent-random \
 		test-driver-random-agent_ab \
-		test-driver-agent_ab-random \
 		test-driver-agent-agent \
+		test-driver-agent_ab-random \
 		test-driver-agent-agent_ab \
 		clean tar
 
@@ -139,6 +140,7 @@ test-driver-agent-agent_ab:
 # Clean target
 clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
+	rm -f $(DEBUG) $(DEBUG_OBJ) $(DEBUG_DEP)
 	rm -f *.exe *.o *.out
 	rm -f *_debug
 	rm -f *.d

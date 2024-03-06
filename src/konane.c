@@ -508,8 +508,8 @@ int countValidMoves(GameState* game, Player player) {
             }
         }
     }
-
-    return counter == 0;
+    
+    return counter;
 }
 
 void checkForWinner(GameState* game) {

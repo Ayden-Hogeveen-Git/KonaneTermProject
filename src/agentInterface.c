@@ -414,12 +414,6 @@ int main(int argc, char* argv[]) {
         // Free the memory
         freeTree(node);
 
-        // Check for a winner
-        checkForWinner(game);
-        if (game->winner != EMPTY) {
-            break;
-        }
-
         // Output the move to stdout
         agentOutput(bestMove);
 
@@ -431,6 +425,12 @@ int main(int argc, char* argv[]) {
 
         // Log the game state and opponent's move
         logGameState(game, nextMove);
+
+        // Check for a winner
+        checkForWinner(game);
+        if (game->winner != EMPTY) {
+            break;
+        }
     }
 
     // Print the winner

@@ -324,8 +324,8 @@ int isFirstMove(GameState* game) {
 
 void togglePlayer(GameState* game) {
     game->turn = (game->turn == BLACK) ? WHITE : BLACK;
-    // game->maxPlayer = (game->maxPlayer == BLACK) ? WHITE : BLACK;
-    // game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
+    game->maxPlayer = (game->maxPlayer == BLACK) ? WHITE : BLACK;
+    game->minPlayer = (game->minPlayer == BLACK) ? WHITE : BLACK;
 }
 
 void makeMove(GameState* game, Move move) {

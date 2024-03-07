@@ -168,15 +168,12 @@ test-driver-t3-t3:
 # Clean target
 clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
-	rm -f $(DEBUG) $(OBJ_DEBUG) $(DEP_DEBUG)
-	rm -f *.exe *.o *.out
-	rm -f *_debug
-	rm -f *.d
+	rm -f *.exe *.o *.out *_debug *.d
 	rm -f *.~ .*.swo .*.swp .nfo*
 
 
 
 # Tar target
 tar:
-	tar -cvzf ../gameDemo.tar.gz -C ../ konane-term-project
-	tar -cvzf ../agentInterface.tar.gz -C ../ konane-term-project
+	cd .. && tar -cvzf konane-agent-group-3.tar.gz \
+	src test README.md
